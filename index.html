@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#f8efdc"><title>The Abroad Chapter · Chapter 1</title>
-<meta name="description" content="Help Jenny pack on the night before her flight to study in the U.S.">
+<meta name="description" content="Help Jenny pack, take her first steps through the airport, and fly from Vietnam toward a new beginning in the U.S.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cpath d='M8 27 30 8l22 19v28H8z' fill='%23587c39'/%3E%3Cpath d='M24 55V34h13v21' fill='%23fff5d9'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -36,6 +36,16 @@
 <section class="chat-box" id="chat-box" aria-label="Chat with Jenny"><div class="chat-avatar" aria-hidden="true"><img src="jenny-no-bag.svg" alt=""></div><div class="chat-inner"><header class="chat-heading"><span class="speaker-name">JENNY <span id="selected-name"></span></span><div class="chat-heading-end"><span class="mission-pill" id="packed-count" aria-live="polite">0 / 6 packed</span><button id="chat-toggle" class="chat-toggle" aria-label="Minimize chat" aria-expanded="true" aria-controls="chat-body">−</button></div></header><div id="chat-body"><p id="speech" aria-live="polite"></p><div class="chat-footer"><span class="chat-hint" id="chat-hint">Choose an object in the room.</span><div class="chat-actions"><button class="text-button" id="open-case">My suitcase</button><button class="chat-primary" id="chat-action">Show my things <span aria-hidden="true">↗</span></button><button class="chat-primary" id="finish" hidden disabled>Close suitcase <span aria-hidden="true">→</span></button></div></div></div></div></section>
 </section>
 <div class="asset-bank" hidden aria-hidden="true"><img id="asset-passport" src="passport.png" alt=""><img id="asset-clothes" src="school-uniform.svg" alt=""><img id="asset-laptop" src="laptop.png" alt=""><img id="asset-photo" src="photo.png" alt=""><img id="asset-notebook" src="notebook.png" alt=""><img id="asset-mug" src="mug.png" alt=""></div>
+<section id="journey" class="journey" hidden aria-labelledby="journey-title">
+  <div class="journey-scenery" aria-hidden="true"><img id="journey-background" src="airport.svg" alt="" draggable="false"><div class="journey-light"></div></div>
+  <header class="journey-header"><button class="back-button" id="journey-lobby" aria-label="Back to lobby">←</button><div class="journey-caption"><p>CHAPTER 01 · BEGINNINGS</p><h2 id="journey-title" tabindex="-1"></h2><span id="journey-place"></span></div><button class="tool" id="journey-help" aria-label="How to play"><svg><use href="#lobby-i-help"/></svg></button></header>
+  <div id="morning-card" class="morning-card" hidden><div class="morning-sun" aria-hidden="true"></div><p>A SUITCASE FULL OF HOME</p><h3>The next morning.</h3><span>One deep breath.<br>One new beginning.</span></div>
+  <div class="airport-character" id="airport-character" aria-hidden="true"><span></span><img src="jenny-no-bag.svg" alt="" draggable="false"></div>
+  <button id="airport-hotspot" class="airport-hotspot" hidden></button>
+  <div id="flight-route" class="flight-route" hidden><span>VIETNAM</span><div class="route-track"><i></i><b aria-hidden="true">✈</b></div><span>UNITED STATES</span></div>
+  <section class="journey-chat" aria-label="Chat with Jenny"><header><span>JENNY</span><span class="mission-pill" id="journey-progress"></span><button class="chat-toggle" id="journey-toggle" aria-label="Minimize chat" aria-expanded="true" aria-controls="journey-chat-body">−</button></header><div id="journey-chat-body"><p id="journey-speech" aria-live="polite"></p><footer><span id="journey-hint"></span><div id="journey-actions"></div></footer></div></section>
+</section>
+<div class="asset-bank" hidden aria-hidden="true"><img id="asset-airport" src="airport.svg" alt=""><img id="asset-flight" src="flight.svg" alt=""></div>
 <div id="chapter-status" class="sr-only" role="status" aria-live="polite"></div>
 <script src="app.js"></script>
 </body></html>
