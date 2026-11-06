@@ -4,7 +4,7 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const STORE='a-little-room-chapter1-v1', PREF='a-little-room-chapter1-prefs';
 const items=[
  {id:'passport',name:'Passport',x:29,y:41,w:9,story:'Tomorrow, this little book takes me somewhere I’ve only imagined. I’m excited. A little scared, too.'},
- {id:'clothes',name:'Clothes',x:77,y:55,w:14,story:'A few familiar clothes. Maybe getting dressed in a new country will still feel a little like home.'},
+ {id:'clothes',name:'School uniform',x:77,y:55,w:14,story:'My Le Quy Don High School uniform. A little reminder of where I started, and of the courage I’m taking into this next chapter.'},
  {id:'laptop',name:'Laptop',x:10,y:41,w:17,story:'Assignments, late-night calls, and a whole new way of learning. We have a lot ahead of us, little laptop.'},
  {id:'photo',name:'Family photo',x:16,y:31,w:10,story:'Everyone keeps saying, “You’ll do great.” I’m taking this photo for the days I need to hear it again.'},
  {id:'notebook',name:'Notebook',x:22,y:44,w:10,story:'Dear future me… I don’t know who I’ll become yet. For now, I just want to be brave enough to begin.'},
@@ -33,7 +33,7 @@ function setChatCollapsed(value){
 }
 function chatText(){
  const item=byId(speech.id);
- if(speech.kind==='packed'&&item&&count()<6)return `${item.id==='clothes'?'My clothes are':item.name+' is'} in! ${item.story} ${6-count()} more ${6-count()===1?'thing':'things'} to go.`;
+ if(speech.kind==='packed'&&item&&count()<6)return `${item.name} is in! ${item.story} ${6-count()} more ${6-count()===1?'thing':'things'} to go.`;
  if(speech.kind==='removed'&&item)return `Let’s find a better spot for my ${item.name.toLowerCase()}. Pick an empty space in the suitcase, or tap “Pack it”.`;
  if(item)return item.story;
  if(count()===6)return 'A whole life won’t fit in one suitcase. But these little pieces of home are a good place to start. Everything’s in. Shall we close it?';
