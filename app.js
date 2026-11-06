@@ -84,7 +84,7 @@ function centerRoom(){const view=$('#scene-viewport');view.scrollLeft=(view.scro
 function enterRoom(){
  close(false);$('#journey').hidden=true;state.started=true;save();$('#world').hidden=true;$('#chapter').hidden=false;document.body.classList.add('in-room');renderChapter();updateResume();setChatCollapsed(false);centerRoom();$('#chapter-title').tabIndex=-1;$('#chapter-title').focus({preventScroll:true});
 }
-function lobby(){close(false);$('#journey').hidden=true;$('#chapter').hidden=true;$('#world').hidden=false;document.body.classList.remove('in-room');selected=null;speech={kind:'welcome'};updateResume();$('#start').focus({preventScroll:true});}
+function lobby(){stopClip();close(false);$('#journey').hidden=true;$('#chapter').hidden=true;$('#world').hidden=false;document.body.classList.remove('in-room');selected=null;speech={kind:'welcome'};updateResume();$('#start').focus({preventScroll:true});}
 function open(html,type){
  if(!$('#dialog').open)lastFocus=document.activeElement;dialogType=type;$('#dialog').classList.toggle('packing-dialog',type==='packing');$('#dialog-content').innerHTML=html;
  if(!$('#dialog').open)$('#dialog').showModal();
@@ -106,7 +106,7 @@ function intro(step=0){
 function showSuitcase(){
  open(`<p class="dialog-kicker">A FEW PIECES OF HOME</p><h2 class="dialog-title">My little suitcase.</h2><div class="case-dialog-header"><p>Make room for what matters.</p><span class="case-counter" id="case-counter">${count()} / 6 packed</span></div><div class="mini-case"><div class="case-handle" aria-hidden="true"></div><div class="case-top"><span>JENNY’S SUITCASE</span><span aria-hidden="true">✦</span></div><div class="case-slots" id="case-slots">${slotsHTML()}</div></div><div class="inventory" id="inventory">${inventoryHTML()}</div><p class="case-story" id="case-story" aria-live="polite"></p><div class="case-actions"><p class="saved-note" id="saved-note">${storageOK?'✓ Saved on this device':'Progress lasts while this page is open'}</p><button class="chat-primary" id="drawer-pack"></button></div>`,'packing');renderSelection();
 }
-function help(){open(`<p class="dialog-kicker">CHAPTER 01</p><h2 class="dialog-title">A little help.</h2><ol class="help-list"><li>Jenny gives you your task through the chat in the room. Tap − to tuck it away, or + to bring it back.</li><li>Choose an object to hear its story. Drag it to the open suitcase, or tap “Pack it” in the chat.</li><li>Open “My suitcase” to see all six objects, choose an empty space, or take a packed object out.</li><li>On a narrow screen, swipe across the room or use the look-around arrows to see both sides.</li><li>When all six objects are packed, close the suitcase and choose “Sleep until morning” to continue.</li><li>At the airport, follow Jenny’s chat to check in, write home and board. On the flight, leave a small promise in her notebook. You can also tap the glowing scene buttons.</li><li>Use “Continue my journey” in the lobby to return to your saved departure or flight scene.</li><li>Keyboard: Tab and Enter to select. Focus the room and use left/right arrows to look around. Escape closes a window.</li></ol><div class="music-controls"><label for="volume">Music volume</label><input type="range" id="volume" min="0" max="60" value="${Math.round(volume*100)}"><output for="volume">${Math.round(volume*100)}%</output></div><button class="soft-button" data-toggle-music>${music?'Turn music off':'Turn music on'}</button><div class="dialog-bottom"><button class="start" data-close>Got it${icon('arrow')}</button></div>`,'help');}
+function help(){open(`<p class="dialog-kicker">CHAPTER 01</p><h2 class="dialog-title">A little help.</h2><ol class="help-list"><li>Jenny gives you your task through the chat in the room. Tap − to tuck it away, or + to bring it back.</li><li>Choose an object to hear its story. Drag it to the open suitcase, or tap “Pack it” in the chat.</li><li>Open “My suitcase” to see all six objects, choose an empty space, or take a packed object out.</li><li>On a narrow screen, swipe across the room or use the look-around arrows to see both sides.</li><li>When all six objects are packed, close the suitcase and choose “Sleep until morning” to continue.</li><li>At the airport, follow Jenny’s chat to check in, write home and board. After boarding, enjoy a four-second flight film. Short films continue automatically; use Skip to move on sooner. You can also tap the glowing airport buttons.</li><li>Use “Continue my journey” in the lobby to return to your saved departure or flight scene.</li><li>Keyboard: Tab and Enter to select. Focus the room and use left/right arrows to look around. Escape closes a window.</li></ol><div class="music-controls"><label for="volume">Music volume</label><input type="range" id="volume" min="0" max="60" value="${Math.round(volume*100)}"><output for="volume">${Math.round(volume*100)}%</output></div><button class="soft-button" data-toggle-music>${music?'Turn music off':'Turn music on'}</button><div class="dialog-bottom"><button class="start" data-close>Got it${icon('arrow')}</button></div>`,'help');}
 function gameIntroduction(){open(`<p class="dialog-kicker">INTRODUCTION</p><h2 class="dialog-title">The Abroad<br>Chapter</h2><p class="dialog-copy">Meet Jenny, a student from Vietnam about to leave home to study in the United States. Tomorrow is her flight. Tonight, she is still in the room she knows by heart.\n\nHelp her pack six meaningful things, discover the memories they hold, and share the small hopes and worries that come with starting over. Then join her at the airport, send a little message home, and fly toward a new beginning in the United States.</p><span class="welcome-tag">Chapter 1 · Beginnings</span><p class="intro-scope">A short, gentle story to explore at your own pace.</p><div class="dialog-bottom"><button class="soft-button" data-close>Back to lobby</button><button class="start" data-begin-introduction>Begin my story${icon('arrow')}</button></div>`,'introduction');}
 function complete(){
  if(count()!==6)return;state.completed=true;save();updateResume();
@@ -121,11 +121,35 @@ const journeyScenes={
  takeoff:{title:'And then, we lift off.',place:'Above Vietnam · The journey begins',progress:'Taking flight',text:'The wheels leave the ground. The streets become little lines, and everything I know gets smaller beneath the clouds. Goodbye for now, home.',hint:'Watch the clouds go by, then continue when you’re ready.',action:'Look out of the window',next:'ocean'},
  ocean:{title:'Somewhere between two worlds.',place:'Over the ocean · Bound for the United States',progress:'Across the ocean',text:'There’s so much sky out here. Somewhere between the place I’m leaving and the place I haven’t met, I open my notebook. Dear future me… what should I remember?',hint:'Leave a small promise for the Jenny who comes next.',action:'Write a little promise',task:'promise'},
  america:{title:'A little closer to tomorrow.',place:'Approaching the United States · A new morning',progress:'A new horizon',text:'The cabin slowly wakes up. Beyond the clouds, a different coastline comes into view. I’m still nervous. But I made it this far, one small step at a time.',hint:'The next part of Jenny’s life is just ahead.',action:'Keep this moment',next:'end'},
- end:{title:'A new chapter awaits.',place:'United States · The beginning of something new',progress:'Chapter 1 · Complete',text:'Six little pieces of home. One message. One promise. I haven’t figured everything out, but I’m here—and that is a beginning.',hint:'You’ve reached the end of Chapter 1.',action:'My little journey',task:'ending'}
+ end:{title:'Hello, America.',place:'United States · A new beginning',progress:'Chapter 1 · Complete',text:'One little suitcase. One very big adventure. And yes… I’m definitely calling home first.',hint:'You’ve reached the end of Chapter 1.',action:'My little journey',task:'ending'}
 };
+let clipNext=null;
+function stopClip(){clipNext=null;const video=$('#cutscene-video');video.pause();$('#cutscene').hidden=true;$('#journey').classList.remove('is-cutscene');}
+function finishClip(){if(!clipNext)return;const next=clipNext;stopClip();enterJourney(next);}
+function startClip(kind){
+ const clip=window.journeyClips?.[kind],video=$('#cutscene-video');
+ clipNext=kind==='morning'?'airport':'end';$('#cutscene').hidden=false;$('#journey').classList.add('is-cutscene');
+ $('#cutscene').classList.toggle('morning-film',kind==='morning');
+ $('#clip-kicker').textContent=kind==='morning'?'ONE GOOD SLEEP LATER':'VIETNAM → UNITED STATES';
+ $('#clip-title').textContent=kind==='morning'?'The next morning…':'A little plane. A big adventure.';
+ $('#clip-skip').textContent='Skip →';$('#clip-play').hidden=true;
+ video.muted=true;video.playsInline=true;video.loop=false;video.poster=clip?.poster||'';
+ if(!clip){$('#clip-play').hidden=false;$('#clip-play').textContent='Continue →';return;}
+ video.src=clip.src;video.currentTime=0;
+ if(matchMedia('(prefers-reduced-motion: reduce)').matches){$('#clip-play').hidden=false;$('#clip-play').textContent='Play animation ▷';$('#clip-skip').textContent='Continue →';}
+ else video.play().catch(()=>{$('#clip-play').hidden=false;$('#clip-play').textContent='Play animation ▷';});
+ $('#clip-title').focus({preventScroll:true});announce(kind==='morning'?'A 3.5-second sunrise and a little suitcase on its way to the airport.':'A 4-second film of a little airplane flying past smiling clouds toward America.');
+}
+$('#cutscene-video').addEventListener('ended',finishClip);
+$('#cutscene-video').addEventListener('error',()=>{if(clipNext){$('#clip-play').hidden=true;$('#clip-skip').textContent='Continue →';}});
+$('#clip-skip').addEventListener('click',finishClip);$('#clip-lobby').addEventListener('click',lobby);
+$('#clip-play').addEventListener('click',()=>{if(!window.journeyClips){finishClip();return;}$('#cutscene-video').play().then(()=>{$('#clip-play').hidden=true;}).catch(()=>{$('#clip-skip').textContent='Continue →';});});
+document.addEventListener('visibilitychange',()=>{if(!clipNext)return;const video=$('#cutscene-video');if(document.hidden)video.pause();else if(!matchMedia('(prefers-reduced-motion: reduce)').matches)video.play().catch(()=>{$('#clip-play').hidden=false;});});
 function setJourneyCollapsed(value){$('#journey-chat-body').hidden=value;$('#journey-toggle').textContent=value?'+':'−';$('#journey-toggle').ariaLabel=value?'Expand chat':'Minimize chat';$('#journey-toggle').setAttribute('aria-expanded',String(!value));}
 function enterJourney(step){
  if(count()!==6||!journeySteps.includes(step))return;
+ if(step==='ocean'||step==='america')step='takeoff';
+ stopClip();
  close(false);state.completed=true;state.started=true;state.journey=step;save();updateResume();
  $('#world').hidden=true;$('#chapter').hidden=true;$('#journey').hidden=false;document.body.classList.add('in-room');
  const scene=journeyScenes[step], flying=journeySteps.indexOf(step)>=5;
@@ -133,12 +157,13 @@ function enterJourney(step){
  $('#journey-title').textContent=scene.title;$('#journey-place').textContent=scene.place;$('#journey-progress').textContent=scene.progress;
  $('#journey-speech').textContent=scene.text;$('#journey-hint').textContent=scene.hint;
  $('#journey-actions').innerHTML=`<button class="chat-primary" ${scene.next?`data-journey="${scene.next}"`:`data-travel-task="${scene.task}"`}>${scene.action} <span aria-hidden="true">→</span></button>`;
- $('#journey-background').src=step==='morning'?$('.room-background').src:asset(flying?'flight':'airport');
- $('#morning-card').hidden=step!=='morning';$('#airport-character').hidden=step==='morning'||flying;
+ $('#journey-background').src=step==='morning'?$('.room-background').src:flying?(window.journeyClips?.flight.poster||asset('airport')):asset('airport');
+ $('#airport-character').hidden=step==='morning'||flying;
  const hotspot=$('#airport-hotspot');hotspot.hidden=!['airport','checkedin','goodbye','gate'].includes(step);hotspot.textContent=scene.action+' ↗';
  hotspot.className='airport-hotspot '+(step==='airport'?'at-counter':step==='checkedin'?'at-phone':'at-gate');
- $('#flight-route').hidden=!flying;$('#flight-route').style.setProperty('--route-progress',({takeoff:'8%',ocean:'50%',america:'92%',end:'100%'})[step]||'0%');
  setJourneyCollapsed(false);$('#journey-title').focus({preventScroll:true});announce(scene.title+' '+scene.text);
+ if(step==='morning'||step==='takeoff')startClip(step==='morning'?'morning':'flight');
+ if(step==='end')$('#journey-actions').insertAdjacentHTML('afterbegin','<button class="text-button" data-journey="takeoff">Watch flight again</button>');
 }
 function travelTask(task){
  if(task==='checkin'&&state.journey==='airport')open(`<p class="dialog-kicker">AIRPORT · CHECK-IN COUNTER</p><h2 class="dialog-title">One step at a time.</h2><div class="travel-document"><img src="${asset('passport')}" alt="Jenny’s passport"><p>“Good morning. Your passport, please.”<br><br>I’ve practiced this moment in my head. Now I just need to hand it over.</p></div><div class="dialog-bottom"><button class="start" data-travel-task="passport">Show my passport${icon('arrow')}</button></div>`,'travel');
@@ -148,7 +173,7 @@ function travelTask(task){
  if(task==='ending'&&state.journey==='end')showJourneyEnding();
 }
 function showJourneyEnding(){
- open(`<p class="dialog-kicker">CHAPTER 01 · COMPLETE</p><h2 class="dialog-title">A little courage goes a long way.</h2><div class="journey-keepsakes">${items.map(i=>`<img src="${asset(i.id)}" alt="${i.name}">`).join('')}</div><p class="dialog-copy">From my room in Vietnam to a new horizon in the United States.\n\n${state.promise==='ask'?'“I’ll ask for help when I need it.”':'“I’ll give myself permission to begin again.”'}</p><span class="complete-stamp">Packed · Checked in · Reached a new horizon</span><p class="intro-scope">This is where Chapter 1 ends. Jenny’s next chapter is still to be written.</p><div class="dialog-bottom"><button class="soft-button" data-lobby>Back to lobby</button><button class="start" data-journey="morning">Revisit departure${icon('arrow')}</button></div><button class="resume-button" data-replay>Replay Chapter 1</button>`,'journey-ending');
+ open(`<p class="dialog-kicker">CHAPTER 01 · COMPLETE</p><h2 class="dialog-title">A little courage goes a long way.</h2><div class="journey-keepsakes">${items.map(i=>`<img src="${asset(i.id)}" alt="${i.name}">`).join('')}</div><p class="dialog-copy">From my room in Vietnam to a new horizon in the United States.\n\nOne little suitcase. A whole new chapter.</p><span class="complete-stamp">Packed · Checked in · Across the sky</span><p class="intro-scope">This is where Chapter 1 ends. Jenny’s next chapter is still to be written.</p><div class="dialog-bottom"><button class="soft-button" data-lobby>Back to lobby</button><button class="start" data-journey="morning">Revisit departure${icon('arrow')}</button></div><button class="resume-button" data-replay>Replay Chapter 1</button>`,'journey-ending');
 }
 $('#journey-lobby').addEventListener('click',lobby);$('#journey-help').addEventListener('click',help);
 $('#journey-toggle').addEventListener('click',()=>setJourneyCollapsed(!$('#journey-chat-body').hidden));
