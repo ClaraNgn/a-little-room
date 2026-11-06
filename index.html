@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f8efdc"><title>A Little Room · Chapter 1</title>
+<meta name="description" content="Help Jenny pack on the night before her flight to study in the U.S.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cpath d='M8 27 30 8l22 19v28H8z' fill='%23587c39'/%3E%3Cpath d='M24 55V34h13v21' fill='%23fff5d9'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<svg class="sprite-defs" aria-hidden="true"><defs>
+<symbol id="lobby-i-leaf" viewBox="0 0 24 24"><path d="M20 3C7 1 1 10 7 16c7 5 15-2 13-13ZM4 21 15 10"/></symbol>
+<symbol id="lobby-i-sound" viewBox="0 0 24 24"><path d="M3 9h4l5-5v16l-5-5H3ZM16 8q5 4 0 8m3-12q9 8 0 16"/></symbol>
+<symbol id="lobby-i-help" viewBox="0 0 24 24"><path d="M9 8q0-4 4-3 6 2-1 8v1m0 4v.1"/><circle cx="12" cy="12" r="10"/></symbol>
+<symbol id="lobby-i-arrow" viewBox="0 0 24 24"><path d="M3 12h18m-7-7 7 7-7 7"/></symbol>
+<symbol id="lobby-i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+<symbol id="lobby-i-heart" viewBox="0 0 24 24"><path d="M12 21C-6 9 5-2 12 6c7-8 18 3 0 15Z"/></symbol>
+</defs></svg>
+<main class="world" id="world">
+  <img class="landscape" src="lobby.png" alt="A welcoming green door, lilac suitcase and two leafy trees." draggable="false">
+  <div class="sunlight" aria-hidden="true"></div>
+  <header class="header"><div class="wordmark"><span aria-hidden="true">⌂</span> a little room<span class="brand-dot">.</span></div><nav class="tools" aria-label="Lobby settings"><button class="tool" id="music" aria-label="Turn music on" aria-pressed="false"><svg><use href="#lobby-i-sound"/></svg><i></i></button><button class="tool" id="help" aria-label="How to play"><svg><use href="#lobby-i-help"/></svg></button></nav></header>
+  <section class="title-panel" aria-labelledby="game-title"><p class="eyebrow" id="eyebrow">A LETTER TO WHO I’LL BECOME</p><h1 id="game-title">A little<br><span>room.</span><svg class="title-leaf" aria-hidden="true"><use href="#lobby-i-leaf"/></svg></h1><p class="tagline" id="tagline">An ocean from home.<br>A little closer to myself.</p><button class="start" id="start"><span id="start-label">Begin my story</span><svg><use href="#lobby-i-arrow"/></svg></button><button class="how-link" id="how-link">How to play <span>↗</span></button><div class="chapter-note"><span class="tiny-flower" aria-hidden="true">✦</span><span id="chapter-note">A new country. A little courage.</span></div></section>
+  <button class="door" id="door" aria-label="Step inside"><span class="door-label" id="door-label">Step inside ↗</span></button>
+  <button class="suitcase" id="suitcase" aria-label="Look at Jenny's suitcase"></button>
+  <button class="jenny" id="jenny" aria-label="Say hello to Jenny"><span class="jenny-shadow"></span><img src="jenny.png" alt="Jenny, with long brown hair, a white blouse and blue jeans." draggable="false"><span class="hello" id="hello" aria-hidden="true">Hi, I’m Jenny!</span></button>
+  <div class="floating-leaf leaf-one" aria-hidden="true"><svg><use href="#lobby-i-leaf"/></svg></div><div class="floating-leaf leaf-two" aria-hidden="true"><svg><use href="#lobby-i-leaf"/></svg></div>
+  <footer class="footer"><p id="footer-copy">A little story about finding your feet,<br>and finding your people.</p><button id="about" class="about"><svg><use href="#lobby-i-heart"/></svg><span id="about-label">About this story</span></button></footer>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</main>
+<dialog id="dialog"><button class="close" id="close" aria-label="Close"><svg><use href="#lobby-i-close"/></svg></button><div id="dialog-content"></div></dialog>
+<section class="chapter" id="chapter" hidden aria-labelledby="chapter-title">
+<div class="scene-viewport" id="scene-viewport" tabindex="0" aria-label="Jenny's room. On narrow screens, swipe or use left and right arrows to look around.">
+<div class="room-stage" id="room-stage"><img class="room-background" src="room-night.png" alt="Jenny’s bedroom at night, with a warm lamp, moonlit window, blue bed and open lilac suitcase." draggable="false"><div id="room-items"></div><button class="room-case" id="room-case" data-drop aria-label="Open my suitcase"><span id="room-case-label">My suitcase ↗</span><span class="case-spark" aria-hidden="true">✦</span><span class="room-case-fill" id="room-case-fill" aria-hidden="true"></span></button><img class="room-jenny" src="jenny.png" alt="Jenny" draggable="false"></div></div>
+<header class="chapter-header"><button class="back-button" id="back-lobby" aria-label="Back to lobby">←</button><div class="scene-caption"><p>CHAPTER 01</p><h2 id="chapter-title">Beginnings.</h2><span>Jenny’s room · The night before her flight</span></div><nav class="chapter-tools" aria-label="Game settings"><button class="tool" id="chapter-music" aria-label="Turn music on" aria-pressed="false"><svg><use href="#lobby-i-sound"/></svg><i></i></button><button id="chapter-help" class="tool" aria-label="How to play"><svg><use href="#lobby-i-help"/></svg></button></nav></header>
+<div class="pan-controls" aria-label="Look around the room"><button id="pan-left" aria-label="Look left">‹</button><span>LOOK AROUND</span><button id="pan-right" aria-label="Look right">›</button></div>
+<section class="chat-box" id="chat-box" aria-label="Chat with Jenny"><div class="chat-avatar" aria-hidden="true"><img src="jenny.png" alt=""></div><div class="chat-inner"><header class="chat-heading"><span class="speaker-name">JENNY <span id="selected-name"></span></span><div class="chat-heading-end"><span class="mission-pill" id="packed-count" aria-live="polite">0 / 6 packed</span><button id="chat-toggle" class="chat-toggle" aria-label="Minimize chat" aria-expanded="true" aria-controls="chat-body">−</button></div></header><div id="chat-body"><p id="speech" aria-live="polite"></p><div class="chat-footer"><span class="chat-hint" id="chat-hint">Choose an object in the room.</span><div class="chat-actions"><button class="text-button" id="open-case">My suitcase</button><button class="chat-primary" id="chat-action">Show my things <span aria-hidden="true">↗</span></button><button class="chat-primary" id="finish" hidden disabled>Close suitcase <span aria-hidden="true">→</span></button></div></div></div></div></section>
+</section>
+<div class="asset-bank" hidden aria-hidden="true"><img id="asset-passport" src="passport.png" alt=""><img id="asset-clothes" src="clothes.png" alt=""><img id="asset-laptop" src="laptop.png" alt=""><img id="asset-photo" src="photo.png" alt=""><img id="asset-notebook" src="notebook.png" alt=""><img id="asset-mug" src="mug.png" alt=""></div>
+<div id="chapter-status" class="sr-only" role="status" aria-live="polite"></div>
+<script src="app.js"></script>
+</body></html>
