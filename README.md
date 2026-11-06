@@ -1,4 +1,4 @@
-# A Little Room
+# The Abroad Chapter
 
 A cozy interactive story about Jenny, a student from Vietnam preparing to study in the United States.
 
