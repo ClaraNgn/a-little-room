@@ -28,3 +28,9 @@ body.in-room{overflow:hidden}
 .lobby-menu{display:grid;gap:14px;width:240px;max-width:100%;margin:0 auto}.lobby-menu .start{width:100%;min-width:0;margin:0;justify-content:space-between;gap:18px}.title-panel h1{margin-bottom:32px}.intro-scope{font-size:11px;line-height:1.8;color:#92916f;margin:17px 0 0}
 @media(max-width:1050px){.lobby-menu{width:224px}}
 @media(max-width:480px){.lobby-menu{width:218px;gap:13px}.title-panel h1{margin-bottom:29px}.lobby-menu .start{font-size:12px;min-height:49px}.intro-scope{font-size:10px}}
+
+/* The Abroad Chapter wordmark. */
+.title-panel h1{font-size:clamp(65px,7vw,98px);letter-spacing:-4px;line-height:.95}.title-panel h1 .title-overline{display:block;font-family:Nunito,'Trebuchet MS',sans-serif;font-size:18px;font-weight:800;line-height:1.2;letter-spacing:3px;color:#7a865b;margin-bottom:12px}.title-panel h1 .title-main{color:var(--ink)}.title-panel h1 .title-chapter{color:#517a37}.title-panel .title-leaf{width:32px;height:32px;top:34px;right:-28px}.wordmark .brand-name{white-space:nowrap}
+@media(max-width:1050px){.title-panel h1{font-size:78px;letter-spacing:-3px}}
+@media(max-width:700px){.title-panel h1{font-size:73px}}
+@media(max-width:480px){.title-panel h1{font-size:clamp(52px,17vw,76px);letter-spacing:-2.5px;line-height:.98;margin-bottom:28px}.title-panel h1 .title-overline{font-size:15px;letter-spacing:2.4px;margin-bottom:10px}.title-panel .title-leaf{width:25px;height:25px;top:32px;right:-22px}.wordmark{font-size:16px;letter-spacing:-.6px}}
