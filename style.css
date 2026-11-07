@@ -171,3 +171,7 @@ body.in-room{overflow:hidden}
 /* Compact packed-suitcase reflection with the shared heading font. */
 .chapter-complete .dialog-title{font-family:DynaPuff,'Trebuchet MS',sans-serif;font-weight:500}
 .chapter-complete .dialog-copy{line-height:1.55}
+
+/* Morning film fills the website viewport with safe wall margins. */
+.cutscene.morning-film{background:#c8a7b7}
+.cutscene.morning-film>video{object-fit:cover;object-position:center}
