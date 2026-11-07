@@ -132,18 +132,18 @@ function startClip(kind){
  $('#cutscene').classList.toggle('morning-film',kind==='morning');
  $('#clip-kicker').textContent=kind==='morning'?'ONE GOOD SLEEP LATER':'VIETNAM → UNITED STATES';
  $('#clip-title').textContent=kind==='morning'?'The next morning…':'A little plane. A big adventure.';
- $('#clip-skip').textContent='Skip →';$('#clip-play').hidden=true;
+ $('#clip-skip').textContent='→';$('#clip-skip').ariaLabel='Skip animation';$('#clip-play').hidden=true;
  video.muted=true;video.playsInline=true;video.loop=false;video.poster=clip?.poster||'';
- if(!clip){$('#clip-play').hidden=false;$('#clip-play').textContent='Continue →';return;}
+ if(!clip){$('#clip-play').hidden=false;$('#clip-play').textContent='→';$('#clip-play').ariaLabel='Continue';return;}
  video.src=clip.src;video.currentTime=0;
- if(matchMedia('(prefers-reduced-motion: reduce)').matches){$('#clip-play').hidden=false;$('#clip-play').textContent='Play animation ▷';$('#clip-skip').textContent='Continue →';}
- else video.play().catch(()=>{$('#clip-play').hidden=false;$('#clip-play').textContent='Play animation ▷';});
+ if(matchMedia('(prefers-reduced-motion: reduce)').matches){$('#clip-play').hidden=false;$('#clip-play').textContent='▷';$('#clip-play').ariaLabel='Play animation';$('#clip-skip').textContent='→';$('#clip-skip').ariaLabel='Continue';}
+ else video.play().catch(()=>{$('#clip-play').hidden=false;$('#clip-play').textContent='▷';$('#clip-play').ariaLabel='Play animation';});
  $('#clip-title').focus({preventScroll:true});announce(kind==='morning'?'A 3.5-second film of sunrise in Jenny’s room before heading to the airport.':'A 4-second film of a little airplane flying past soft clouds toward America.');
 }
 $('#cutscene-video').addEventListener('ended',finishClip);
-$('#cutscene-video').addEventListener('error',()=>{if(clipNext){$('#clip-play').hidden=true;$('#clip-skip').textContent='Continue →';}});
+$('#cutscene-video').addEventListener('error',()=>{if(clipNext){$('#clip-play').hidden=true;$('#clip-skip').textContent='→';$('#clip-skip').ariaLabel='Continue';}});
 $('#clip-skip').addEventListener('click',finishClip);$('#clip-lobby').addEventListener('click',lobby);
-$('#clip-play').addEventListener('click',()=>{if(!window.journeyClips){finishClip();return;}$('#cutscene-video').play().then(()=>{$('#clip-play').hidden=true;}).catch(()=>{$('#clip-skip').textContent='Continue →';});});
+$('#clip-play').addEventListener('click',()=>{if(!window.journeyClips){finishClip();return;}$('#cutscene-video').play().then(()=>{$('#clip-play').hidden=true;}).catch(()=>{$('#clip-skip').textContent='→';$('#clip-skip').ariaLabel='Continue';});});
 document.addEventListener('visibilitychange',()=>{if(!clipNext)return;const video=$('#cutscene-video');if(document.hidden)video.pause();else if(!matchMedia('(prefers-reduced-motion: reduce)').matches)video.play().catch(()=>{$('#clip-play').hidden=false;});});
 function setJourneyCollapsed(value){$('#journey-chat-body').hidden=value;$('#journey-toggle').textContent=value?'+':'−';$('#journey-toggle').ariaLabel=value?'Expand chat':'Minimize chat';$('#journey-toggle').setAttribute('aria-expanded',String(!value));}
 function enterJourney(step){
