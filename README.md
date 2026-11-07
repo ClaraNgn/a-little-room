@@ -83,3 +83,12 @@ Continue from Chapter 1, or open `?chapter=2`. Read the handwritten parchment ma
 Campus locations on the map can be revisited; trying a destination before its story step gives a hint. No timer or failure reset. Map knowledge, conversation, visited scene and stamps persist locally with migration from the earlier one-stamp version. Replay Chapter 2 resets only campus progress and preserves Chapter 1 packing. Later chapters are not implemented here.
 
 Campus scenery, Ben and the simple stamp paper use the creator-reviewed ImageGen assets under `art-source/chapter2/`. The served SVG files wrap WebP images; source PNGs and prompts are retained. The map and stamp sheet have accessible text alternatives and buttons. The stamp paper has no Kent State branding, flower or My first day subtitle. No event registration, real calendar update or external messages are sent.
+
+
+## Chapter 3 — Making room
+
+Continue from Chapter 2, or open `?chapter=3`. Clara's approved compact dorm has one bed, one desk and one wardrobe. Tap the laptop, reading book and glowing phone to make three decisions during a one-hour evening. The assignment needs 30 minutes and two energy; reading can take 15 minutes or wait until tomorrow; home can receive a 15-minute call or a five-minute reply. The player keeps ten minutes for rest and finishes by tapping the bed. Time advances only on decisions, with no real-time countdown. Multiple plans work.
+
+`desk-planner.js` owns the time/energy rules, save validation and undo. My evening restores the selected task's time and energy without affecting Chapters 1 or 2. Chapter 3 replay resets only the evening. All scene changes hide other chapters, and local progress persists on the same browser/device. Keyboard and touch controls, collapsible chat, side-to-side room navigation and reduced-motion support are included. No messages, work confirmations or assignments leave this fictional game.
+
+Dorm art is the approved `art-source/chapter3/dorm-room-v5/dorm-room.png`, based on the supplied residence-hall photos and previous Chapter 1 style. It retains the wardrobe rotated along the left wall and the straight study desk at the right. Original revisions and ImageGen prompts are retained. `dorm-room.svg` embeds a quality-95 WebP; the existing Clara and phone artwork are reused.
