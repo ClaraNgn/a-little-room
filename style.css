@@ -220,5 +220,5 @@ body.in-room{overflow:hidden}
 @media(max-width:700px){.campus-scene-center .campus-map-button{top:25%}.campus-scene-library .campus-map-button{top:27%}}
 
 /* Slightly larger, consistent chapter labels. */
-.chapter-number,.campus-header p{font-size:11px;font-weight:900;letter-spacing:2px;line-height:1.4;margin:1px 0 8px;color:#708551}
-@media(max-width:700px){.chapter-number,.campus-header p{font-size:10px;letter-spacing:1.7px}}
+.scene-caption .chapter-number,.campus-header p{font-size:11px;font-weight:900;letter-spacing:2px;line-height:1.4;margin:1px 0 8px;color:#708551}
+@media(max-width:700px){.scene-caption .chapter-number,.campus-header p{font-size:10px;letter-spacing:1.7px}}
