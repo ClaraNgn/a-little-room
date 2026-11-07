@@ -49,7 +49,7 @@ The former Clothes object is now School uniform, based on the user-approved Le Q
 
 ## Departure and flight
 
-After packing, choose Sleep until morning, then Leave for the airport. Three chat-led tasks: check in with the passport, choose a message home, and go to the gate. After boarding, a simple four-second video shows a little airplane bobbing past smiling clouds. It automatically continues to Hello, America. The morning transition is a 3.5-second sunrise and rolling-suitcase film that automatically opens the airport scene. All messages stay inside the game. No external messaging or form submission occurs.
+After packing, choose Sleep until morning, then Leave for the airport. Three chat-led tasks: check in with the passport, choose a message home, and go to the gate. After boarding, a simple four-second video shows a little airplane bobbing past soft volumetric clouds. It automatically continues to Hello, America. The morning transition is a 3.5-second night-to-morning film in Jenny’s actual room that automatically opens the airport scene. All messages stay inside the game. No external messaging or form submission occurs.
 
 The existing localStorage key and six item IDs are preserved. Old packed saves can continue to departure; new saves retain the journey scene and selected message. Legacy ocean/arrival saves resume through the new flight clip. Continue my journey returns to the saved scene. Replay Chapter 1 clears only this game's progress.
 
@@ -57,6 +57,14 @@ Two new airport and flight backgrounds were generated with built-in ImageGen. Or
 
 ## Short films
 
-Two original vector animations rendered locally with Core Graphics and AVFoundation: morning-transition.mp4 (3.5 seconds) and flight-transition.mp4 (4 seconds), H.264, 960x720, 24fps, silent. Both are embedded with PNG posters in journey-clips.js, so the published static game needs no video service. The standalone exporter embeds that script as well. Source: art-source/video/render-clips.swift.
+Two short animations made from the game’s own art direction and rendered with Core Graphics and FFmpeg: morning-transition.mp4 (3.5 seconds) and flight-transition.mp4 (4 seconds), H.264, 960x720, 24fps, silent. Both are embedded with JPEG posters in journey-clips.js, so the published static game needs no video service. The standalone exporter embeds that script as well. Frame source: art-source/video/render-frames.swift; encoder: art-source/video/encode-clips.py.
 
 Clips play muted and inline, continue on ended, and offer Skip. If autoplay is blocked, Play animation appears. Reduced-motion preference shows a still and Continue, with optional playback. The clip pauses while the document is hidden, and stops when returning to the lobby. Watch flight again replays the sky clip.
+
+## Art consistency revision
+
+Short films now match the existing soft low-poly 2.5D game. The morning film dissolves from the actual night-room artwork into its daylight version, retaining the furniture and closed lilac suitcase. The flight uses a shaded cream/blue airplane with a green tail and volumetric cream clouds on a simple blue sky, with playful bobbing. Original 3.5s and 4s timing and player behavior are retained.
+
+Plane/cloud sprites and the daylight room were made with built-in ImageGen using the game's own room/airport artwork as references. Source PNGs and prompts are retained in art-source/video/cohesive/. Swift renders PNG frames and FFmpeg encodes H.264; build-clip-bundle.py embeds the MP4s and JPEG posters. The previous flat vector art remains in versions/before-cohesive-clips/.
+
+To rebuild clips, compile render-frames.swift with swiftc -O, then pass the source root and a temporary frame-output directory to the executable. Run encode-clips.py --frames <that-directory> --ffmpeg <ffmpeg-path>, build-clip-bundle.py, and export_standalone.py.
