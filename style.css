@@ -161,3 +161,7 @@ body.in-room{overflow:hidden}
 .title-bloom.bloom-2{width:30px;height:34px;right:-37px;top:40%;rotate:18deg}
 .title-bloom.bloom-3{width:24px;height:27px;left:-25px;bottom:2%;rotate:-12deg}
 @media(max-width:480px){.title-bloom.bloom-1{width:26px;height:29px;left:-23px}.title-bloom.bloom-2{width:24px;height:27px;right:-23px}.title-bloom.bloom-3{width:20px;height:22px;left:-16px}}
+
+/* Suitcase heading matches the lobby lettering. */
+.packing-dialog .dialog-title{font-family:DynaPuff,'Trebuchet MS',sans-serif;font-weight:500}
+.packing-dialog .case-dialog-header{justify-content:flex-end}
