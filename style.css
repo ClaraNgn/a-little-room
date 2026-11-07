@@ -194,3 +194,11 @@ body.in-room{overflow:hidden}
 
 /* All three Clara introduction headings share the game lettering. */
 .intro-content .dialog-title{font-family:DynaPuff,'Trebuchet MS',sans-serif;font-weight:500}
+
+/* Audio preferences stay in the existing help window. */
+.audio-options{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.audio-options .soft-button{flex:1;white-space:nowrap}
+
+/* The phone task is prompted by centered text; the scene phone is the control. */
+.scene-checkedin .journey-chat footer{justify-content:center}
+.scene-checkedin #journey-hint{display:block;max-width:none;width:100%;margin:0;text-align:center;font-size:12px;font-weight:800;color:var(--ink)}
