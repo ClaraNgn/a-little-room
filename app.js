@@ -148,14 +148,14 @@ function enterJourney(step){
  stopClip();
  close(false);state.completed=true;state.started=true;state.journey=step;save();updateResume();
  $('#world').hidden=true;$('#chapter').hidden=true;$('#journey').hidden=false;document.body.classList.add('in-room');
- const scene=journeyScenes[step], flying=journeySteps.indexOf(step)>=5;
- $('#journey').className='journey scene-'+step+(flying?' is-flying':'');
- $('#journey-title').textContent=scene.title;$('#journey-place').textContent=scene.place;$('#journey-progress').textContent=scene.progress;
+ const scene=journeyScenes[step], flying=journeySteps.indexOf(step)>=5,atAirport=['airport','checkedin','goodbye','gate'].includes(step);
+ $('#journey').className='journey scene-'+step+(flying?' is-flying':'')+(atAirport?' is-airport':'');
+ $('#journey-title').textContent=atAirport?'Airport':scene.title;$('.journey-caption>p').hidden=atAirport;$('#journey-place').hidden=atAirport;$('#journey-place').textContent=atAirport?'':scene.place;$('#journey-progress').textContent=scene.progress;
  $('#journey-speech').textContent=scene.text;$('#journey-speech').hidden=step==='end';$('#journey-hint').textContent=scene.hint;
  $('#journey-actions').innerHTML=`<button class="chat-primary" ${scene.next?`data-journey="${scene.next}"`:`data-travel-task="${scene.task}"`}>${scene.action} <span aria-hidden="true">→</span></button>`;
  $('#journey-background').src=step==='morning'?$('.room-background').src:flying?(window.journeyClips?.flight.poster||asset('airport')):asset('airport');
  $('#airport-character').hidden=step==='morning'||flying;
- const hotspot=$('#airport-hotspot');hotspot.hidden=!['airport','checkedin','goodbye','gate'].includes(step);hotspot.textContent=scene.action+' ↗';
+ const hotspot=$('#airport-hotspot');hotspot.hidden=!atAirport;hotspot.textContent=scene.action+' ↗';
  hotspot.className='airport-hotspot '+(step==='airport'?'at-counter':step==='checkedin'?'at-phone':'at-gate');
  setJourneyCollapsed(false);$('#journey-title').focus({preventScroll:true});announce(scene.title+' '+scene.text);
  if(step==='morning'||step==='takeoff')startClip(step==='morning'?'morning':'flight');
