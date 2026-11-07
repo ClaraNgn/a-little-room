@@ -41,7 +41,7 @@ function renderSelection(){
  $$('[data-item]').forEach(el=>{const active=el.dataset.item===selected;el.classList.toggle('selected',active);el.setAttribute('aria-pressed',String(active));});
  const item=byId(speech.id);$('#selected-name').textContent=item?'· '+item.name:'';
  $('#speech').textContent=chatText();$('#packed-count').textContent=`${count()} / 6 packed`;
- $('#chat-hint').textContent=selected?'Drag to the suitcase, or use the button.':count()===6?'All six little things are ready.':'Choose an object in the room.';
+ $('#chat-hint').textContent=selected?'Drag to the suitcase, or use the button.':count()===6?'':'Choose an object in the room.';$('#chat-hint').hidden=!$('#chat-hint').textContent;
  $('#chat-action').hidden=count()===6;$('#finish').hidden=count()!==6;$('#finish').disabled=count()!==6;
  $('#chat-action').innerHTML=selected?'Pack it <span aria-hidden="true">↓</span>':'Show my things <span aria-hidden="true">↗</span>';
  $('#room-case-label').textContent=selected?'Place it here ↓':'My suitcase ↗';$('#room-case').classList.toggle('drop-ready',!!selected);
