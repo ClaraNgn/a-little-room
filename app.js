@@ -239,5 +239,5 @@ function endDrag(e,cancel=false){
 document.addEventListener('pointerup',e=>endDrag(e));document.addEventListener('pointercancel',e=>endDrag(e,true));
 window.addEventListener('resize',()=>{if(!$('#chapter').hidden)centerRoom();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)context?.suspend();else if(music)context?.resume();});
-$('#chapter-note').textContent='Chapter 1 · The night before.';document.documentElement.lang='en';renderMusic();updateResume();renderChapter();
+document.documentElement.lang='en';renderMusic();updateResume();renderChapter();
 })();
