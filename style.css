@@ -167,3 +167,7 @@ body.in-room{overflow:hidden}
 .packing-dialog .case-dialog-header{justify-content:flex-end}
 
 .packing-dialog .case-actions{justify-content:flex-end}
+
+/* Compact packed-suitcase reflection with the shared heading font. */
+.chapter-complete .dialog-title{font-family:DynaPuff,'Trebuchet MS',sans-serif;font-weight:500}
+.chapter-complete .dialog-copy{line-height:1.55}
