@@ -154,3 +154,10 @@ body.in-room{overflow:hidden}
 
 /* Keep only navigation controls in the final sky scene header. */
 .scene-end .journey-caption>*{position:absolute!important;width:1px;height:1px;padding:0;margin:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+
+/* A few quiet flowers frame the title without covering the menu. */
+.title-panel h1 .title-bloom{position:absolute;pointer-events:none;overflow:visible;filter:drop-shadow(0 3px 2px #6e79351a)}
+.title-bloom.bloom-1{width:36px;height:40px;left:-36px;top:5%;rotate:-20deg}
+.title-bloom.bloom-2{width:30px;height:34px;right:-37px;top:40%;rotate:18deg}
+.title-bloom.bloom-3{width:24px;height:27px;left:-25px;bottom:2%;rotate:-12deg}
+@media(max-width:480px){.title-bloom.bloom-1{width:26px;height:29px;left:-23px}.title-bloom.bloom-2{width:24px;height:27px;right:-23px}.title-bloom.bloom-3{width:20px;height:22px;left:-16px}}
