@@ -19,7 +19,7 @@ let volume=.25,music=false,soundEffects=true,context,musicTimer,toastTimer,lastF
 try {
  const pref=JSON.parse(localStorage.getItem(PREF));if(pref&&Number.isFinite(pref.volume))volume=Math.max(0,Math.min(.6,pref.volume));if(pref&&typeof pref.soundEffects==='boolean')soundEffects=pref.soundEffects;
  const data=JSON.parse(localStorage.getItem(STORE));
- if(data&&Array.isArray(data.slots)){const seen=new Set();state.slots=Array.from({length:6},(_,i)=>{const id=data.slots[i];if(byId(id)&&!seen.has(id)){seen.add(id);return id;}return null;});state.started=!!data.started;state.completed=!!data.completed&&state.slots.every(Boolean);if(state.completed&&journeySteps.includes(data.journey)){state.journey=data.journey;state.message=data.message==='miss'?'miss':'call';state.promise=data.promise==='ask'?'ask':'begin';}}
+ if(data&&Array.isArray(data.slots)){state.campusGuided=!!data.campusGuided;state.campusClassFound=!!data.campusClassFound;const seen=new Set();state.slots=Array.from({length:6},(_,i)=>{const id=data.slots[i];if(byId(id)&&!seen.has(id)){seen.add(id);return id;}return null;});state.started=!!data.started;state.completed=!!data.completed&&state.slots.every(Boolean);if(state.completed&&journeySteps.includes(data.journey)){state.journey=data.journey;state.message=data.message==='miss'?'miss':'call';state.promise=data.promise==='ask'?'ask':'begin';}}
 } catch {storageOK=false;}
 function save(){try{localStorage.setItem(STORE,JSON.stringify(state));localStorage.setItem(PREF,JSON.stringify({volume,soundEffects}));storageOK=true;}catch{storageOK=false;}}
 function announce(message){$('#chapter-status').textContent=message;}
@@ -78,9 +78,9 @@ function remove(index){
 }
 function centerRoom(){const view=$('#scene-viewport');view.scrollLeft=(view.scrollWidth-view.clientWidth)*.5;}
 function enterRoom(){
- close(false);$('#journey').hidden=true;state.started=true;save();$('#world').hidden=true;$('#chapter').hidden=false;document.body.classList.add('in-room');renderChapter();updateResume();setChatCollapsed(false);centerRoom();$('#chapter-title').tabIndex=-1;$('#chapter-title').focus({preventScroll:true});
+ close(false);$('#campus').hidden=true;$('#journey').hidden=true;state.started=true;save();$('#world').hidden=true;$('#chapter').hidden=false;document.body.classList.add('in-room');renderChapter();updateResume();setChatCollapsed(false);centerRoom();$('#chapter-title').tabIndex=-1;$('#chapter-title').focus({preventScroll:true});
 }
-function lobby(){stopClip();close(false);$('#journey').hidden=true;$('#chapter').hidden=true;$('#world').hidden=false;document.body.classList.remove('in-room');selected=null;speech={kind:'welcome'};updateResume();$('#start').focus({preventScroll:true});}
+function lobby(){stopClip();close(false);$('#campus').hidden=true;$('#journey').hidden=true;$('#chapter').hidden=true;$('#world').hidden=false;document.body.classList.remove('in-room');selected=null;speech={kind:'welcome'};updateResume();$('#start').focus({preventScroll:true});}
 function open(html,type){
  if(!$('#dialog').open)lastFocus=document.activeElement;dialogType=type;$('#dialog').classList.toggle('packing-dialog',type==='packing');$('#dialog-content').innerHTML=html;
  if(!$('#dialog').open)$('#dialog').showModal();
@@ -88,7 +88,7 @@ function open(html,type){
 }
 function close(restore=true){
  if($('#dialog').open)$('#dialog').close();dialogType=null;
- if(restore){if(lastFocus?.isConnected&&lastFocus.getClientRects().length)lastFocus.focus({preventScroll:true});else if(!$('#journey').hidden)$('#journey-title').focus({preventScroll:true});else if(!$('#chapter').hidden)$('#open-case').focus({preventScroll:true});else $('#start').focus({preventScroll:true});}
+ if(restore){if(lastFocus?.isConnected&&lastFocus.getClientRects().length)lastFocus.focus({preventScroll:true});else if(!$('#campus').hidden)$('#campus-map').focus({preventScroll:true});else if(!$('#journey').hidden)$('#journey-title').focus({preventScroll:true});else if(!$('#chapter').hidden)$('#open-case').focus({preventScroll:true});else $('#start').focus({preventScroll:true});}
 }
 const intros=[
  ['Hi, I’m Clara.','I’m from Vietnam. Tomorrow, I’ll fly to the U.S. to start my journey as an international student.'],
@@ -149,7 +149,7 @@ function enterJourney(step){
  if(step==='ocean'||step==='america')step='takeoff';
  stopClip();
  close(false);state.completed=true;state.started=true;state.journey=step;save();updateResume();
- $('#world').hidden=true;$('#chapter').hidden=true;$('#journey').hidden=false;document.body.classList.add('in-room');
+ $('#campus').hidden=true;$('#world').hidden=true;$('#chapter').hidden=true;$('#journey').hidden=false;document.body.classList.add('in-room');
  const scene=journeyScenes[step], flying=journeySteps.indexOf(step)>=5,atAirport=['airport','checkedin','goodbye','gate'].includes(step);
  $('#journey').className='journey scene-'+step+(flying?' is-flying':'')+(atAirport?' is-airport':'');
  $('#journey-title').textContent=atAirport?'Airport':scene.title;$('.journey-caption>p').hidden=atAirport;$('#journey-place').hidden=atAirport;$('#journey-place').textContent=atAirport?'':scene.place;$('#journey-progress').textContent=scene.progress;
@@ -172,7 +172,7 @@ function travelTask(task){
  if(task==='ending'&&state.journey==='end')showJourneyEnding();
 }
 function showJourneyEnding(){
- open(`<h2 class="dialog-title airport-dialog-title">Chapter 1 completed</h2><div class="journey-keepsakes">${items.map(i=>`<img src="${asset(i.id)}" alt="${i.name}">`).join('')}</div><p class="dialog-copy">From my room in Vietnam to a new horizon in the United States.\n\nOne little suitcase. A whole new chapter.</p><span class="complete-stamp">Packed · Checked in · Across the sky</span><p class="intro-scope">This is where Chapter 1 ends. Clara’s next chapter is still to be written.</p><div class="dialog-bottom"><button class="soft-button" data-lobby>Back to lobby</button><button class="start" data-journey="morning">Revisit departure${icon('arrow')}</button></div><button class="resume-button" data-replay>Replay Chapter 1</button>`,'journey-ending');
+ open(`<h2 class="dialog-title airport-dialog-title">Chapter 1 completed</h2><div class="journey-keepsakes">${items.map(i=>`<img src="${asset(i.id)}" alt="${i.name}">`).join('')}</div><p class="dialog-copy">From my room in Vietnam to a new horizon in the United States.\n\nOne little suitcase. A whole new chapter.</p><span class="complete-stamp">Packed · Checked in · Across the sky</span><p class="intro-scope">A new place. One small step at a time.</p><div class="dialog-bottom"><button class="soft-button" data-lobby>Back to lobby</button><button class="soft-button" data-journey="morning">Revisit departure</button><button class="start" data-campus="enter">Continue to Chapter 2${icon('arrow')}</button></div><button class="resume-button" data-replay>Replay Chapter 1</button>`,'journey-ending');
 }
 $('#journey-lobby').addEventListener('click',lobby);$('#journey-help').addEventListener('click',help);
 $('#journey-toggle').addEventListener('click',()=>setJourneyCollapsed(!$('#journey-chat-body').hidden));
@@ -186,6 +186,49 @@ document.addEventListener('click',e=>{
  }
  const promise=e.target.closest('[data-promise]');if(promise&&state.journey==='ocean'){state.promise=promise.dataset.promise==='ask'?'ask':'begin';enterJourney('america');}
 });
+
+// Chapter 2 opening: read the map, follow the path, collect the first stamp.
+function centerCampus(){const view=$('#campus-viewport');view.scrollLeft=(view.scrollWidth-view.clientWidth)/2;}
+function campusCollapsed(value){$('#campus-chat-body').hidden=value;$('#campus-toggle').textContent=value?'+':'−';$('#campus-toggle').ariaLabel=value?'Expand chat':'Minimize chat';$('#campus-toggle').setAttribute('aria-expanded',String(!value));}
+function renderCampus(){
+ const found=state.campusClassFound,guided=state.campusGuided;
+ $('#campus-stamp-count').textContent=(found?'1':'0')+' / 3 stamps';
+ $('#campus-progress').textContent=found?'Classroom found ✓':'Find my classroom';
+ $('#campus-speech').textContent=found?'One place found. This campus feels a little less unfamiliar already.':guided?'The building behind the arch. Follow the path, then take the front steps. Let’s try it.':'First day at Kent State. New places, new faces… Where do I even begin?';
+ $('#campus-hint').textContent=found?'Your first stamp is in the collection.':guided?'Tap the steps to walk to the classroom building.':'Read the campus map to find the way.';
+ $('#campus-entrance').hidden=!guided||found;
+ $('#campus-clara').classList.toggle('has-arrived',!!found);
+}
+function enterCampus(){
+ stopClip();close(false);$('#world').hidden=true;$('#chapter').hidden=true;$('#journey').hidden=true;$('#campus').hidden=false;
+ document.body.classList.add('in-room');renderCampus();campusCollapsed(false);centerCampus();$('#campus-title').focus({preventScroll:true});announce('Chapter 2. Find my classroom. Read the campus map to find the way.');
+}
+function campusGuide(){
+ open(`<h2 class="dialog-title airport-dialog-title">Campus map</h2><div class="campus-guide-map" role="img" aria-label="A simplified game map. You are at the entrance arch. The classroom building is straight ahead, up the front steps. The library and Student Center are two other campus destinations."><span class="guide-place guide-class"><b>▥</b>Classroom</span><span class="guide-place guide-library"><b>▤</b>Library</span><span class="guide-place guide-center"><b>⌂</b>Student Center</span><span class="guide-route" aria-hidden="true"></span><span class="guide-you"><i></i>You are here</span></div><p class="dialog-copy">Your classroom is in the building behind the arch. Follow the path and take the front steps.</p><div class="dialog-bottom"><button class="start" data-campus="follow">Follow the path${icon('arrow')}</button></div>`,'campus-guide');
+}
+function showCampusStamps(){
+ open(`<h2 class="dialog-title airport-dialog-title">Stamp Collection</h2><p class="campus-card-caption">My first day at Kent State</p><div class="campus-stamp-sheet"><div class="campus-stamp ${state.campusClassFound?'collected':''}"><span aria-hidden="true">${state.campusClassFound?'✓':'01'}</span><strong>Classroom</strong><small>${state.campusClassFound?'First class found':'Find my classroom'}</small></div><div class="campus-stamp"><span aria-hidden="true">02</span><strong>Library</strong></div><div class="campus-stamp"><span aria-hidden="true">03</span><strong>Student Center</strong></div></div><p class="campus-card-count">${state.campusClassFound?'1':'0'} / 3 stamps</p><div class="dialog-bottom"><button class="start" data-close>Back to campus${icon('arrow')}</button></div>`,'campus-stamps');
+}
+function campusArrival(){
+ if(!state.campusGuided||state.campusClassFound)return;
+ state.campusClassFound=true;save();renderCampus();campusCollapsed(false);
+ announce('Classroom found. First class stamp collected. One of three stamps.');
+ open(`<div class="campus-arrival"><span class="campus-first-stamp" aria-label="First class stamp collected">✓<small>FIRST CLASS</small></span><h2 class="dialog-title airport-dialog-title">Found my classroom!</h2><p class="dialog-copy">One small step. One little stamp.<br>Maybe I can find my way here.</p><div class="dialog-bottom"><button class="start" data-campus="stamps">See my stamp${icon('arrow')}</button><button class="soft-button" data-close>Back to campus</button></div></div>`,'campus-arrival');
+}
+$('#campus-lobby').addEventListener('click',lobby);
+$('#campus-map').addEventListener('click',campusGuide);
+$('#campus-stamps').addEventListener('click',showCampusStamps);
+$('#campus-entrance').addEventListener('click',campusArrival);
+$('#campus-toggle').addEventListener('click',()=>campusCollapsed(!$('#campus-chat-body').hidden));
+$('#campus-help').addEventListener('click',()=>open(`<h2 class="dialog-title airport-dialog-title">Finding my way</h2><p class="dialog-copy">Read the campus map. Follow its directions, then tap the steps to find Clara’s classroom and collect a stamp.<br><br>On a narrow screen, swipe across the scenery or focus it and use the arrow keys. Tap − to tuck away Clara’s chat.</p><div class="dialog-bottom"><button class="start" data-close>Got it${icon('arrow')}</button></div>`,'campus-help'));
+$('#campus-viewport').addEventListener('keydown',e=>{if(e.target!==$('#campus-viewport'))return;if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();$('#campus-viewport').scrollBy({left:(e.key==='ArrowLeft'?-1:1)*innerWidth*.5,behavior:'smooth'});}});
+document.addEventListener('click',e=>{
+ const action=e.target.closest('[data-campus]');if(!action)return;
+ if(action.dataset.campus==='enter')enterCampus();
+ if(action.dataset.campus==='follow'){state.campusGuided=true;save();close(false);renderCampus();$('#campus-entrance').focus({preventScroll:true});}
+ if(action.dataset.campus==='stamps')showCampusStamps();
+});
+
 function toast(message){clearTimeout(toastTimer);$('#toast').textContent=message;$('#toast').classList.add('visible');toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),3600);}
 // Short overlapping voices keep click feedback immediate, independent of music.
 const clickVoices=[$('#click-sound')];
@@ -252,7 +295,8 @@ function endDrag(e,cancel=false){
  }
 }
 document.addEventListener('pointerup',e=>endDrag(e));document.addEventListener('pointercancel',e=>endDrag(e,true));
-window.addEventListener('resize',()=>{if(!$('#chapter').hidden)centerRoom();});
+window.addEventListener('resize',()=>{if(!$('#chapter').hidden)centerRoom();if(!$('#campus').hidden)centerCampus();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)context?.suspend();else if(music)context?.resume();});
 document.documentElement.lang='en';renderMusic();updateResume();renderChapter();
+if(new URLSearchParams(location.search).get('chapter')==='2')enterCampus();
 })();
