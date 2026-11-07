@@ -2,6 +2,7 @@
 'use strict';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const STORE='a-little-room-chapter1-v1', PREF='a-little-room-chapter1-prefs';
+const planner=window.deskPlanner;
 const items=[
  {id:'passport',name:'Passport',x:29,y:41,w:9,story:'Tomorrow, this little passport takes me to my new life. Isn’t it exciting? A little scary, too.'},
  {id:'clothes',name:'School uniform',x:77,y:55,w:14,story:'My high school uniform. A little reminder of where I started, and of the courage I’m taking into this next chapter.'},
@@ -19,7 +20,7 @@ let volume=.25,music=false,soundEffects=true,context,musicTimer,toastTimer,lastF
 try {
  const pref=JSON.parse(localStorage.getItem(PREF));if(pref&&Number.isFinite(pref.volume))volume=Math.max(0,Math.min(.6,pref.volume));if(pref&&typeof pref.soundEffects==='boolean')soundEffects=pref.soundEffects;
  const data=JSON.parse(localStorage.getItem(STORE));
- if(data&&Array.isArray(data.slots)){state.campusGuided=!!data.campusGuided;state.campusClassFound=!!data.campusClassFound;state.campusAsked=state.campusClassFound&&!!data.campusAsked;state.campusLibraryFound=state.campusAsked&&!!data.campusLibraryFound;state.campusCenterFound=state.campusLibraryFound&&!!data.campusCenterFound;state.campusVisit=data.campusVisit==='center'&&state.campusLibraryFound?'center':data.campusVisit==='library'&&state.campusAsked?'library':'classroom';const seen=new Set();state.slots=Array.from({length:6},(_,i)=>{const id=data.slots[i];if(byId(id)&&!seen.has(id)){seen.add(id);return id;}return null;});state.started=!!data.started;state.completed=!!data.completed&&state.slots.every(Boolean);if(state.completed&&journeySteps.includes(data.journey)){state.journey=data.journey;state.message=data.message==='miss'?'miss':'call';state.promise=data.promise==='ask'?'ask':'begin';}}
+ if(data&&Array.isArray(data.slots)){state.deskActions=planner.normalize(data.deskActions);state.campusGuided=!!data.campusGuided;state.campusClassFound=!!data.campusClassFound;state.campusAsked=state.campusClassFound&&!!data.campusAsked;state.campusLibraryFound=state.campusAsked&&!!data.campusLibraryFound;state.campusCenterFound=state.campusLibraryFound&&!!data.campusCenterFound;state.campusVisit=data.campusVisit==='center'&&state.campusLibraryFound?'center':data.campusVisit==='library'&&state.campusAsked?'library':'classroom';const seen=new Set();state.slots=Array.from({length:6},(_,i)=>{const id=data.slots[i];if(byId(id)&&!seen.has(id)){seen.add(id);return id;}return null;});state.started=!!data.started;state.completed=!!data.completed&&state.slots.every(Boolean);if(state.completed&&journeySteps.includes(data.journey)){state.journey=data.journey;state.message=data.message==='miss'?'miss':'call';state.promise=data.promise==='ask'?'ask':'begin';}}
 } catch {storageOK=false;}
 function save(){try{localStorage.setItem(STORE,JSON.stringify(state));localStorage.setItem(PREF,JSON.stringify({volume,soundEffects}));storageOK=true;}catch{storageOK=false;}}
 function announce(message){$('#chapter-status').textContent=message;}
@@ -78,17 +79,18 @@ function remove(index){
 }
 function centerRoom(){const view=$('#scene-viewport');view.scrollLeft=(view.scrollWidth-view.clientWidth)*.5;}
 function enterRoom(){
+ $('#desk-room').hidden=true;
  close(false);$('#campus').hidden=true;$('#journey').hidden=true;state.started=true;save();$('#world').hidden=true;$('#chapter').hidden=false;document.body.classList.add('in-room');renderChapter();updateResume();setChatCollapsed(false);centerRoom();$('#chapter-title').tabIndex=-1;$('#chapter-title').focus({preventScroll:true});
 }
-function lobby(){stopClip();close(false);$('#campus').hidden=true;$('#journey').hidden=true;$('#chapter').hidden=true;$('#world').hidden=false;document.body.classList.remove('in-room');selected=null;speech={kind:'welcome'};updateResume();$('#start').focus({preventScroll:true});}
+function lobby(){$('#desk-room').hidden=true;stopClip();close(false);$('#campus').hidden=true;$('#journey').hidden=true;$('#chapter').hidden=true;$('#world').hidden=false;document.body.classList.remove('in-room');selected=null;speech={kind:'welcome'};updateResume();$('#start').focus({preventScroll:true});}
 function open(html,type){
- if(!$('#dialog').open)lastFocus=document.activeElement;dialogType=type;$('#dialog').classList.toggle('packing-dialog',type==='packing');$('#dialog').classList.toggle('campus-map-dialog',type==='campus-guide');$('#dialog').classList.toggle('campus-stamps-dialog',type==='campus-stamps');$('#dialog-content').innerHTML=html;
+ if(!$('#dialog').open)lastFocus=document.activeElement;dialogType=type;$('#dialog').classList.toggle('desk-dialog',!!type?.startsWith('desk-'));$('#dialog').classList.toggle('packing-dialog',type==='packing');$('#dialog').classList.toggle('campus-map-dialog',type==='campus-guide');$('#dialog').classList.toggle('campus-stamps-dialog',type==='campus-stamps');$('#dialog-content').innerHTML=html;
  if(!$('#dialog').open)$('#dialog').showModal();
  const heading=$('#dialog h2');if(heading){heading.id='active-dialog-title';heading.tabIndex=-1;$('#dialog').setAttribute('aria-labelledby','active-dialog-title');heading.focus();}else $('#close').focus();
 }
 function close(restore=true){
  if($('#dialog').open)$('#dialog').close();dialogType=null;
- if(restore){if(lastFocus?.isConnected&&lastFocus.getClientRects().length)lastFocus.focus({preventScroll:true});else if(!$('#campus').hidden)$('#campus-map').focus({preventScroll:true});else if(!$('#journey').hidden)$('#journey-title').focus({preventScroll:true});else if(!$('#chapter').hidden)$('#open-case').focus({preventScroll:true});else $('#start').focus({preventScroll:true});}
+ if(restore){if(lastFocus?.isConnected&&lastFocus.getClientRects().length)lastFocus.focus({preventScroll:true});else if(!$('#desk-room').hidden)$('#desk-title').focus({preventScroll:true});else if(!$('#campus').hidden)$('#campus-map').focus({preventScroll:true});else if(!$('#journey').hidden)$('#journey-title').focus({preventScroll:true});else if(!$('#chapter').hidden)$('#open-case').focus({preventScroll:true});else $('#start').focus({preventScroll:true});}
 }
 const intros=[
  ['Hi, I’m Clara.','I’m from Vietnam. Tomorrow, I’ll fly to the U.S. to start my journey as an international student.'],
@@ -142,7 +144,7 @@ $('#clip-skip').addEventListener('click',finishClip);$('#clip-lobby').addEventLi
 $('#clip-play').addEventListener('click',()=>{if(!window.journeyClips){finishClip();return;}$('#cutscene-video').play().then(()=>{$('#clip-play').hidden=true;}).catch(()=>{$('#clip-skip').textContent='→';$('#clip-skip').ariaLabel='Continue';});});
 document.addEventListener('visibilitychange',()=>{if(!clipNext)return;const video=$('#cutscene-video');if(document.hidden)video.pause();else if(!matchMedia('(prefers-reduced-motion: reduce)').matches)video.play().catch(()=>{$('#clip-play').hidden=false;});});
 function setJourneyCollapsed(value){$('#journey-chat-body').hidden=value;$('#journey-toggle').textContent=value?'+':'−';$('#journey-toggle').ariaLabel=value?'Expand chat':'Minimize chat';$('#journey-toggle').setAttribute('aria-expanded',String(!value));}
-function enterJourney(step){
+function enterJourney(step){$('#desk-room').hidden=true;
  if(count()!==6||!journeySteps.includes(step))return;
  // Older saves at the gate now return to the single departure step.
  if(step==='gate')step='goodbye';
@@ -219,6 +221,7 @@ function renderCampus(){
  entrance.classList.toggle('campus-path',place==='classroom'&&!!state.campusClassFound);
 }
 function enterCampus(){
+ $('#desk-room').hidden=true;
  stopClip();close(false);$('#world').hidden=true;$('#chapter').hidden=true;$('#journey').hidden=true;$('#campus').hidden=false;
  document.body.classList.add('in-room');renderCampus();campusCollapsed(false);centerCampus();$('#campus-title').focus({preventScroll:true});announce('Chapter 2. '+campusMission().label+'. '+campusMission().hint);
 }
@@ -234,7 +237,7 @@ function visitCampus(place){
 function campusGuide(){
  const target=!state.campusClassFound?'classroom':!state.campusAsked?null:!state.campusLibraryFound?'library':!state.campusCenterFound?'center':null;
  const instruction=target==='classroom'?'Your classroom is in the building behind the arch. Follow the path and take the front steps.':target==='library'?'Ben pointed out the tall building with the flags. Find Library on your map.':target==='center'?'One more stop. Find Student Center and look for a way to meet new people.':!state.campusAsked?'The library is next. Ask the student by the path for directions.':'Three places found. You can revisit any destination.';
- const action=target?`<button class="start" data-campus-dest="${target}">${target==='classroom'?'Follow the path':target==='library'?'Go to the library':'Go to Student Center'}${icon('arrow')}</button>`:`<button class="start" data-close>Back to campus${icon('arrow')}</button>`;
+ const action=target?`<button class="start" data-campus-dest="${target}">${target==='classroom'?'Follow the path':target==='library'?'Go to the library':'Go to Student Center'}${icon('arrow')}</button>`:`<button class="soft-button" data-close>Back to campus</button><button class="start" data-desk-start>Continue to Chapter 3${icon('arrow')}</button>`;
  open(`<h2 class="sr-only">Campus Map</h2><div class="campus-map-art"><img class="campus-paper-map" src="${asset('campus-map')}" alt="Pencil campus map: entrance to Classroom, then Library, then Student Center.">${Object.entries(campusLocations).map(([id,l])=>`<button class="map-destination map-${id}${target===id?' map-next':''}" data-campus-dest="${id}" aria-label="Go to ${l.name}${canVisitCampus(id)?'':' · not yet available'}" aria-disabled="${!canVisitCampus(id)}" aria-describedby="map-directions"></button>`).join('')}</div><p class="dialog-copy" id="map-directions" aria-live="polite">${instruction}</p><div class="dialog-bottom">${action}</div>`,'campus-guide');
 }
 function showCampusStamps(){
@@ -273,7 +276,7 @@ function campusNotice(){
 }
 function finishCampus(){
  if(campusCount()!==3)return;
- open(`<div class="campus-arrival"><span class="campus-first-stamp" aria-hidden="true">✓<small>3 / 3</small></span><h2 class="dialog-title airport-dialog-title">Chapter 2 completed</h2><p class="dialog-copy">I found my classroom, asked for help, and found a place to meet people.<br><br>This campus feels a little less unfamiliar now.</p><div class="dialog-bottom"><button class="soft-button" data-campus="stamps">My stamps</button><button class="start" data-close>Back to campus${icon('arrow')}</button></div><button class="resume-button" data-campus="replay">Replay Chapter 2</button></div>`,'campus-complete');
+ open(`<div class="campus-arrival"><span class="campus-first-stamp" aria-hidden="true">✓<small>3 / 3</small></span><h2 class="dialog-title airport-dialog-title">Chapter 2 completed</h2><p class="dialog-copy">I found my classroom, asked for help, and found a place to meet people.<br><br>This campus feels a little less unfamiliar now.</p><div class="dialog-bottom"><button class="soft-button" data-campus="stamps">My stamps</button><button class="soft-button" data-close>Back to campus</button><button class="start" data-desk-start>Continue to Chapter 3${icon('arrow')}</button></div><button class="resume-button" data-campus="replay">Replay Chapter 2</button></div>`,'campus-complete');
 }
 function replayCampus(){
  for(const key of ['campusGuided','campusClassFound','campusAsked','campusLibraryFound','campusCenterFound'])state[key]=false;
@@ -294,6 +297,77 @@ document.addEventListener('click',e=>{
  if(action.dataset.campus==='replay')replayCampus();
  if(action.dataset.campus==='save-event'&&campusPlace()==='center'&&state.campusLibraryFound){state.campusCenterFound=true;save();renderCampus();showCampusStamps();announce('Invitation saved. All three stamps collected.');}
 });
+
+// Chapter 3: a busy desk, a limited evening, and room to rest.
+let deskMessage='';
+const deskFeedback={assignment:'Submitted. That was the one thing that couldn’t wait.',reading:'A few pages, a few new words. My English is growing a little at a time.',tomorrow:'A note for tomorrow. Not everything has to happen tonight.',call:'A familiar voice. Home feels a little closer.',reply:'A little message is enough tonight. We can talk properly another day.'};
+function deskActions(){return state.deskActions||(state.deskActions=[]);}
+function deskStatus(){return planner.summary(deskActions());}
+function deskChoiceFor(group){return deskActions().find(id=>planner.choices[id].group===group);}
+function deskClock(minutes){const total=20*60+minutes;return `${Math.floor(total/60)%12||12}:${String(total%60).padStart(2,'0')} PM`;}
+function deskCollapsed(value){$('#desk-chat-body').hidden=value;$('#desk-toggle').textContent=value?'+':'−';$('#desk-toggle').ariaLabel=value?'Expand chat':'Minimize chat';$('#desk-toggle').setAttribute('aria-expanded',String(!value));}
+function deskPan(side){const v=$('#desk-viewport'),target=v.scrollWidth*(side<0?.27:.74)-v.clientWidth/2;v.scrollTo({left:Math.max(0,target),behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});}
+function centerDesk(){const v=$('#desk-viewport');v.scrollLeft=innerWidth<=700?v.scrollWidth*.73-v.clientWidth/2:(v.scrollWidth-v.clientWidth)/2;$('.desk-pan').hidden=v.scrollWidth<=v.clientWidth+2;}
+function renderDesk(){
+ const s=deskStatus();$('#desk-clock').textContent=deskClock(s.minutes);$('#desk-time').textContent=s.complete?'Evening complete':`${s.remaining} min until bed`;
+ $('#desk-energy').innerHTML=Array.from({length:3},(_,i)=>`<i class="${i<s.energy?'filled':''}" aria-hidden="true"></i>`).join('');$('#desk-energy').ariaLabel=`Energy: ${s.energy} of 3`;
+ $('#desk-rest-note').textContent=s.complete?'Rest matters, too.':'Save 10 min for rest';$('#desk-progress').textContent=s.complete?'A little balance ✓':`${s.decisions} / 3 decisions`;
+ for(const group of ['laptop','books','phone']){
+  const b=$('#desk-'+group),done=!!deskChoiceFor(group);b.classList.toggle('decided',done);b.setAttribute('aria-label',({laptop:'Open the laptop assignment',books:'Look at the English reading',phone:'Read the glowing phone'})[group]+(done?' · decided':''));
+ }
+ $('#desk-bed').classList.toggle('ready',s.ready&&!s.complete);
+ $('#desk-speech').textContent=s.complete?'I can’t do everything tonight. But I can choose what matters next.':deskMessage||(s.ready?'The important things have a place. I can leave a little time for myself, too.':s.decisions?'One choice at a time. What needs me tonight, and what can wait?':'My assignment is due at nine, my reading can wait, and home is calling. I have one hour and a little energy. Help me choose what matters.');
+ $('#desk-hint').textContent=s.complete?'You made room for rest.':s.ready?'Tap the bed when you’re ready to stop.':'Tap the laptop, book or glowing phone. My evening lets you change a choice.';
+}
+function enterDesk(){
+ stopClip();close(false);for(const id of ['world','chapter','journey','campus'])$('#'+id).hidden=true;$('#desk-room').hidden=false;document.body.classList.add('in-room');
+ state.deskActions=planner.normalize(state.deskActions);deskMessage='';save();renderDesk();deskCollapsed(false);centerDesk();$('#desk-title').focus({preventScroll:true});announce('Chapter 3. Choose what matters. Tap an object on the desk.');if(deskStatus().complete)finishDesk();
+}
+function deskOption(id,label){
+ const c=planner.choices[id],error=planner.reason(deskActions(),id),cost=`${c.minutes} min · ${c.energy?c.energy+' energy':'no energy'}`;
+ return `<button class="desk-choice" data-desk-choice="${id}" ${error?'disabled':''}><strong>${label}</strong><small>${cost}</small>${error?`<em>${error}</em>`:''}</button>`;
+}
+function deskObject(group){
+ const s=deskStatus(),selected=deskChoiceFor(group);
+ if(group==='bed'){
+  if(s.complete){finishDesk();return;}
+  open(`<h2 class="dialog-title airport-dialog-title">A little breathing room.</h2><p class="dialog-copy">${s.ready?'My assignment is in. The rest has a place. I don’t have to fill every minute.':'Before I stop, I need to submit my assignment and decide what to do with the book and the phone.'}</p>${s.ready?`<div class="dialog-bottom"><button class="start" data-desk-choice="rest">Make time to rest · 10 min${icon('arrow')}</button></div>`:'<div class="dialog-bottom"><button class="start" data-close>Back to my desk</button></div>'}`,'desk-task');return;
+ }
+ const titles={laptop:'One thing first.',books:'What can wait?',phone:'A little connection.'};
+ if(selected){
+  const c=planner.choices[selected];open(`<h2 class="dialog-title airport-dialog-title">${titles[group]}</h2><p class="dialog-copy">✓ ${c.label}<br>${deskFeedback[selected]}</p><div class="dialog-bottom">${!s.complete?`<button class="soft-button" data-desk-undo="${selected}">Try a different choice</button>`:''}<button class="start" data-close>Back to my room${icon('arrow')}</button></div>`,'desk-task');return;
+ }
+ let body='';
+ if(group==='laptop')body=`<div class="desk-task-card"><span>ASSIGNMENT · DUE 9 PM</span><strong>One last paragraph.</strong><p>I know what I want to say. Finding the English words takes a little longer.</p></div><p class="dialog-copy">This is the one deadline I can’t move.</p>${deskOption('assignment','Finish and submit')}`;
+ if(group==='books')body=`<div class="desk-task-card"><span>ENGLISH READING · DUE FRIDAY</span><strong>A few more pages?</strong><p>I want to keep improving. But this can also be tomorrow’s small step.</p></div><div class="desk-choice-list">${deskOption('reading','Read for a little while')}${deskOption('tomorrow','Leave a note for tomorrow')}</div>`;
+ if(group==='phone')body=`<div class="desk-home-message"><span>HOME ♡</span><p>“Long day? We’re here if you need us.”</p><small>Work reminder · Tomorrow’s shift starts at 8 AM.</small></div><p class="dialog-copy">I miss them. Tonight, a call or a few words can keep us close.</p><div class="desk-choice-list">${deskOption('call','Call home')}${deskOption('reply','Send a quick reply')}</div>`;
+ open(`<h2 class="dialog-title airport-dialog-title">${titles[group]}</h2>${body}<div class="desk-task-footer"><button class="text-button" data-desk-review>Review my evening</button><button class="soft-button" data-close>Back</button></div>`,'desk-task');
+}
+function chooseDesk(id){
+ const next=planner.choose(deskActions(),id);if(next.error){announce(next.error);return;}
+ state.deskActions=next.actions;deskMessage=deskFeedback[id]||'';save();renderDesk();deskCollapsed(false);close();announce(`${planner.choices[id].label}. ${deskStatus().remaining} minutes left.`);if(id==='rest')finishDesk();
+}
+function reviewDesk(){
+ const s=deskStatus();open(`<h2 class="dialog-title airport-dialog-title">My evening.</h2><p class="dialog-copy">${s.complete?'A little work, a little connection, and a little rest.':'You can rethink a choice. There’s no penalty for trying another plan.'}</p><div class="desk-plan-list">${deskActions().map(id=>`<div><span><strong>${planner.choices[id].label}</strong><small>${planner.choices[id].minutes} min</small></span>${!s.complete?`<button class="soft-button" data-desk-undo="${id}" aria-label="Undo ${planner.choices[id].label}">Undo</button>`:'<span aria-hidden="true">✓</span>'}</div>`).join('')||'<p class="dialog-copy">A fresh evening. Start with something on the desk.</p>'}</div><div class="dialog-bottom"><button class="start" data-close>Back to my room${icon('arrow')}</button></div>`,'desk-plan');
+}
+function undoDesk(id){state.deskActions=planner.undo(deskActions(),id);deskMessage='Let’s try another way. I’m still learning what works for me.';save();renderDesk();close();announce('Choice undone. Time and energy restored.');}
+function finishDesk(){
+ if(!deskStatus().complete)return;
+ open(`<div class="desk-complete"><div class="desk-finish-art"><img src="${$('#jenny img').src}" alt="Clara"><span aria-hidden="true">☾</span></div><h2 class="dialog-title airport-dialog-title">Chapter 3 completed</h2><p class="dialog-copy">I can’t do everything tonight.<br>But I can choose what matters next.</p><p class="desk-reflection">Being independent also means knowing when to rest.</p><div class="dialog-bottom"><button class="soft-button" data-desk-review>My evening</button><button class="start" data-lobby>Back to lobby${icon('arrow')}</button></div><button class="resume-button" data-desk-replay>Replay Chapter 3</button></div>`,'desk-complete');
+}
+$('#desk-lobby').addEventListener('click',lobby);$('#desk-review').addEventListener('click',reviewDesk);$('#desk-toggle').addEventListener('click',()=>deskCollapsed(!$('#desk-chat-body').hidden));
+$('#desk-pan-left').addEventListener('click',()=>deskPan(-1));$('#desk-pan-right').addEventListener('click',()=>deskPan(1));
+$('#desk-viewport').addEventListener('keydown',e=>{if(e.target===$('#desk-viewport')&&['ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();deskPan(e.key==='ArrowLeft'?-1:1);}});
+$('#desk-help').addEventListener('click',()=>open(`<h2 class="dialog-title airport-dialog-title">One evening at a time.</h2><p class="dialog-copy">Tap the laptop, book and phone to make three decisions. Time moves only when you choose a task.<br><br>Submit the assignment, keep a little connection with home, and decide whether the reading can wait. Leave 10 minutes for rest, then tap the bed.<br><br>Open My evening to undo a choice. On a narrow screen, swipe or use the arrows to see both sides of the room.</p><div class="dialog-bottom"><button class="start" data-close>Got it${icon('arrow')}</button></div>`,'desk-help'));
+document.addEventListener('click',e=>{
+ const object=e.target.closest('[data-desk-object]');if(object){deskObject(object.dataset.deskObject);return;}
+ const choice=e.target.closest('[data-desk-choice]');if(choice){if(!choice.disabled)chooseDesk(choice.dataset.deskChoice);return;}
+ const undo=e.target.closest('[data-desk-undo]');if(undo){undoDesk(undo.dataset.deskUndo);return;}
+ if(e.target.closest('[data-desk-review]')){reviewDesk();return;}
+ if(e.target.closest('[data-desk-start]')){enterDesk();return;}
+ if(e.target.closest('[data-desk-replay]')){state.deskActions=[];enterDesk();}
+});
+addEventListener('resize',()=>{if(!$('#desk-room').hidden)centerDesk();});
 
 function toast(message){clearTimeout(toastTimer);$('#toast').textContent=message;$('#toast').classList.add('visible');toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),3600);}
 // Short overlapping voices keep click feedback immediate, independent of music.
@@ -364,5 +438,5 @@ document.addEventListener('pointerup',e=>endDrag(e));document.addEventListener('
 window.addEventListener('resize',()=>{if(!$('#chapter').hidden)centerRoom();if(!$('#campus').hidden)centerCampus();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)context?.suspend();else if(music)context?.resume();});
 document.documentElement.lang='en';renderMusic();updateResume();renderChapter();
-if(new URLSearchParams(location.search).get('chapter')==='2')enterCampus();
+const previewChapter=new URLSearchParams(location.search).get('chapter');if(previewChapter==='3')enterDesk();else if(previewChapter==='2')enterCampus();
 })();
