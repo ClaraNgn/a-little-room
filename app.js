@@ -101,7 +101,7 @@ const intros=[
 ];
 function intro(step=0){
  introStep=step;const s=intros[step];
- open(`<div class="intro-content fade-in"><div class="intro-art"><img src="${$('#jenny img').src}" alt="Jenny"></div><div class="intro-text"><p class="dialog-kicker">BEFORE THE JOURNEY</p><h2 class="dialog-title">${s[0]}</h2><p class="dialog-copy">${s[1]}</p><span class="welcome-tag">Vietnam → a new beginning</span></div></div><div class="dialog-bottom"><span class="intro-step">0${step+1} / 03</span>${step?'<button class="soft-button" data-intro-back>Back</button>':''}<button class="start" data-intro-next>${step===2?'Enter Jenny’s room':'Continue'}${icon('arrow')}</button></div>`,'intro');
+ open(`<div class="intro-content fade-in"><div class="intro-art"><img src="${$('#jenny img').src}" alt="Jenny"></div><div class="intro-text"><h2 class="dialog-title">${s[0]}</h2><p class="dialog-copy">${s[1]}</p></div></div><div class="dialog-bottom"><span class="intro-step">0${step+1} / 03</span>${step?'<button class="soft-button" data-intro-back>Back</button>':''}<button class="start" data-intro-next>${step===2?'Enter Jenny’s room':'Continue'}${icon('arrow')}</button></div>`,'intro');
 }
 function showSuitcase(){
  open(`<p class="dialog-kicker">A FEW PIECES OF HOME</p><h2 class="dialog-title">My little suitcase.</h2><div class="case-dialog-header"><p>Make room for what matters.</p><span class="case-counter" id="case-counter">${count()} / 6 packed</span></div><div class="mini-case"><div class="case-handle" aria-hidden="true"></div><div class="case-top"><span>JENNY’S SUITCASE</span><span aria-hidden="true">✦</span></div><div class="case-slots" id="case-slots">${slotsHTML()}</div></div><div class="inventory" id="inventory">${inventoryHTML()}</div><p class="case-story" id="case-story" aria-live="polite"></p><div class="case-actions"><p class="saved-note" id="saved-note">${storageOK?'✓ Saved on this device':'Progress lasts while this page is open'}</p><button class="chat-primary" id="drawer-pack"></button></div>`,'packing');renderSelection();
@@ -121,7 +121,7 @@ const journeyScenes={
  takeoff:{title:'And then, we lift off.',place:'Above Vietnam · The journey begins',progress:'Taking flight',text:'The wheels leave the ground. The streets become little lines, and everything I know gets smaller beneath the clouds. Goodbye for now, home.',hint:'Watch the clouds go by, then continue when you’re ready.',action:'Look out of the window',next:'ocean'},
  ocean:{title:'Somewhere between two worlds.',place:'Over the ocean · Bound for the United States',progress:'Across the ocean',text:'There’s so much sky out here. Somewhere between the place I’m leaving and the place I haven’t met, I open my notebook. Dear future me… what should I remember?',hint:'Leave a small promise for the Jenny who comes next.',action:'Write a little promise',task:'promise'},
  america:{title:'A little closer to tomorrow.',place:'Approaching the United States · A new morning',progress:'A new horizon',text:'The cabin slowly wakes up. Beyond the clouds, a different coastline comes into view. I’m still nervous. But I made it this far, one small step at a time.',hint:'The next part of Jenny’s life is just ahead.',action:'Keep this moment',next:'end'},
- end:{title:'Hello, America.',place:'United States · A new beginning',progress:'Chapter 1 · Complete',text:'One little suitcase. One very big adventure. And yes… I’m definitely calling home first.',hint:'You’ve reached the end of Chapter 1.',action:'My little journey',task:'ending'}
+ end:{title:'Hello, America.',place:'United States · A new beginning',progress:'Chapter 1 · Complete',text:'',hint:'You’ve reached the end of Chapter 1.',action:'My little journey',task:'ending'}
 };
 let clipNext=null;
 function stopClip(){clipNext=null;const video=$('#cutscene-video');video.pause();$('#cutscene').hidden=true;$('#journey').classList.remove('is-cutscene');}
@@ -155,7 +155,7 @@ function enterJourney(step){
  const scene=journeyScenes[step], flying=journeySteps.indexOf(step)>=5;
  $('#journey').className='journey scene-'+step+(flying?' is-flying':'');
  $('#journey-title').textContent=scene.title;$('#journey-place').textContent=scene.place;$('#journey-progress').textContent=scene.progress;
- $('#journey-speech').textContent=scene.text;$('#journey-hint').textContent=scene.hint;
+ $('#journey-speech').textContent=scene.text;$('#journey-speech').hidden=step==='end';$('#journey-hint').textContent=scene.hint;
  $('#journey-actions').innerHTML=`<button class="chat-primary" ${scene.next?`data-journey="${scene.next}"`:`data-travel-task="${scene.task}"`}>${scene.action} <span aria-hidden="true">→</span></button>`;
  $('#journey-background').src=step==='morning'?$('.room-background').src:flying?(window.journeyClips?.flight.poster||asset('airport')):asset('airport');
  $('#airport-character').hidden=step==='morning'||flying;
