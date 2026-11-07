@@ -260,7 +260,7 @@ function campusArrival(){
 }
 function talkToBen(){
  if(!state.campusClassFound||campusPlace()!=='classroom')return;
- open(`<h2 class="dialog-title airport-dialog-title">A little courage.</h2><div class="campus-conversation"><img src="${asset('campus-alex')}" alt="Ben waving hello"><div><span>BEN</span><p>“Hey! First day?”</p><p class="clara-thought">I practiced introducing myself all night. Somehow, “Hi” still feels like the hardest word.</p></div></div><div class="story-choices"><button data-campus-ask="help">Hi! Could you help me find the library?</button><button data-campus-ask="way">Hi! Is the library this way?</button></div>`,'campus-conversation');
+ open(`<h2 class="dialog-title airport-dialog-title">A little courage.</h2><div class="campus-conversation"><img src="${asset('campus-alex')}" alt="Ben waving hello"><div><span>BEN</span><p>“Hey! First day?”</p><p class="clara-thought">I practiced introducing myself all night. Somehow, “Hi” still feels like the hardest word.</p><span>CLARA</span><p>“Hi! Could you help me find the library?”</p></div></div><div class="dialog-bottom"><button class="start" data-campus-ask="help">Continue${icon('arrow')}</button></div>`,'campus-conversation');
 }
 function benDirections(){
  if(!state.campusClassFound||campusPlace()!=='classroom')return;
@@ -281,7 +281,7 @@ function replayCampus(){
 }
 $('#campus-lobby').addEventListener('click',lobby);$('#campus-map').addEventListener('click',campusGuide);$('#campus-stamps').addEventListener('click',showCampusStamps);$('#campus-entrance').addEventListener('click',campusArrival);$('#campus-npc').addEventListener('click',talkToBen);$('#campus-noticeboard').addEventListener('click',campusNotice);
 $('#campus-toggle').addEventListener('click',()=>campusCollapsed(!$('#campus-chat-body').hidden));
-$('#campus-help').addEventListener('click',()=>open(`<h2 class="dialog-title airport-dialog-title">Finding my way</h2><p class="dialog-copy">Read the campus map and find your classroom. Ask Ben for directions to the library. Then find Student Center and read the event notice.<br><br>Collect a stamp at each stop. Both ways of asking Ben are welcome. On a narrow screen, swipe across the scenery or focus it and use the arrow keys. Tap − to tuck away Clara’s chat.</p><div class="dialog-bottom"><button class="start" data-close>Got it${icon('arrow')}</button></div>`,'campus-help'));
+$('#campus-help').addEventListener('click',()=>open(`<h2 class="dialog-title airport-dialog-title">Finding my way</h2><p class="dialog-copy">Read the campus map and find your classroom. Ask Ben for directions to the library. Then find Student Center and read the event notice.<br><br>Collect a stamp at each stop. On a narrow screen, swipe across the scenery or focus it and use the arrow keys. Tap − to tuck away Clara’s chat.</p><div class="dialog-bottom"><button class="start" data-close>Got it${icon('arrow')}</button></div>`,'campus-help'));
 $('#campus-viewport').addEventListener('keydown',e=>{if(e.target!==$('#campus-viewport'))return;if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();$('#campus-viewport').scrollBy({left:(e.key==='ArrowLeft'?-1:1)*innerWidth*.5,behavior:'smooth'});}});
 document.addEventListener('click',e=>{
  const destination=e.target.closest('[data-campus-dest]');if(destination){visitCampus(destination.dataset.campusDest);return;}

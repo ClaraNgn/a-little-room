@@ -78,7 +78,7 @@ The old notebook and mug storage IDs now represent Film roll and Letter, so save
 
 ## Chapter 2: Finding my way
 
-Continue from Chapter 1, or open `?chapter=2`. Read the handwritten parchment map and find the classroom. Talk to Ben: either English question is accepted. Follow his directions to the library, then use the map to find Student Center and save the meet-and-greet invitation. Each destination adds one stamp to the approved illustrated collection paper. Finish with three stamps and a short reflection.
+Continue from Chapter 1, or open `?chapter=2`. Read the handwritten parchment map and find the classroom. Talk to Ben: Clara asks for library directions in one fixed line, then Continue reveals his reply. Follow his directions to the library, then use the map to find Student Center and save the meet-and-greet invitation. Each destination adds one stamp to the approved illustrated collection paper. Finish with three stamps and a short reflection.
 
 Campus locations on the map can be revisited; trying a destination before its story step gives a hint. No timer or failure reset. Map knowledge, conversation, visited scene and stamps persist locally with migration from the earlier one-stamp version. Replay Chapter 2 resets only campus progress and preserves Chapter 1 packing. Later chapters are not implemented here.
 
