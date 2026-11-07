@@ -19,7 +19,7 @@ let volume=.25,music=false,soundEffects=true,context,musicTimer,toastTimer,lastF
 try {
  const pref=JSON.parse(localStorage.getItem(PREF));if(pref&&Number.isFinite(pref.volume))volume=Math.max(0,Math.min(.6,pref.volume));if(pref&&typeof pref.soundEffects==='boolean')soundEffects=pref.soundEffects;
  const data=JSON.parse(localStorage.getItem(STORE));
- if(data&&Array.isArray(data.slots)){state.campusGuided=!!data.campusGuided;state.campusClassFound=!!data.campusClassFound;const seen=new Set();state.slots=Array.from({length:6},(_,i)=>{const id=data.slots[i];if(byId(id)&&!seen.has(id)){seen.add(id);return id;}return null;});state.started=!!data.started;state.completed=!!data.completed&&state.slots.every(Boolean);if(state.completed&&journeySteps.includes(data.journey)){state.journey=data.journey;state.message=data.message==='miss'?'miss':'call';state.promise=data.promise==='ask'?'ask':'begin';}}
+ if(data&&Array.isArray(data.slots)){state.campusGuided=!!data.campusGuided;state.campusClassFound=!!data.campusClassFound;state.campusAsked=state.campusClassFound&&!!data.campusAsked;state.campusLibraryFound=state.campusAsked&&!!data.campusLibraryFound;state.campusCenterFound=state.campusLibraryFound&&!!data.campusCenterFound;state.campusVisit=data.campusVisit==='center'&&state.campusLibraryFound?'center':data.campusVisit==='library'&&state.campusAsked?'library':'classroom';const seen=new Set();state.slots=Array.from({length:6},(_,i)=>{const id=data.slots[i];if(byId(id)&&!seen.has(id)){seen.add(id);return id;}return null;});state.started=!!data.started;state.completed=!!data.completed&&state.slots.every(Boolean);if(state.completed&&journeySteps.includes(data.journey)){state.journey=data.journey;state.message=data.message==='miss'?'miss':'call';state.promise=data.promise==='ask'?'ask':'begin';}}
 } catch {storageOK=false;}
 function save(){try{localStorage.setItem(STORE,JSON.stringify(state));localStorage.setItem(PREF,JSON.stringify({volume,soundEffects}));storageOK=true;}catch{storageOK=false;}}
 function announce(message){$('#chapter-status').textContent=message;}
@@ -82,7 +82,7 @@ function enterRoom(){
 }
 function lobby(){stopClip();close(false);$('#campus').hidden=true;$('#journey').hidden=true;$('#chapter').hidden=true;$('#world').hidden=false;document.body.classList.remove('in-room');selected=null;speech={kind:'welcome'};updateResume();$('#start').focus({preventScroll:true});}
 function open(html,type){
- if(!$('#dialog').open)lastFocus=document.activeElement;dialogType=type;$('#dialog').classList.toggle('packing-dialog',type==='packing');$('#dialog').classList.toggle('campus-map-dialog',type==='campus-guide');$('#dialog-content').innerHTML=html;
+ if(!$('#dialog').open)lastFocus=document.activeElement;dialogType=type;$('#dialog').classList.toggle('packing-dialog',type==='packing');$('#dialog').classList.toggle('campus-map-dialog',type==='campus-guide');$('#dialog').classList.toggle('campus-stamps-dialog',type==='campus-stamps');$('#dialog-content').innerHTML=html;
  if(!$('#dialog').open)$('#dialog').showModal();
  const heading=$('#dialog h2');if(heading){heading.id='active-dialog-title';heading.tabIndex=-1;$('#dialog').setAttribute('aria-labelledby','active-dialog-title');heading.focus();}else $('#close').focus();
 }
@@ -187,46 +187,112 @@ document.addEventListener('click',e=>{
  const promise=e.target.closest('[data-promise]');if(promise&&state.journey==='ocean'){state.promise=promise.dataset.promise==='ask'?'ask':'begin';enterJourney('america');}
 });
 
-// Chapter 2 opening: read the map, follow the path, collect the first stamp.
-function centerCampus(){const view=$('#campus-viewport');view.scrollLeft=(view.scrollWidth-view.clientWidth)/2;}
+// Chapter 2: find three destinations, ask for help and collect memories.
+const campusLocations={
+ classroom:{name:'Classroom',alt:'Kent State entrance arch and the orange classroom building beyond the path.'},
+ library:{name:'Library',alt:'The tall tan library with vertical windows, flagpoles and a Library sign.'},
+ center:{name:'Student Center',alt:'The curved Student Center, its green lawn and blue Kent State sign.'}
+};
+const campusStamps=[{key:'campusClassFound',name:'Classroom',title:'FIRST CLASS'},{key:'campusLibraryFound',name:'Library',title:'ASKED FOR HELP'},{key:'campusCenterFound',name:'Student Center',title:'A NEW CONNECTION'}];
+function campusCount(){return campusStamps.filter(s=>state[s.key]).length;}
+function campusPlace(){return state.campusVisit||'classroom';}
+function centerCampus(){const v=$('#campus-viewport');v.scrollLeft=(v.scrollWidth-v.clientWidth)*(innerWidth<=700&&campusPlace()==='library'?.65:.5);}
 function campusCollapsed(value){$('#campus-chat-body').hidden=value;$('#campus-toggle').textContent=value?'+':'−';$('#campus-toggle').ariaLabel=value?'Expand chat':'Minimize chat';$('#campus-toggle').setAttribute('aria-expanded',String(!value));}
+function campusMission(){
+ if(!state.campusClassFound)return {label:'Find my classroom',text:state.campusGuided?'The building behind the arch. Follow the path, then take the front steps. Let’s try it.':'First day at Kent State. New places, new faces… Where do I even begin?',hint:state.campusGuided?'Tap the steps to walk to the classroom building.':'Read the campus map to find the way.'};
+ if(!state.campusAsked)return {label:'Find the library',text:'One place found. Now, the library… Maybe I can ask that student for directions.',hint:'Tap the student waving by the path.'};
+ if(!state.campusLibraryFound)return {label:'Find the library',text:campusPlace()==='library'?'The tall building, the flags… This must be it. Let’s take a look inside.':'I said it! Alex told me to look for the tall building with the flags.',hint:campusPlace()==='library'?'Tap the library entrance.':'Follow Alex’s directions, or use the campus map.'};
+ if(!state.campusCenterFound)return {label:'Find Student Center',text:campusPlace()==='center'?'An event notice. I don’t know anyone yet… but maybe that’s a reason to go.':'My English wasn’t perfect. But someone understood me. That’s a start. One more place to find.',hint:campusPlace()==='center'?'Tap the noticeboard to read the invitation.':'Open the campus map and find Student Center.'};
+ return {label:'3 / 3 stamps ✓',text:'Three little stamps. A new place feels a little more like somewhere I belong.',hint:'Open your stamp collection to keep this moment.'};
+}
 function renderCampus(){
- const found=state.campusClassFound,guided=state.campusGuided;
- $('#campus-stamp-count').textContent=(found?'1':'0')+' / 3 stamps';
- $('#campus-progress').textContent=found?'Classroom found ✓':'Find my classroom';
- $('#campus-speech').textContent=found?'One place found. This campus feels a little less unfamiliar already.':guided?'The building behind the arch. Follow the path, then take the front steps. Let’s try it.':'First day at Kent State. New places, new faces… Where do I even begin?';
- $('#campus-hint').textContent=found?'Your first stamp is in the collection.':guided?'Tap the steps to walk to the classroom building.':'Read the campus map to find the way.';
- $('#campus-entrance').hidden=!guided||found;
- $('#campus-clara').classList.toggle('has-arrived',!!found);
+ const place=campusPlace(),mission=campusMission(),bg=$('.campus-background'),entrance=$('#campus-entrance');
+ $('#campus').className='campus campus-scene-'+place;
+ bg.src=asset('campus-'+place);bg.alt=campusLocations[place].alt;
+ $('#campus-stamp-count').textContent=campusCount()+' / 3 stamps';$('#campus-progress').textContent=mission.label;
+ $('#campus-speech').textContent=mission.text;$('#campus-hint').textContent=mission.hint;
+ $('#campus-clara').classList.toggle('has-arrived',place==='classroom'&&!!state.campusClassFound);
+ $('#campus-npc').hidden=place!=='classroom'||!state.campusClassFound||state.campusLibraryFound;
+ $('#campus-noticeboard').hidden=place!=='center';
+ entrance.hidden=place==='center'||(place==='classroom'&&(!state.campusGuided||state.campusClassFound&&(!state.campusAsked||state.campusLibraryFound)));
+ entrance.textContent=place==='library'?(state.campusLibraryFound?'Find Student Center ↗':'Enter the library ↗'):state.campusClassFound?'Walk to the library ↗':'Walk up the steps ↗';
+ entrance.classList.toggle('campus-path',place==='classroom'&&!!state.campusClassFound);
 }
 function enterCampus(){
  stopClip();close(false);$('#world').hidden=true;$('#chapter').hidden=true;$('#journey').hidden=true;$('#campus').hidden=false;
- document.body.classList.add('in-room');renderCampus();campusCollapsed(false);centerCampus();$('#campus-title').focus({preventScroll:true});announce('Chapter 2. Find my classroom. Read the campus map to find the way.');
+ document.body.classList.add('in-room');renderCampus();campusCollapsed(false);centerCampus();$('#campus-title').focus({preventScroll:true});announce('Chapter 2. '+campusMission().label+'. '+campusMission().hint);
+}
+function canVisitCampus(place){return place==='classroom'||place==='library'&&state.campusAsked||place==='center'&&state.campusLibraryFound;}
+function visitCampus(place){
+ if(!campusLocations[place])return;
+ if(!canVisitCampus(place)){
+  const hint=place==='library'?'Ask the student for directions to the library first.':'Find the library before heading to Student Center.';
+  if($('#map-directions'))$('#map-directions').textContent=hint;announce(hint);return;
+ }
+ state.campusVisit=place;if(place==='classroom')state.campusGuided=true;save();close(false);renderCampus();campusCollapsed(false);centerCampus();$('#campus-title').focus({preventScroll:true});announce(campusLocations[place].name+'. '+campusMission().hint);
 }
 function campusGuide(){
- open(`<h2 class="sr-only">Campus Map</h2><img class="campus-paper-map" src="${asset('campus-map')}" alt="Handwritten pencil campus map on aged paper. You are here at the entrance; follow the dashed path to 1: Classroom, then 2: Library, then 3: Student Center."><p class="dialog-copy">Your classroom is in the building behind the arch. Follow the path and take the front steps.</p><div class="dialog-bottom"><button class="start" ${state.campusClassFound?'data-close':'data-campus="follow"'}>${state.campusClassFound?'Back to campus':'Follow the path'}${icon('arrow')}</button></div>`,'campus-guide');
+ const target=!state.campusClassFound?'classroom':!state.campusAsked?null:!state.campusLibraryFound?'library':!state.campusCenterFound?'center':null;
+ const instruction=target==='classroom'?'Your classroom is in the building behind the arch. Follow the path and take the front steps.':target==='library'?'Alex pointed out the tall building with the flags. Find Library on your map.':target==='center'?'One more stop. Find Student Center and look for a way to meet new people.':!state.campusAsked?'The library is next. Ask the student by the path for directions.':'Three places found. You can revisit any destination.';
+ const action=target?`<button class="start" data-campus-dest="${target}">${target==='classroom'?'Follow the path':target==='library'?'Go to the library':'Go to Student Center'}${icon('arrow')}</button>`:`<button class="start" data-close>Back to campus${icon('arrow')}</button>`;
+ open(`<h2 class="sr-only">Campus Map</h2><div class="campus-map-art"><img class="campus-paper-map" src="${asset('campus-map')}" alt="Pencil campus map: entrance to Classroom, then Library, then Student Center.">${Object.entries(campusLocations).map(([id,l])=>`<button class="map-destination map-${id}${target===id?' map-next':''}" data-campus-dest="${id}" aria-label="Go to ${l.name}${canVisitCampus(id)?'':' · not yet available'}" aria-disabled="${!canVisitCampus(id)}" aria-describedby="map-directions"></button>`).join('')}</div><p class="dialog-copy" id="map-directions" aria-live="polite">${instruction}</p><div class="dialog-bottom">${action}</div>`,'campus-guide');
 }
 function showCampusStamps(){
- open(`<h2 class="dialog-title airport-dialog-title">Stamp Collection</h2><p class="campus-card-caption">My first day at Kent State</p><div class="campus-stamp-sheet"><div class="campus-stamp ${state.campusClassFound?'collected':''}"><span aria-hidden="true">${state.campusClassFound?'✓':'01'}</span><strong>Classroom</strong><small>${state.campusClassFound?'First class found':'Find my classroom'}</small></div><div class="campus-stamp"><span aria-hidden="true">02</span><strong>Library</strong></div><div class="campus-stamp"><span aria-hidden="true">03</span><strong>Student Center</strong></div></div><p class="campus-card-count">${state.campusClassFound?'1':'0'} / 3 stamps</p><div class="dialog-bottom"><button class="start" data-close>Back to campus${icon('arrow')}</button></div>`,'campus-stamps');
+ const collected=campusCount();
+ open(`<h2 class="sr-only">Stamp Collection</h2><div class="stamp-paper"><img src="${asset('stamp-collection')}" alt="Cream Stamp Collection paper with three spaces: Classroom, Library and Student Center.">${campusStamps.map((s,i)=>state[s.key]?`<span class="paper-stamp paper-stamp-${i}" role="img" aria-label="${s.name}: ${s.title.toLowerCase()} stamp collected"><b aria-hidden="true">✓</b><small>${s.title}</small></span>`:'').join('')}<span class="paper-stamp-count" aria-label="${collected} of 3 stamps collected">${collected} / 3</span></div><div class="dialog-bottom"><button class="soft-button" data-close>Back to campus</button>${collected===3?`<button class="start" data-campus="complete">Keep this moment${icon('arrow')}</button>`:`<button class="start" data-campus="map">Open campus map${icon('arrow')}</button>`}</div>`,'campus-stamps');
+}
+function campusStampArrival(index,title,text){
+ const stamp=campusStamps[index];
+ announce(stamp.name+' found. '+campusCount()+' of 3 stamps collected.');
+ open(`<div class="campus-arrival"><span class="campus-first-stamp" aria-label="${stamp.title.toLowerCase()} stamp collected">✓<small>${stamp.title}</small></span><h2 class="dialog-title airport-dialog-title">${title}</h2><p class="dialog-copy">${text}</p><div class="dialog-bottom"><button class="start" data-close>${index===0?'Keep exploring':'Back to campus'}${icon('arrow')}</button><button class="soft-button" data-campus="stamps">My stamps</button></div></div>`,'campus-arrival');
 }
 function campusArrival(){
- if(!state.campusGuided||state.campusClassFound)return;
- state.campusClassFound=true;save();renderCampus();campusCollapsed(false);
- announce('Classroom found. First class stamp collected. One of three stamps.');
- open(`<div class="campus-arrival"><span class="campus-first-stamp" aria-label="First class stamp collected">✓<small>FIRST CLASS</small></span><h2 class="dialog-title airport-dialog-title">Found my classroom!</h2><p class="dialog-copy">One small step. One little stamp.<br>Maybe I can find my way here.</p><div class="dialog-bottom"><button class="start" data-campus="stamps">See my stamp${icon('arrow')}</button><button class="soft-button" data-close>Back to campus</button></div></div>`,'campus-arrival');
+ const place=campusPlace();
+ if(place==='classroom'){
+  if(state.campusClassFound){if(state.campusAsked)visitCampus('library');return;}
+  if(!state.campusGuided)return;state.campusClassFound=true;save();renderCampus();campusCollapsed(false);
+  campusStampArrival(0,'Found my classroom!','One small step. One little stamp.<br>Maybe I can find my way here.');
+ }else if(place==='library'){
+  if(state.campusLibraryFound){campusGuide();return;}
+  if(!state.campusAsked)return;state.campusLibraryFound=true;save();renderCampus();campusCollapsed(false);
+  campusStampArrival(1,'Found the library!','My English wasn’t perfect. But someone understood me. That’s a start.');
+ }
 }
-$('#campus-lobby').addEventListener('click',lobby);
-$('#campus-map').addEventListener('click',campusGuide);
-$('#campus-stamps').addEventListener('click',showCampusStamps);
-$('#campus-entrance').addEventListener('click',campusArrival);
+function talkToAlex(){
+ if(!state.campusClassFound||campusPlace()!=='classroom')return;
+ open(`<h2 class="dialog-title airport-dialog-title">A little courage.</h2><div class="campus-conversation"><img src="${asset('campus-alex')}" alt="Alex waving hello"><div><span>ALEX</span><p>“Hey! First day?”</p><p class="clara-thought">I practiced introducing myself all night. Somehow, “Hi” still feels like the hardest word.</p></div></div><div class="story-choices"><button data-campus-ask="help">Hi! Could you help me find the library?</button><button data-campus-ask="way">Hi! Is the library this way?</button></div>`,'campus-conversation');
+}
+function alexDirections(){
+ if(!state.campusClassFound||campusPlace()!=='classroom')return;
+ state.campusAsked=true;save();renderCampus();
+ open(`<h2 class="dialog-title airport-dialog-title">Nice to meet you.</h2><div class="campus-conversation"><img src="${asset('campus-alex')}" alt="Alex"><div><span>ALEX</span><p>“Of course! Look for the tall building with the flags. I’m Alex, by the way.”</p><span>CLARA</span><p>“Thank you! I’m Clara.”</p></div></div><div class="dialog-bottom"><button class="start" data-close>Thanks, Alex${icon('arrow')}</button></div>`,'campus-conversation');
+}
+function campusNotice(){
+ if(campusPlace()!=='center'||!state.campusLibraryFound)return;
+ open(`<h2 class="dialog-title airport-dialog-title">A place to begin.</h2><div class="campus-event"><span>YOU’RE INVITED</span><strong>International Student<br>Meet &amp; Greet</strong><p>New faces. Small conversations.<br>Everyone welcome.</p></div><p class="dialog-copy">I don’t have to know anyone before I go. Maybe this is how it starts.</p><div class="dialog-bottom"><button class="start" data-campus="save-event">${state.campusCenterFound?'See my stamps':'Save the invitation'}${icon('arrow')}</button></div>`,'campus-event');
+}
+function finishCampus(){
+ if(campusCount()!==3)return;
+ open(`<div class="campus-arrival"><span class="campus-first-stamp" aria-hidden="true">✓<small>3 / 3</small></span><h2 class="dialog-title airport-dialog-title">Chapter 2 completed</h2><p class="dialog-copy">I found my classroom, asked for help, and found a place to meet people.<br><br>This campus feels a little less unfamiliar now.</p><div class="dialog-bottom"><button class="soft-button" data-campus="stamps">My stamps</button><button class="start" data-close>Back to campus${icon('arrow')}</button></div><button class="resume-button" data-campus="replay">Replay Chapter 2</button></div>`,'campus-complete');
+}
+function replayCampus(){
+ for(const key of ['campusGuided','campusClassFound','campusAsked','campusLibraryFound','campusCenterFound'])state[key]=false;
+ state.campusVisit='classroom';save();enterCampus();
+}
+$('#campus-lobby').addEventListener('click',lobby);$('#campus-map').addEventListener('click',campusGuide);$('#campus-stamps').addEventListener('click',showCampusStamps);$('#campus-entrance').addEventListener('click',campusArrival);$('#campus-npc').addEventListener('click',talkToAlex);$('#campus-noticeboard').addEventListener('click',campusNotice);
 $('#campus-toggle').addEventListener('click',()=>campusCollapsed(!$('#campus-chat-body').hidden));
-$('#campus-help').addEventListener('click',()=>open(`<h2 class="dialog-title airport-dialog-title">Finding my way</h2><p class="dialog-copy">Read the campus map. Follow its directions, then tap the steps to find Clara’s classroom and collect a stamp.<br><br>On a narrow screen, swipe across the scenery or focus it and use the arrow keys. Tap − to tuck away Clara’s chat.</p><div class="dialog-bottom"><button class="start" data-close>Got it${icon('arrow')}</button></div>`,'campus-help'));
+$('#campus-help').addEventListener('click',()=>open(`<h2 class="dialog-title airport-dialog-title">Finding my way</h2><p class="dialog-copy">Read the campus map and find your classroom. Ask Alex for directions to the library. Then find Student Center and read the event notice.<br><br>Collect a stamp at each stop. Both ways of asking Alex are welcome. On a narrow screen, swipe across the scenery or focus it and use the arrow keys. Tap − to tuck away Clara’s chat.</p><div class="dialog-bottom"><button class="start" data-close>Got it${icon('arrow')}</button></div>`,'campus-help'));
 $('#campus-viewport').addEventListener('keydown',e=>{if(e.target!==$('#campus-viewport'))return;if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();$('#campus-viewport').scrollBy({left:(e.key==='ArrowLeft'?-1:1)*innerWidth*.5,behavior:'smooth'});}});
 document.addEventListener('click',e=>{
+ const destination=e.target.closest('[data-campus-dest]');if(destination){visitCampus(destination.dataset.campusDest);return;}
+ if(e.target.closest('[data-campus-ask]')){alexDirections();return;}
  const action=e.target.closest('[data-campus]');if(!action)return;
  if(action.dataset.campus==='enter')enterCampus();
- if(action.dataset.campus==='follow'){state.campusGuided=true;save();close(false);renderCampus();$('#campus-entrance').focus({preventScroll:true});}
+ if(action.dataset.campus==='map')campusGuide();
  if(action.dataset.campus==='stamps')showCampusStamps();
+ if(action.dataset.campus==='complete')finishCampus();
+ if(action.dataset.campus==='replay')replayCampus();
+ if(action.dataset.campus==='save-event'&&campusPlace()==='center'&&state.campusLibraryFound){state.campusCenterFound=true;save();renderCampus();showCampusStamps();announce('Invitation saved. All three stamps collected.');}
 });
 
 function toast(message){clearTimeout(toastTimer);$('#toast').textContent=message;$('#toast').classList.add('visible');toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),3600);}

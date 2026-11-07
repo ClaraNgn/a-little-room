@@ -33,7 +33,7 @@ The source folder is static and does not require a build or API key. Upload `ind
 
 ## Prototype scope
 
-Chapter 1 includes departure from Vietnam and the flight toward the United States. It ends at the new horizon; the Chapter 2 opening is playable at ?chapter=2: read the campus map, locate the classroom steps and collect the first stamp. Library and Student Center tasks are outside this opening scene. The airport is a fictional story scene, not a simulation of a specific airport, airline or real itinerary.
+Chapter 1 includes departure from Vietnam and the flight toward the United States. It ends at the new horizon; Chapter 2 is playable at ?chapter=2: find the classroom, ask Alex for directions, locate the library, and save an event invitation at Student Center to collect all three stamps. The airport is a fictional story scene, not a simulation of a specific airport, airline or real itinerary.
 
 ## Verified
 
@@ -76,6 +76,10 @@ The character is Clara throughout the visible interface, introduction, dialogue,
 The old notebook and mug storage IDs now represent Film roll and Letter, so saved packed positions remain compatible. Visible labels, reflections and sprites are replaced; the original sprite files are archived and no longer referenced by the live asset bank. New artwork uses built-in ImageGen and the approved 2.5D art direction. Sources and prompts: art-source/clara-items/.
 
 
-## Chapter 2 opening
+## Chapter 2: Finding my way
 
-Continue from the Chapter 1 completion dialog, or open `?chapter=2` to preview campus directly. Use Campus map, follow its directions, then tap the classroom steps to earn the first of three stamps. The first stamp and map progress persist on the device without changing Chapter 1 packing. The scene supports touch panning, keyboard controls and collapsible chat. Kent State scenery was generated from creator-supplied photos and the approved Chapter 1 art style; source images and prompts are in `art-source/chapter2/`. The separate American student and illustrated stamp sheet are review assets, not integrated into gameplay yet.
+Continue from Chapter 1, or open `?chapter=2`. Read the handwritten parchment map and find the classroom. Talk to Alex: either English question is accepted. Follow his directions to the library, then use the map to find Student Center and save the meet-and-greet invitation. Each destination adds one stamp to the approved illustrated collection paper. Finish with three stamps and a short reflection.
+
+Campus locations on the map can be revisited; trying a destination before its story step gives a hint. No timer or failure reset. Map knowledge, conversation, visited scene and stamps persist locally with migration from the earlier one-stamp version. Replay Chapter 2 resets only campus progress and preserves Chapter 1 packing. Later chapters are not implemented here.
+
+Campus scenery, Alex and the simple stamp paper use the creator-reviewed ImageGen assets under `art-source/chapter2/`. The served SVG files wrap WebP images; source PNGs and prompts are retained. The map and stamp sheet have accessible text alternatives and buttons. The stamp paper has no Kent State branding, flower or My first day subtitle. No event registration, real calendar update or external messages are sent.
