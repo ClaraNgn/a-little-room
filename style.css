@@ -165,3 +165,5 @@ body.in-room{overflow:hidden}
 /* Suitcase heading matches the lobby lettering. */
 .packing-dialog .dialog-title{font-family:DynaPuff,'Trebuchet MS',sans-serif;font-weight:500}
 .packing-dialog .case-dialog-header{justify-content:flex-end}
+
+.packing-dialog .case-actions{justify-content:flex-end}
