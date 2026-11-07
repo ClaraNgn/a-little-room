@@ -33,7 +33,7 @@ The source folder is static and does not require a build or API key. Upload `ind
 
 ## Prototype scope
 
-Chapter 1 includes departure from Vietnam and the flight toward the United States. It ends at the new horizon; campus life and Chapter 2 are not yet playable. The airport is a fictional story scene, not a simulation of a specific airport, airline or real itinerary.
+Chapter 1 includes departure from Vietnam and the flight toward the United States. It ends at the new horizon; the Chapter 2 opening is playable at ?chapter=2: read the campus map, locate the classroom steps and collect the first stamp. Library and Student Center tasks are outside this opening scene. The airport is a fictional story scene, not a simulation of a specific airport, airline or real itinerary.
 
 ## Verified
 
@@ -74,3 +74,8 @@ To rebuild clips, compile render-frames.swift with swiftc -O, then pass the sour
 The character is Clara throughout the visible interface, introduction, dialogue, help, boarding pass and accessible labels. Lobby menu order is Introduction, How to play, Begin my story! The extra resume button, door-hover text, suitcase toast, generic introduction scope sentence and room Beginnings heading were removed to match the supplied sections 1–6. Progress remains stored on the same browser. Airport and later content is retained, as confirmed by the creator.
 
 The old notebook and mug storage IDs now represent Film roll and Letter, so saved packed positions remain compatible. Visible labels, reflections and sprites are replaced; the original sprite files are archived and no longer referenced by the live asset bank. New artwork uses built-in ImageGen and the approved 2.5D art direction. Sources and prompts: art-source/clara-items/.
+
+
+## Chapter 2 opening
+
+Continue from the Chapter 1 completion dialog, or open `?chapter=2` to preview campus directly. Use Campus map, follow its directions, then tap the classroom steps to earn the first of three stamps. The first stamp and map progress persist on the device without changing Chapter 1 packing. The scene supports touch panning, keyboard controls and collapsible chat. Kent State scenery was generated from creator-supplied photos and the approved Chapter 1 art style; source images and prompts are in `art-source/chapter2/`. The separate American student and illustrated stamp sheet are review assets, not integrated into gameplay yet.
