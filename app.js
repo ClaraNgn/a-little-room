@@ -47,7 +47,7 @@ function renderSelection(){
  $('#room-case-label').textContent=selected?'Place it here ↓':'My suitcase ↗';$('#room-case').classList.toggle('drop-ready',!!selected);
  $('#room-case').ariaLabel=selected?`Pack ${byId(selected).name} in suitcase`:'Open my suitcase';
  if(dialogType==='packing'){
-  $('#case-story').textContent=selected?`${byId(selected).name} · ${byId(selected).story}`:item?chatText():'Choose an item below, then an empty space. Tap a packed item in the suitcase to take it out.';
+  $('#case-story').textContent=selected?`${byId(selected).name} · ${byId(selected).story}`:item?`${item.name} · ${item.story}`:'Choose an item below, then an empty space. Tap a packed item in the suitcase to take it out.';
   $('#drawer-pack').disabled=!selected&&count()!==6;
   $('#drawer-pack').textContent=count()===6?'Close suitcase':selected?'Pack '+byId(selected).name:'Select an item';
  }
