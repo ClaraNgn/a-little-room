@@ -218,3 +218,7 @@ body.in-room{overflow:hidden}
 @media(max-width:700px){.campus-npc{left:53%;top:44%;width:138px;height:194px}.npc-greeting{font-size:10px;padding:6px 10px}.campus-path{left:54%;top:58%}.campus-scene-library .campus-clara{left:60%;top:49%}.campus-scene-library .campus-entrance{left:70%;top:42%;font-size:10px}.campus-scene-center .campus-clara{left:52%;top:47%}.campus-noticeboard{left:43%;top:39%;width:100px;height:145px;border-width:6px;border-bottom-width:15px}.campus-noticeboard strong{font-size:15px}.campus-conversation{gap:10px;margin:15px 0}.campus-conversation>img{width:85px;height:140px}.campus-conversation p{font-size:12px;line-height:1.6}.campus-conversation .clara-thought{font-size:11px}.campus-chat .mission-pill{max-width:175px}.campus-map-art{width:min(100%,calc((100dvh - 230px) * 1.3333))}#dialog.campus-stamps-dialog{padding:25px 12px 20px}.paper-stamp{border-width:3px}.campus-stamps-dialog .dialog-bottom{gap:10px;justify-content:center}.campus-stamps-dialog .start{font-size:11px;min-width:0;padding:13px 16px}.campus-stamps-dialog .soft-button{font-size:11px}}
 @media(prefers-reduced-motion:reduce){.campus-npc{transition:none}}
 @media(max-width:700px){.campus-scene-center .campus-map-button{top:25%}.campus-scene-library .campus-map-button{top:27%}}
+
+/* Slightly larger, consistent chapter labels. */
+.chapter-number,.campus-header p{font-size:11px;font-weight:900;letter-spacing:2px;line-height:1.4;margin:1px 0 8px;color:#708551}
+@media(max-width:700px){.chapter-number,.campus-header p{font-size:10px;letter-spacing:1.7px}}
