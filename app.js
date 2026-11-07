@@ -15,13 +15,13 @@ const icon=id=>`<svg aria-hidden="true"><use href="#lobby-i-${id}"/></svg>`;
 const count=()=>state.slots.filter(Boolean).length, packed=id=>state.slots.includes(id);
 const journeySteps=['morning','airport','checkedin','goodbye','gate','takeoff','ocean','america','end'];
 let state={started:false,completed:false,slots:Array(6).fill(null)};
-let volume=.25,music=false,context,musicTimer,toastTimer,lastFocus,dialogType,introStep=0,selected=null,speech={kind:'welcome'},drag=null,ignoreClickUntil=0,storageOK=true,chatCollapsed=false;
+let volume=.25,music=false,soundEffects=true,context,musicTimer,toastTimer,lastFocus,dialogType,introStep=0,selected=null,speech={kind:'welcome'},drag=null,ignoreClickUntil=0,storageOK=true,chatCollapsed=false;
 try {
- const pref=JSON.parse(localStorage.getItem(PREF));if(pref&&Number.isFinite(pref.volume))volume=Math.max(0,Math.min(.6,pref.volume));
+ const pref=JSON.parse(localStorage.getItem(PREF));if(pref&&Number.isFinite(pref.volume))volume=Math.max(0,Math.min(.6,pref.volume));if(pref&&typeof pref.soundEffects==='boolean')soundEffects=pref.soundEffects;
  const data=JSON.parse(localStorage.getItem(STORE));
  if(data&&Array.isArray(data.slots)){const seen=new Set();state.slots=Array.from({length:6},(_,i)=>{const id=data.slots[i];if(byId(id)&&!seen.has(id)){seen.add(id);return id;}return null;});state.started=!!data.started;state.completed=!!data.completed&&state.slots.every(Boolean);if(state.completed&&journeySteps.includes(data.journey)){state.journey=data.journey;state.message=data.message==='miss'?'miss':'call';state.promise=data.promise==='ask'?'ask':'begin';}}
 } catch {storageOK=false;}
-function save(){try{localStorage.setItem(STORE,JSON.stringify(state));localStorage.setItem(PREF,JSON.stringify({volume}));storageOK=true;}catch{storageOK=false;}}
+function save(){try{localStorage.setItem(STORE,JSON.stringify(state));localStorage.setItem(PREF,JSON.stringify({volume,soundEffects}));storageOK=true;}catch{storageOK=false;}}
 function announce(message){$('#chapter-status').textContent=message;}
 function updateResume(){ $('#resume')?.remove(); }
 function setChatCollapsed(value){
@@ -102,7 +102,7 @@ function intro(step=0){
 function showSuitcase(){
  open(`<h2 class="dialog-title">My little suitcase.</h2><div class="case-dialog-header"><span class="case-counter" id="case-counter">${count()} / 6 packed</span></div><div class="mini-case"><div class="case-handle" aria-hidden="true"></div><div class="case-top"><span>CLARA’S SUITCASE</span><span aria-hidden="true">✦</span></div><div class="case-slots" id="case-slots">${slotsHTML()}</div></div><div class="inventory" id="inventory">${inventoryHTML()}</div><p class="case-story" id="case-story" aria-live="polite"></p><div class="case-actions"><button class="chat-primary" id="drawer-pack"></button></div>`,'packing');renderSelection();
 }
-function help(){open(`<p class="dialog-kicker">CHAPTER 01</p><h2 class="dialog-title">A little help.</h2><ol class="help-list"><li>Clara gives you your task through the chat in the room. Tap − to tuck it away, or + to bring it back.</li><li>Choose an object to hear its story. Drag it to the open suitcase, or tap “Pack it” in the chat.</li><li>Open “My suitcase” to see all six objects, choose an empty space, or take a packed object out.</li><li>On a narrow screen, swipe across the room or use the look-around arrows to see both sides.</li><li>When all six objects are packed, close the suitcase and choose “Sleep until morning” to continue.</li><li>At the airport, follow Clara’s chat to check in, write home and board. After boarding, enjoy a four-second flight film. Short films continue automatically; use Skip to move on sooner. You can also tap the glowing airport buttons.</li><li>Your packing progress is saved on this device. Choose “Begin my story!” in the lobby to enter Clara’s introduction and return to her room.</li><li>Keyboard: Tab and Enter to select. Focus the room and use left/right arrows to look around. Escape closes a window.</li></ol><div class="music-controls"><label for="volume">Music volume</label><input type="range" id="volume" min="0" max="60" value="${Math.round(volume*100)}"><output for="volume">${Math.round(volume*100)}%</output></div><button class="soft-button" data-toggle-music>${music?'Turn music off':'Turn music on'}</button><div class="dialog-bottom"><button class="start" data-close>Got it${icon('arrow')}</button></div>`,'help');}
+function help(){open(`<p class="dialog-kicker">CHAPTER 01</p><h2 class="dialog-title">A little help.</h2><ol class="help-list"><li>Clara gives you your task through the chat in the room. Tap − to tuck it away, or + to bring it back.</li><li>Choose an object to hear its story. Drag it to the open suitcase, or tap “Pack it” in the chat.</li><li>Open “My suitcase” to see all six objects, choose an empty space, or take a packed object out.</li><li>On a narrow screen, swipe across the room or use the look-around arrows to see both sides.</li><li>When all six objects are packed, close the suitcase and choose “Sleep until morning” to continue.</li><li>At the airport, follow Clara’s chat to check in, write home and board. After boarding, enjoy a four-second flight film. Short films continue automatically; use Skip to move on sooner. You can also tap the glowing airport buttons.</li><li>Your packing progress is saved on this device. Choose “Begin my story!” in the lobby to enter Clara’s introduction and return to her room.</li><li>Keyboard: Tab and Enter to select. Focus the room and use left/right arrows to look around. Escape closes a window.</li></ol><div class="music-controls"><label for="volume">Music volume</label><input type="range" id="volume" min="0" max="60" value="${Math.round(volume*100)}"><output for="volume">${Math.round(volume*100)}%</output></div><div class="audio-options"><button class="soft-button" data-toggle-music>${music?'Turn music off':'Turn music on'}</button><button class="soft-button" data-toggle-sfx aria-pressed="${soundEffects}">${soundEffects?'Turn sound effects off':'Turn sound effects on'}</button></div><div class="dialog-bottom"><button class="start" data-close>Got it${icon('arrow')}</button></div>`,'help');}
 function gameIntroduction(){open(`<p class="dialog-kicker">INTRODUCTION</p><h2 class="dialog-title">The Abroad<br>Chapter</h2><p class="dialog-copy">Meet Clara, a student from Vietnam ready to start her new life in the United States. Tomorrow is her flight! Tonight, she is still in the room she knows by heart.\n\nLet’s witness her journey miles away from home.</p><span class="welcome-tag">Chapter 1 · Beginnings</span><div class="dialog-bottom"><button class="soft-button" data-close>Back to lobby</button><button class="start" data-begin-introduction>Begin my story${icon('arrow')}</button></div>`,'introduction');}
 function complete(){
  if(count()!==6)return;state.completed=true;save();updateResume();
@@ -111,7 +111,7 @@ function complete(){
 const journeyScenes={
  morning:{title:'The next morning.',place:'Vietnam · Before sunrise',progress:'A new day',text:'I barely slept. Now the suitcase is by the door, and the house is so quiet. I’m going to miss the little things I never thought to notice.',hint:'Take this moment at your own pace.',action:'Leave for the airport',next:'airport'},
  airport:{title:'A small first step.',place:'Vietnam · Airport departures',progress:'1 / 3 · Check in',text:'The airport is already awake. Wheels on the floor, voices overhead… and me, holding my passport a little too tightly. Can you help me check in?',hint:'Tap “Check in” at the counter.',action:'Check in',task:'checkin'},
- checkedin:{title:'A boarding pass, a deep breath.',place:'Airport departures · Before boarding',progress:'2 / 3 · A message home',text:'My suitcase is checked in, and my boarding pass is in my hand. Before I go through to the gate, I want to leave one little message for home.',hint:'',action:'Open my phone',task:'phone'},
+ checkedin:{title:'A boarding pass, a deep breath.',place:'Airport departures · Before boarding',progress:'2 / 3 · A message home',text:'My suitcase is checked in, and my boarding pass is in my hand. Before I go through to the gate, I want to leave one little message for home.',hint:'Open phone',action:'Open my phone',task:'phone'},
  goodbye:{title:'Home comes with me.',place:'Airport departures · On the way to the gate',progress:'3 / 3 · Find the gate',text:'The message is sent. Somehow, a few words make the distance feel smaller already. My passport and boarding pass are ready. It’s time to find my gate.',hint:'The boarding gate is on the right.',action:'Go to the gate',next:'gate'},
  gate:{title:'This is really happening.',place:'Departure gate · Boarding now',progress:'Ready to board',text:'That’s my flight. I thought courage would feel bigger than this. Right now, it feels like taking one breath… and then one step forward.',hint:'You’ve done everything you need for this departure.',action:'Board the plane',next:'takeoff'},
  takeoff:{title:'And then, we lift off.',place:'Above Vietnam · The journey begins',progress:'Taking flight',text:'The wheels leave the ground. The streets become little lines, and everything I know gets smaller beneath the clouds. Goodbye for now, home.',hint:'Watch the clouds go by, then continue when you’re ready.',action:'Look out of the window',next:'ocean'},
@@ -152,8 +152,8 @@ function enterJourney(step){
  $('#journey').className='journey scene-'+step+(flying?' is-flying':'')+(atAirport?' is-airport':'');
  $('#journey-title').textContent=atAirport?'Airport':scene.title;$('.journey-caption>p').hidden=atAirport;$('#journey-place').hidden=atAirport;$('#journey-place').textContent=atAirport?'':scene.place;$('#journey-progress').textContent=scene.progress;
  $('#journey-speech').textContent=scene.text;$('#journey-speech').hidden=step==='end';$('#journey-hint').textContent=scene.hint;$('#journey-hint').hidden=!scene.hint;
- $('#journey-actions').hidden=step==='airport';
- $('#journey-actions').innerHTML=step==='airport'?'':`<button class="chat-primary" ${scene.next?`data-journey="${scene.next}"`:`data-travel-task="${scene.task}"`}>${scene.action} <span aria-hidden="true">→</span></button>`;
+ $('#journey-actions').hidden=step==='airport'||step==='checkedin';
+ $('#journey-actions').innerHTML=(step==='airport'||step==='checkedin')?'':`<button class="chat-primary" ${scene.next?`data-journey="${scene.next}"`:`data-travel-task="${scene.task}"`}>${scene.action} <span aria-hidden="true">→</span></button>`;
  $('#journey-background').src=step==='morning'?$('.room-background').src:flying?(window.journeyClips?.flight.poster||asset('airport')):asset('airport');
  $('#airport-character').hidden=step==='morning'||flying;
  const hotspot=$('#airport-hotspot');hotspot.hidden=!atAirport;hotspot.ariaLabel=step==='checkedin'?'Open Clara’s phone':scene.action;hotspot.innerHTML=step==='checkedin'?`<img src="${asset('phone')}" alt="" draggable="false">`:scene.action+' ↗';
@@ -185,6 +185,21 @@ document.addEventListener('click',e=>{
  const promise=e.target.closest('[data-promise]');if(promise&&state.journey==='ocean'){state.promise=promise.dataset.promise==='ask'?'ask':'begin';enterJourney('america');}
 });
 function toast(message){clearTimeout(toastTimer);$('#toast').textContent=message;$('#toast').classList.add('visible');toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),3600);}
+// Short overlapping voices keep click feedback immediate, independent of music.
+const clickVoices=[$('#click-sound')];
+for(let i=1;i<4;i++){const voice=clickVoices[0].cloneNode(true);voice.id='click-sound-'+(i+1);clickVoices[0].parentNode.append(voice);clickVoices.push(voice);}
+let clickVoice=0;
+function playClick(){
+ if(!soundEffects)return;
+ const voice=clickVoices[clickVoice++%clickVoices.length];
+ try{voice.pause();if(voice.readyState>0)voice.currentTime=0;voice.volume=.18;voice.play()?.catch(()=>{});}catch{}
+}
+document.addEventListener('click',e=>{
+ const button=e.target instanceof Element?e.target.closest('button'):null;
+ if(!button||button.disabled||button.getAttribute('aria-disabled')==='true')return;
+ if(Date.now()<ignoreClickUntil&&button.matches('[data-item],[data-slot],[data-drop]'))return;
+ playClick();
+},{capture:true});
 function renderMusic(){['#music','#chapter-music'].forEach(sel=>{$(sel).ariaLabel=music?'Turn music off':'Turn music on';$(sel).setAttribute('aria-pressed',String(music));});}
 function melody(){if(!music||document.hidden)return;try{context ||= new(window.AudioContext||window.webkitAudioContext)();context.resume();[523.25,659.25,783.99,659.25,587.33,523.25,440,523.25].forEach((f,n)=>{const at=context.currentTime+n*.48,o=context.createOscillator(),g=context.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,at);g.gain.linearRampToValueAtTime(volume*.12,at+.035);g.gain.exponentialRampToValueAtTime(.0001,at+1.25);o.connect(g);g.connect(context.destination);o.start(at);o.stop(at+1.3);});}catch{music=false;clearInterval(musicTimer);renderMusic();}}
 function toggleMusic(){music=!music;if(music){melody();musicTimer=setInterval(melody,11000);}else{clearInterval(musicTimer);context?.suspend();}renderMusic();}
@@ -199,6 +214,7 @@ $('#dialog').addEventListener('click',e=>{
  if(e.target.closest('[data-intro-next]'))introStep<2?intro(introStep+1):enterRoom();
  if(e.target.closest('[data-intro-back]'))intro(introStep-1);
  if(e.target.closest('[data-toggle-music]')){toggleMusic();help();}
+ if(e.target.closest('[data-toggle-sfx]')){soundEffects=!soundEffects;if(soundEffects)playClick();save();help();}
  if(e.target.closest('[data-lobby]'))lobby();
  if(e.target.closest('[data-review]')){enterRoom();showSuitcase();}
  if(e.target.closest('[data-replay]')){state={started:false,completed:false,slots:Array(6).fill(null)};selected=null;speech={kind:'welcome'};save();updateResume();lobby();renderChapter();setChatCollapsed(false);intro();}
