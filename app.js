@@ -138,7 +138,7 @@ function startClip(kind){
  video.src=clip.src;video.currentTime=0;
  if(matchMedia('(prefers-reduced-motion: reduce)').matches){$('#clip-play').hidden=false;$('#clip-play').textContent='Play animation ▷';$('#clip-skip').textContent='Continue →';}
  else video.play().catch(()=>{$('#clip-play').hidden=false;$('#clip-play').textContent='Play animation ▷';});
- $('#clip-title').focus({preventScroll:true});announce(kind==='morning'?'A 3.5-second sunrise and a little suitcase on its way to the airport.':'A 4-second film of a little airplane flying past smiling clouds toward America.');
+ $('#clip-title').focus({preventScroll:true});announce(kind==='morning'?'A 3.5-second film of sunrise in Jenny’s room before heading to the airport.':'A 4-second film of a little airplane flying past soft clouds toward America.');
 }
 $('#cutscene-video').addEventListener('ended',finishClip);
 $('#cutscene-video').addEventListener('error',()=>{if(clipNext){$('#clip-play').hidden=true;$('#clip-skip').textContent='Continue →';}});
