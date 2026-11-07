@@ -191,3 +191,6 @@ body.in-room{overflow:hidden}
 .airport-hotspot.at-phone img{width:100%;height:100%;object-fit:contain;pointer-events:none;filter:drop-shadow(0 0 6px #fff5afa6)}
 @keyframes phone-glow{0%,100%{opacity:.65;transform:scale(.9)}50%{opacity:1;transform:scale(1.12)}}
 @media(max-width:700px){.airport-hotspot.at-phone{left:55%;top:45%;width:76px;height:96px}}
+
+/* All three Clara introduction headings share the game lettering. */
+.intro-content .dialog-title{font-family:DynaPuff,'Trebuchet MS',sans-serif;font-weight:500}
