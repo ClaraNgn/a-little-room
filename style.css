@@ -175,3 +175,6 @@ body.in-room{overflow:hidden}
 /* Morning film fills the website viewport with safe wall margins. */
 .cutscene.morning-film{background:#c8a7b7}
 .cutscene.morning-film>video{object-fit:cover;object-position:center}
+
+/* One clear airport heading, matching the game lettering. */
+.journey.is-airport .journey-caption h2{font-family:DynaPuff,'Trebuchet MS',sans-serif;font-weight:500}
