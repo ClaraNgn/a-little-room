@@ -201,7 +201,7 @@ function campusCollapsed(value){$('#campus-chat-body').hidden=value;$('#campus-t
 function campusMission(){
  if(!state.campusClassFound)return {label:'Find my classroom',text:state.campusGuided?'The building behind the arch. Follow the path, then take the front steps. Let’s try it.':'First day at Kent State. New places, new faces… Where do I even begin?',hint:state.campusGuided?'Tap the steps to walk to the classroom building.':'Read the campus map to find the way.'};
  if(!state.campusAsked)return {label:'Find the library',text:'One place found. Now, the library… Maybe I can ask that student for directions.',hint:'Tap the student waving by the path.'};
- if(!state.campusLibraryFound)return {label:'Find the library',text:campusPlace()==='library'?'The tall building, the flags… This must be it. Let’s take a look inside.':'I said it! Alex told me to look for the tall building with the flags.',hint:campusPlace()==='library'?'Tap the library entrance.':'Follow Alex’s directions, or use the campus map.'};
+ if(!state.campusLibraryFound)return {label:'Find the library',text:campusPlace()==='library'?'The tall building, the flags… This must be it. Let’s take a look inside.':'I said it! Ben told me to look for the tall building with the flags.',hint:campusPlace()==='library'?'Tap the library entrance.':'Follow Ben’s directions, or use the campus map.'};
  if(!state.campusCenterFound)return {label:'Find Student Center',text:campusPlace()==='center'?'An event notice. I don’t know anyone yet… but maybe that’s a reason to go.':'My English wasn’t perfect. But someone understood me. That’s a start. One more place to find.',hint:campusPlace()==='center'?'Tap the noticeboard to read the invitation.':'Open the campus map and find Student Center.'};
  return {label:'3 / 3 stamps ✓',text:'Three little stamps. A new place feels a little more like somewhere I belong.',hint:'Open your stamp collection to keep this moment.'};
 }
@@ -233,7 +233,7 @@ function visitCampus(place){
 }
 function campusGuide(){
  const target=!state.campusClassFound?'classroom':!state.campusAsked?null:!state.campusLibraryFound?'library':!state.campusCenterFound?'center':null;
- const instruction=target==='classroom'?'Your classroom is in the building behind the arch. Follow the path and take the front steps.':target==='library'?'Alex pointed out the tall building with the flags. Find Library on your map.':target==='center'?'One more stop. Find Student Center and look for a way to meet new people.':!state.campusAsked?'The library is next. Ask the student by the path for directions.':'Three places found. You can revisit any destination.';
+ const instruction=target==='classroom'?'Your classroom is in the building behind the arch. Follow the path and take the front steps.':target==='library'?'Ben pointed out the tall building with the flags. Find Library on your map.':target==='center'?'One more stop. Find Student Center and look for a way to meet new people.':!state.campusAsked?'The library is next. Ask the student by the path for directions.':'Three places found. You can revisit any destination.';
  const action=target?`<button class="start" data-campus-dest="${target}">${target==='classroom'?'Follow the path':target==='library'?'Go to the library':'Go to Student Center'}${icon('arrow')}</button>`:`<button class="start" data-close>Back to campus${icon('arrow')}</button>`;
  open(`<h2 class="sr-only">Campus Map</h2><div class="campus-map-art"><img class="campus-paper-map" src="${asset('campus-map')}" alt="Pencil campus map: entrance to Classroom, then Library, then Student Center.">${Object.entries(campusLocations).map(([id,l])=>`<button class="map-destination map-${id}${target===id?' map-next':''}" data-campus-dest="${id}" aria-label="Go to ${l.name}${canVisitCampus(id)?'':' · not yet available'}" aria-disabled="${!canVisitCampus(id)}" aria-describedby="map-directions"></button>`).join('')}</div><p class="dialog-copy" id="map-directions" aria-live="polite">${instruction}</p><div class="dialog-bottom">${action}</div>`,'campus-guide');
 }
@@ -258,14 +258,14 @@ function campusArrival(){
   campusStampArrival(1,'Found the library!','My English wasn’t perfect. But someone understood me. That’s a start.');
  }
 }
-function talkToAlex(){
+function talkToBen(){
  if(!state.campusClassFound||campusPlace()!=='classroom')return;
- open(`<h2 class="dialog-title airport-dialog-title">A little courage.</h2><div class="campus-conversation"><img src="${asset('campus-alex')}" alt="Alex waving hello"><div><span>ALEX</span><p>“Hey! First day?”</p><p class="clara-thought">I practiced introducing myself all night. Somehow, “Hi” still feels like the hardest word.</p></div></div><div class="story-choices"><button data-campus-ask="help">Hi! Could you help me find the library?</button><button data-campus-ask="way">Hi! Is the library this way?</button></div>`,'campus-conversation');
+ open(`<h2 class="dialog-title airport-dialog-title">A little courage.</h2><div class="campus-conversation"><img src="${asset('campus-alex')}" alt="Ben waving hello"><div><span>BEN</span><p>“Hey! First day?”</p><p class="clara-thought">I practiced introducing myself all night. Somehow, “Hi” still feels like the hardest word.</p></div></div><div class="story-choices"><button data-campus-ask="help">Hi! Could you help me find the library?</button><button data-campus-ask="way">Hi! Is the library this way?</button></div>`,'campus-conversation');
 }
-function alexDirections(){
+function benDirections(){
  if(!state.campusClassFound||campusPlace()!=='classroom')return;
  state.campusAsked=true;save();renderCampus();
- open(`<h2 class="dialog-title airport-dialog-title">Nice to meet you.</h2><div class="campus-conversation"><img src="${asset('campus-alex')}" alt="Alex"><div><span>ALEX</span><p>“Of course! Look for the tall building with the flags. I’m Alex, by the way.”</p><span>CLARA</span><p>“Thank you! I’m Clara.”</p></div></div><div class="dialog-bottom"><button class="start" data-close>Thanks, Alex${icon('arrow')}</button></div>`,'campus-conversation');
+ open(`<h2 class="dialog-title airport-dialog-title">Nice to meet you.</h2><div class="campus-conversation"><img src="${asset('campus-alex')}" alt="Ben"><div><span>BEN</span><p>“Of course! Look for the tall building with the flags. I’m Ben, by the way.”</p><span>CLARA</span><p>“Thank you! I’m Clara.”</p></div></div><div class="dialog-bottom"><button class="start" data-close>Thanks, Ben${icon('arrow')}</button></div>`,'campus-conversation');
 }
 function campusNotice(){
  if(campusPlace()!=='center'||!state.campusLibraryFound)return;
@@ -279,13 +279,13 @@ function replayCampus(){
  for(const key of ['campusGuided','campusClassFound','campusAsked','campusLibraryFound','campusCenterFound'])state[key]=false;
  state.campusVisit='classroom';save();enterCampus();
 }
-$('#campus-lobby').addEventListener('click',lobby);$('#campus-map').addEventListener('click',campusGuide);$('#campus-stamps').addEventListener('click',showCampusStamps);$('#campus-entrance').addEventListener('click',campusArrival);$('#campus-npc').addEventListener('click',talkToAlex);$('#campus-noticeboard').addEventListener('click',campusNotice);
+$('#campus-lobby').addEventListener('click',lobby);$('#campus-map').addEventListener('click',campusGuide);$('#campus-stamps').addEventListener('click',showCampusStamps);$('#campus-entrance').addEventListener('click',campusArrival);$('#campus-npc').addEventListener('click',talkToBen);$('#campus-noticeboard').addEventListener('click',campusNotice);
 $('#campus-toggle').addEventListener('click',()=>campusCollapsed(!$('#campus-chat-body').hidden));
-$('#campus-help').addEventListener('click',()=>open(`<h2 class="dialog-title airport-dialog-title">Finding my way</h2><p class="dialog-copy">Read the campus map and find your classroom. Ask Alex for directions to the library. Then find Student Center and read the event notice.<br><br>Collect a stamp at each stop. Both ways of asking Alex are welcome. On a narrow screen, swipe across the scenery or focus it and use the arrow keys. Tap − to tuck away Clara’s chat.</p><div class="dialog-bottom"><button class="start" data-close>Got it${icon('arrow')}</button></div>`,'campus-help'));
+$('#campus-help').addEventListener('click',()=>open(`<h2 class="dialog-title airport-dialog-title">Finding my way</h2><p class="dialog-copy">Read the campus map and find your classroom. Ask Ben for directions to the library. Then find Student Center and read the event notice.<br><br>Collect a stamp at each stop. Both ways of asking Ben are welcome. On a narrow screen, swipe across the scenery or focus it and use the arrow keys. Tap − to tuck away Clara’s chat.</p><div class="dialog-bottom"><button class="start" data-close>Got it${icon('arrow')}</button></div>`,'campus-help'));
 $('#campus-viewport').addEventListener('keydown',e=>{if(e.target!==$('#campus-viewport'))return;if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();$('#campus-viewport').scrollBy({left:(e.key==='ArrowLeft'?-1:1)*innerWidth*.5,behavior:'smooth'});}});
 document.addEventListener('click',e=>{
  const destination=e.target.closest('[data-campus-dest]');if(destination){visitCampus(destination.dataset.campusDest);return;}
- if(e.target.closest('[data-campus-ask]')){alexDirections();return;}
+ if(e.target.closest('[data-campus-ask]')){benDirections();return;}
  const action=e.target.closest('[data-campus]');if(!action)return;
  if(action.dataset.campus==='enter')enterCampus();
  if(action.dataset.campus==='map')campusGuide();

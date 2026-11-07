@@ -33,7 +33,7 @@ The source folder is static and does not require a build or API key. Upload `ind
 
 ## Prototype scope
 
-Chapter 1 includes departure from Vietnam and the flight toward the United States. It ends at the new horizon; Chapter 2 is playable at ?chapter=2: find the classroom, ask Alex for directions, locate the library, and save an event invitation at Student Center to collect all three stamps. The airport is a fictional story scene, not a simulation of a specific airport, airline or real itinerary.
+Chapter 1 includes departure from Vietnam and the flight toward the United States. It ends at the new horizon; Chapter 2 is playable at ?chapter=2: find the classroom, ask Ben for directions, locate the library, and save an event invitation at Student Center to collect all three stamps. The airport is a fictional story scene, not a simulation of a specific airport, airline or real itinerary.
 
 ## Verified
 
@@ -78,8 +78,8 @@ The old notebook and mug storage IDs now represent Film roll and Letter, so save
 
 ## Chapter 2: Finding my way
 
-Continue from Chapter 1, or open `?chapter=2`. Read the handwritten parchment map and find the classroom. Talk to Alex: either English question is accepted. Follow his directions to the library, then use the map to find Student Center and save the meet-and-greet invitation. Each destination adds one stamp to the approved illustrated collection paper. Finish with three stamps and a short reflection.
+Continue from Chapter 1, or open `?chapter=2`. Read the handwritten parchment map and find the classroom. Talk to Ben: either English question is accepted. Follow his directions to the library, then use the map to find Student Center and save the meet-and-greet invitation. Each destination adds one stamp to the approved illustrated collection paper. Finish with three stamps and a short reflection.
 
 Campus locations on the map can be revisited; trying a destination before its story step gives a hint. No timer or failure reset. Map knowledge, conversation, visited scene and stamps persist locally with migration from the earlier one-stamp version. Replay Chapter 2 resets only campus progress and preserves Chapter 1 packing. Later chapters are not implemented here.
 
-Campus scenery, Alex and the simple stamp paper use the creator-reviewed ImageGen assets under `art-source/chapter2/`. The served SVG files wrap WebP images; source PNGs and prompts are retained. The map and stamp sheet have accessible text alternatives and buttons. The stamp paper has no Kent State branding, flower or My first day subtitle. No event registration, real calendar update or external messages are sent.
+Campus scenery, Ben and the simple stamp paper use the creator-reviewed ImageGen assets under `art-source/chapter2/`. The served SVG files wrap WebP images; source PNGs and prompts are retained. The map and stamp sheet have accessible text alternatives and buttons. The stamp paper has no Kent State branding, flower or My first day subtitle. No event registration, real calendar update or external messages are sent.
