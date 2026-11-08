@@ -29,7 +29,7 @@ New night-room background, passport, clothes and laptop generated with ImageGen.
 
 ## GitHub Pages
 
-The source folder is static and does not require a build or API key. Upload `index.html`, `style.css`, `app.js` and all referenced image assets to the repository root, then enable Pages for the chosen branch. Published game: https://clarangn.github.io/a-little-room/ — repository: https://github.com/ClaraNgn/a-little-room.
+The source folder is static and does not require a build or API key. Upload `index.html`, `style.css`, `app.js` and all referenced image assets to the repository root, then enable Pages for the chosen branch. Published game: https://clarangn.github.io/the-abroad-chapter/ — repository: https://github.com/ClaraNgn/the-abroad-chapter.
 
 ## Prototype scope
 
