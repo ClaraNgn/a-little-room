@@ -78,13 +78,13 @@ function remove(index){
  const id=state.slots[index];if(!id)return;state.slots[index]=null;state.completed=false;delete state.journey;selected=id;speech={kind:'removed',id};save();setChatCollapsed(false);renderChapter();updateResume();announce(`${byId(id).name} returned to the room.`);$(`[data-inventory="${id}"]`)?.focus({preventScroll:true});
 }
 function centerRoom(){const view=$('#scene-viewport');view.scrollLeft=(view.scrollWidth-view.clientWidth)*.5;}
-function enterRoom(){stopBenTalk();
+function enterRoom(showGuide=true){stopBenTalk();
  $('#desk-room').hidden=true;
- close(false);$('#campus').hidden=true;$('#journey').hidden=true;state.started=true;save();$('#world').hidden=true;$('#chapter').hidden=false;document.body.classList.add('in-room');renderChapter();updateResume();setChatCollapsed(false);centerRoom();$('#chapter-title').tabIndex=-1;$('#chapter-title').focus({preventScroll:true});
+ close(false);$('#campus').hidden=true;$('#journey').hidden=true;state.started=true;save();$('#world').hidden=true;$('#chapter').hidden=false;document.body.classList.add('in-room');renderChapter();updateResume();setChatCollapsed(false);centerRoom();$('#chapter-title').tabIndex=-1;$('#chapter-title').focus({preventScroll:true});if(showGuide)showChapterGuide(1);
 }
 function lobby(){stopBenTalk();$('#desk-room').hidden=true;stopClip();close(false);$('#campus').hidden=true;$('#journey').hidden=true;$('#chapter').hidden=true;$('#world').hidden=false;document.body.classList.remove('in-room');selected=null;speech={kind:'welcome'};updateResume();$('#start').focus({preventScroll:true});}
 function open(html,type){
- if(!$('#dialog').open)lastFocus=document.activeElement;dialogType=type;$('#dialog').classList.toggle('desk-dialog',!!type?.startsWith('desk-'));$('#dialog').classList.toggle('packing-dialog',type==='packing');$('#dialog').classList.toggle('campus-map-dialog',type==='campus-guide');$('#dialog').classList.toggle('campus-stamps-dialog',type==='campus-stamps');$('#dialog-content').innerHTML=html;
+ if(!$('#dialog').open)lastFocus=document.activeElement;dialogType=type;$('#dialog').classList.toggle('chapter-guide',type==='chapter-guide');$('#dialog').classList.toggle('desk-dialog',!!type?.startsWith('desk-'));$('#dialog').classList.toggle('packing-dialog',type==='packing');$('#dialog').classList.toggle('campus-map-dialog',type==='campus-guide');$('#dialog').classList.toggle('campus-stamps-dialog',type==='campus-stamps');$('#dialog-content').innerHTML=html;
  if(!$('#dialog').open)$('#dialog').showModal();
  const heading=$('#dialog h2');if(heading){heading.id='active-dialog-title';heading.tabIndex=-1;$('#dialog').setAttribute('aria-labelledby','active-dialog-title');heading.focus();}else $('#close').focus();
 }
@@ -105,6 +105,27 @@ function showSuitcase(){
  open(`<h2 class="dialog-title">My little suitcase.</h2><div class="case-dialog-header"><span class="case-counter" id="case-counter">${count()} / 6 packed</span></div><div class="mini-case"><div class="case-handle" aria-hidden="true"></div><div class="case-top"><span>CLARA’S SUITCASE</span><span aria-hidden="true">✦</span></div><div class="case-slots" id="case-slots">${slotsHTML()}</div></div><div class="inventory" id="inventory">${inventoryHTML()}</div><p class="case-story" id="case-story" aria-live="polite"></p><div class="case-actions"><button class="chat-primary" id="drawer-pack"></button></div>`,'packing');renderSelection();
 }
 function help(){open(`<p class="dialog-kicker">CHAPTER 01</p><h2 class="dialog-title">A little help.</h2><ol class="help-list"><li>Clara gives you your task through the chat in the room. Tap − to tuck it away, or + to bring it back.</li><li>Choose an object to hear its story. Drag it to the open suitcase, or tap “Pack it” in the chat.</li><li>Open “My suitcase” to see all six objects, choose an empty space, or take a packed object out.</li><li>On a narrow screen, swipe across the room or use the look-around arrows to see both sides.</li><li>When all six objects are packed, close the suitcase and choose “Sleep until morning” to continue.</li><li>At the airport, follow Clara’s chat to check in, write home and board. After boarding, enjoy a four-second flight film. Short films continue automatically; use Skip to move on sooner. You can also tap the glowing airport buttons.</li><li>Your packing progress is saved on this device. Choose “Begin my story!” in the lobby to enter Clara’s introduction and return to her room.</li><li>Keyboard: Tab and Enter to select. Focus the room and use left/right arrows to look around. Escape closes a window.</li></ol><div class="music-controls"><label for="volume">Music volume</label><input type="range" id="volume" min="0" max="60" value="${Math.round(volume*100)}"><output for="volume">${Math.round(volume*100)}%</output></div><div class="audio-options"><button class="soft-button" data-toggle-music>${music?'Turn music off':'Turn music on'}</button><button class="soft-button" data-toggle-sfx aria-pressed="${soundEffects}">${soundEffects?'Turn sound effects off':'Turn sound effects on'}</button></div><div class="dialog-bottom"><button class="start" data-close>Got it${icon('arrow')}</button></div>`,'help');}
+const chapterGuides={
+ 1:{name:'Beginnings',goal:'Pack six little pieces of home.',steps:[
+  ['Choose an object','Tap something in the room to read its story.'],
+  ['Pack your suitcase','Drag it into the suitcase, or tap “Pack it”. Open “My suitcase” to arrange all six items.'],
+  ['Ready to go','Pack all six, then close the suitcase to continue to the airport.']
+ ]},
+ 2:{name:'Finding my way',goal:'Find three places. Collect three stamps.',steps:[
+  ['Read the map','Open Campus map and follow the path to your classroom.'],
+  ['Ask for help','Tap Ben and follow his directions to the library.'],
+  ['Find your people','Visit Student Center and read the noticeboard. Collect a stamp at each stop.']
+ ]},
+ 3:{name:'Making room',goal:'One hour. Three energy points. Time for yourself.',steps:[
+  ['Look around your desk','Tap the laptop, book and glowing phone to choose what to do.'],
+  ['Choose what matters','Submit the assignment and decide on reading and home. Time moves only when you choose.'],
+  ['Leave room for rest','Keep 10 minutes for rest, then tap the bed. Use “My evening” to undo a choice.']
+ ]}
+};
+function showChapterGuide(chapter){
+ const guide=chapterGuides[chapter];if(!guide)return;
+ open(`<p class="dialog-kicker">CHAPTER 0${chapter} · ${guide.name}</p><h2 class="dialog-title airport-dialog-title">How to play</h2><p class="chapter-guide-goal">${guide.goal}</p><ol class="chapter-guide-steps">${guide.steps.map(([title,copy])=>`<li><div><strong>${title}</strong><p>${copy}</p></div></li>`).join('')}</ol><p class="chapter-guide-tip">Swipe to look around on a small screen. You can also use Tab and Enter.</p><div class="dialog-bottom"><button class="start" data-close>Let’s go${icon('arrow')}</button></div>`,'chapter-guide');
+}
 function gameIntroduction(){open(`<p class="dialog-kicker">INTRODUCTION</p><h2 class="dialog-title">The Abroad<br>Chapter</h2><p class="dialog-copy">Meet Clara, a student from Vietnam ready to start her new life in the United States. Tomorrow is her flight! Tonight, she is still in the room she knows by heart.\n\nLet’s witness her journey miles away from home.</p><span class="welcome-tag">Chapter 1 · Beginnings</span><div class="dialog-bottom"><button class="soft-button" data-close>Back to lobby</button><button class="start" data-begin-introduction>Begin my story${icon('arrow')}</button></div>`,'introduction');}
 function complete(){
  if(count()!==6)return;state.completed=true;save();updateResume();
@@ -223,7 +244,7 @@ function renderCampus(){
 function enterCampus(){stopBenTalk();
  $('#desk-room').hidden=true;
  stopClip();close(false);$('#world').hidden=true;$('#chapter').hidden=true;$('#journey').hidden=true;$('#campus').hidden=false;
- document.body.classList.add('in-room');renderCampus();campusCollapsed(false);centerCampus();$('#campus-title').focus({preventScroll:true});announce('Chapter 2. '+campusMission().label+'. '+campusMission().hint);
+ document.body.classList.add('in-room');renderCampus();campusCollapsed(false);centerCampus();$('#campus-title').focus({preventScroll:true});announce('Chapter 2. '+campusMission().label+'. '+campusMission().hint);showChapterGuide(2);
 }
 function canVisitCampus(place){return place==='classroom'||place==='library'&&state.campusAsked||place==='center'&&state.campusLibraryFound;}
 function visitCampus(place){
@@ -351,7 +372,7 @@ function renderDesk(){
 }
 function enterDesk(){stopBenTalk();
  stopClip();close(false);for(const id of ['world','chapter','journey','campus'])$('#'+id).hidden=true;$('#desk-room').hidden=false;document.body.classList.add('in-room');
- state.deskActions=planner.normalize(state.deskActions);deskMessage='';save();renderDesk();deskCollapsed(false);centerDesk();$('#desk-title').focus({preventScroll:true});announce('Chapter 3. Choose what matters. Tap an object on the desk.');if(deskStatus().complete)finishDesk();
+ state.deskActions=planner.normalize(state.deskActions);deskMessage='';save();renderDesk();deskCollapsed(false);centerDesk();$('#desk-title').focus({preventScroll:true});announce('Chapter 3. Choose what matters. Tap an object on the desk.');if(deskStatus().complete)finishDesk();else showChapterGuide(3);
 }
 function deskOption(id,label){
  const c=planner.choices[id],error=planner.reason(deskActions(),id),cost=`${c.minutes} min · ${c.energy?c.energy+' energy':'no energy'}`;
@@ -431,7 +452,7 @@ $('#dialog').addEventListener('click',e=>{
  if(e.target.closest('[data-toggle-music]')){toggleMusic();help();}
  if(e.target.closest('[data-toggle-sfx]')){soundEffects=!soundEffects;if(soundEffects)playClick();save();help();}
  if(e.target.closest('[data-lobby]'))lobby();
- if(e.target.closest('[data-review]')){enterRoom();showSuitcase();}
+ if(e.target.closest('[data-review]')){enterRoom(false);showSuitcase();}
  if(e.target.closest('[data-replay]')){state={started:false,completed:false,slots:Array(6).fill(null)};selected=null;speech={kind:'welcome'};save();updateResume();lobby();renderChapter();setChatCollapsed(false);intro();}
  if(e.target.closest('#drawer-pack')){if(count()===6)complete();else if(selected)pack(selected);}
 });
