@@ -78,11 +78,11 @@ function remove(index){
  const id=state.slots[index];if(!id)return;state.slots[index]=null;state.completed=false;delete state.journey;selected=id;speech={kind:'removed',id};save();setChatCollapsed(false);renderChapter();updateResume();announce(`${byId(id).name} returned to the room.`);$(`[data-inventory="${id}"]`)?.focus({preventScroll:true});
 }
 function centerRoom(){const view=$('#scene-viewport');view.scrollLeft=(view.scrollWidth-view.clientWidth)*.5;}
-function enterRoom(){
+function enterRoom(){stopBenTalk();
  $('#desk-room').hidden=true;
  close(false);$('#campus').hidden=true;$('#journey').hidden=true;state.started=true;save();$('#world').hidden=true;$('#chapter').hidden=false;document.body.classList.add('in-room');renderChapter();updateResume();setChatCollapsed(false);centerRoom();$('#chapter-title').tabIndex=-1;$('#chapter-title').focus({preventScroll:true});
 }
-function lobby(){$('#desk-room').hidden=true;stopClip();close(false);$('#campus').hidden=true;$('#journey').hidden=true;$('#chapter').hidden=true;$('#world').hidden=false;document.body.classList.remove('in-room');selected=null;speech={kind:'welcome'};updateResume();$('#start').focus({preventScroll:true});}
+function lobby(){stopBenTalk();$('#desk-room').hidden=true;stopClip();close(false);$('#campus').hidden=true;$('#journey').hidden=true;$('#chapter').hidden=true;$('#world').hidden=false;document.body.classList.remove('in-room');selected=null;speech={kind:'welcome'};updateResume();$('#start').focus({preventScroll:true});}
 function open(html,type){
  if(!$('#dialog').open)lastFocus=document.activeElement;dialogType=type;$('#dialog').classList.toggle('desk-dialog',!!type?.startsWith('desk-'));$('#dialog').classList.toggle('packing-dialog',type==='packing');$('#dialog').classList.toggle('campus-map-dialog',type==='campus-guide');$('#dialog').classList.toggle('campus-stamps-dialog',type==='campus-stamps');$('#dialog-content').innerHTML=html;
  if(!$('#dialog').open)$('#dialog').showModal();
@@ -114,7 +114,7 @@ const journeyScenes={
  morning:{title:'The next morning.',place:'Vietnam · Before sunrise',progress:'A new day',text:'I barely slept. Now the suitcase is by the door, and the house is so quiet. I’m going to miss the little things I never thought to notice.',hint:'Take this moment at your own pace.',action:'Leave for the airport',next:'airport'},
  airport:{title:'A small first step.',place:'Vietnam · Airport departures',progress:'1 / 3 · Check in',text:'The airport is already awake. Wheels on the floor, voices overhead… and me, holding my passport a little too tightly. Can you help me check in?',hint:'Tap “Check in” at the counter.',action:'Check in',task:'checkin'},
  checkedin:{title:'A boarding pass, a deep breath.',place:'Airport departures · Before boarding',progress:'2 / 3 · A message home',text:'My suitcase is checked in, and my boarding pass is in my hand. Before I go through to the gate, I want to leave one little message for home.',hint:'Open phone',action:'Open my phone',task:'phone'},
- goodbye:{title:'Home comes with me.',place:'Airport departures · Ready to depart',progress:'3 / 3 · Departure',text:'The message is sent. Somehow, a few words make the distance feel smaller already. My passport and boarding pass are ready. It’s time to depart.',hint:'Tap “Depart” when you’re ready.',action:'Depart',next:'takeoff'},
+ goodbye:{title:'Home comes with me.',place:'Airport departures · Ready to depart',progress:'3 / 3 · Departure',text:'The message is sent. Somehow, a few words make the distance feel smaller already. My passport and boarding pass are ready. It’s time to depart.',hint:'Tap to depart when you’re ready.',action:'Depart',next:'takeoff'},
  gate:{title:'This is really happening.',place:'Departure gate · Boarding now',progress:'Ready to board',text:'That’s my flight. I thought courage would feel bigger than this. Right now, it feels like taking one breath… and then one step forward.',hint:'You’ve done everything you need for this departure.',action:'Board the plane',next:'takeoff'},
  takeoff:{title:'And then, we lift off.',place:'Above Vietnam · The journey begins',progress:'Taking flight',text:'The wheels leave the ground. The streets become little lines, and everything I know gets smaller beneath the clouds. Goodbye for now, home.',hint:'Watch the clouds go by, then continue when you’re ready.',action:'Look out of the window',next:'ocean'},
  ocean:{title:'Somewhere between two worlds.',place:'Over the ocean · Bound for the United States',progress:'Across the ocean',text:'There’s so much sky out here. Somewhere between the place I’m leaving and the place I haven’t met, I open my notebook. Dear future me… what should I remember?',hint:'Leave a small promise for the Clara who comes next.',action:'Write a little promise',task:'promise'},
@@ -144,7 +144,7 @@ $('#clip-skip').addEventListener('click',finishClip);$('#clip-lobby').addEventLi
 $('#clip-play').addEventListener('click',()=>{if(!window.journeyClips){finishClip();return;}$('#cutscene-video').play().then(()=>{$('#clip-play').hidden=true;}).catch(()=>{$('#clip-skip').textContent='→';$('#clip-skip').ariaLabel='Continue';});});
 document.addEventListener('visibilitychange',()=>{if(!clipNext)return;const video=$('#cutscene-video');if(document.hidden)video.pause();else if(!matchMedia('(prefers-reduced-motion: reduce)').matches)video.play().catch(()=>{$('#clip-play').hidden=false;});});
 function setJourneyCollapsed(value){$('#journey-chat-body').hidden=value;$('#journey-toggle').textContent=value?'+':'−';$('#journey-toggle').ariaLabel=value?'Expand chat':'Minimize chat';$('#journey-toggle').setAttribute('aria-expanded',String(!value));}
-function enterJourney(step){$('#desk-room').hidden=true;
+function enterJourney(step){stopBenTalk();$('#desk-room').hidden=true;
  if(count()!==6||!journeySteps.includes(step))return;
  // Older saves at the gate now return to the single departure step.
  if(step==='gate')step='goodbye';
@@ -156,9 +156,9 @@ function enterJourney(step){$('#desk-room').hidden=true;
  $('#journey').className='journey scene-'+step+(flying?' is-flying':'')+(atAirport?' is-airport':'');
  $('#journey-title').textContent=atAirport?'Airport':scene.title;$('.journey-caption>p').hidden=atAirport;$('#journey-place').hidden=atAirport;$('#journey-place').textContent=atAirport?'':scene.place;$('#journey-progress').textContent=scene.progress;
  $('#journey-speech').textContent=scene.text;$('#journey-speech').hidden=step==='end';$('#journey-hint').textContent=scene.hint;$('#journey-hint').hidden=!scene.hint;
- $('#journey-actions').hidden=step==='airport'||step==='checkedin';
- $('#journey-actions').innerHTML=(step==='airport'||step==='checkedin')?'':`<button class="chat-primary" ${scene.next?`data-journey="${scene.next}"`:`data-travel-task="${scene.task}"`}>${scene.action} <span aria-hidden="true">→</span></button>`;
- $('#journey-background').src=step==='morning'?$('.room-background').src:flying?(window.journeyClips?.flight.poster||asset('airport')):asset('airport');
+ const physicalAirportAction=['airport','checkedin','goodbye'].includes(step);$('#journey-actions').hidden=physicalAirportAction;
+ $('#journey-actions').innerHTML=physicalAirportAction?'':`<button class="chat-primary" ${scene.next?`data-journey="${scene.next}"`:`data-travel-task="${scene.task}"`}>${scene.action} <span aria-hidden="true">→</span></button>`;
+ $('#journey-background').src=step==='end'?($('#asset-flight-sky')?.src||window.journeyClips?.flight.poster||asset('airport')):step==='morning'?$('.room-background').src:flying?(window.journeyClips?.flight.poster||asset('airport')):asset('airport');
  $('#airport-character').hidden=step==='morning'||flying;
  const hotspot=$('#airport-hotspot');hotspot.hidden=!atAirport;hotspot.ariaLabel=step==='checkedin'?'Open Clara’s phone':scene.action;hotspot.innerHTML=step==='checkedin'?`<img src="${asset('phone')}" alt="" draggable="false">`:scene.action+' ↗';
  hotspot.className='airport-hotspot '+(step==='airport'?'at-counter':step==='checkedin'?'at-phone':'at-gate');
@@ -220,7 +220,7 @@ function renderCampus(){
  entrance.textContent=place==='library'?(state.campusLibraryFound?'Find Student Center ↗':'Enter the library ↗'):state.campusClassFound?'Walk to the library ↗':'Walk up the steps ↗';
  entrance.classList.toggle('campus-path',place==='classroom'&&!!state.campusClassFound);
 }
-function enterCampus(){
+function enterCampus(){stopBenTalk();
  $('#desk-room').hidden=true;
  stopClip();close(false);$('#world').hidden=true;$('#chapter').hidden=true;$('#journey').hidden=true;$('#campus').hidden=false;
  document.body.classList.add('in-room');renderCampus();campusCollapsed(false);centerCampus();$('#campus-title').focus({preventScroll:true});announce('Chapter 2. '+campusMission().label+'. '+campusMission().hint);
@@ -236,9 +236,9 @@ function visitCampus(place){
 }
 function campusGuide(){
  const target=!state.campusClassFound?'classroom':!state.campusAsked?null:!state.campusLibraryFound?'library':!state.campusCenterFound?'center':null;
- const instruction=target==='classroom'?'Your classroom is in the building behind the arch. Follow the path and take the front steps.':target==='library'?'Ben pointed out the tall building with the flags. Find Library on your map.':target==='center'?'One more stop. Find Student Center and look for a way to meet new people.':!state.campusAsked?'The library is next. Ask the student by the path for directions.':'Three places found. You can revisit any destination.';
- const action=target?`<button class="start" data-campus-dest="${target}">${target==='classroom'?'Follow the path':target==='library'?'Go to the library':'Go to Student Center'}${icon('arrow')}</button>`:`<button class="soft-button" data-close>Back to campus</button><button class="start" data-desk-start>Continue to Chapter 3${icon('arrow')}</button>`;
- open(`<h2 class="sr-only">Campus Map</h2><div class="campus-map-art"><img class="campus-paper-map" src="${asset('campus-map')}" alt="Pencil campus map: entrance to Classroom, then Library, then Student Center.">${Object.entries(campusLocations).map(([id,l])=>`<button class="map-destination map-${id}${target===id?' map-next':''}" data-campus-dest="${id}" aria-label="Go to ${l.name}${canVisitCampus(id)?'':' · not yet available'}" aria-disabled="${!canVisitCampus(id)}" aria-describedby="map-directions"></button>`).join('')}</div><p class="dialog-copy" id="map-directions" aria-live="polite">${instruction}</p><div class="dialog-bottom">${action}</div>`,'campus-guide');
+ const instruction=target==='classroom'?'Your classroom is in the building behind the arch. Follow the path and take the front steps.':target==='library'?'Ben pointed out the tall building with the flags. Find Library on your map.':target==='center'?'One more stop. Find Student Center and look for a way to meet new people.':!state.campusAsked?'The library is next. Ask the student by the path for directions.':'';
+ const action=target?`<button class="start" data-campus-dest="${target}">${target==='classroom'?'Follow the path':target==='library'?'Go to the library':'Go to Student Center'}${icon('arrow')}</button>`:`<button class="soft-button" data-close>Back to campus</button>${campusCount()===3?`<button class="start" data-desk-start>Continue to Chapter 3${icon('arrow')}</button>`:''}`;
+ open(`<h2 class="sr-only">Campus Map</h2><div class="campus-map-art"><img class="campus-paper-map" src="${asset('campus-map')}" alt="Pencil campus map: entrance to Classroom, then Library, then Student Center.">${Object.entries(campusLocations).map(([id,l])=>`<button class="map-destination map-${id}${target===id?' map-next':''}" data-campus-dest="${id}" aria-label="Go to ${l.name}${canVisitCampus(id)?'':' · not yet available'}" aria-disabled="${!canVisitCampus(id)}" aria-describedby="map-directions"></button>`).join('')}</div><p class="dialog-copy" id="map-directions" aria-live="polite" ${instruction?'':'hidden'}>${instruction}</p><div class="dialog-bottom">${action}</div>`,'campus-guide');
 }
 function showCampusStamps(){
  const collected=campusCount();
@@ -261,18 +261,49 @@ function campusArrival(){
   campusStampArrival(1,'Found the library!','My English wasn’t perfect. But someone understood me. That’s a start.');
  }
 }
+let benTalkStep=null;
+const benLines=[
+ {speaker:'Ben',text:'Hey! First day?'},
+ {speaker:'Clara',thought:'I practiced introducing myself all night. Somehow, “Hi” still feels like the hardest word.',text:'Hi! Could you help me find the library?'},
+ {speaker:'Ben',text:'Of course! Look for the tall building with the flags. I’m Ben, by the way.'},
+ {speaker:'Clara',text:'Thank you! I’m Clara.'}
+];
+function stopBenTalk(restore=false){
+ benTalkStep=null;if($('#campus-talk'))$('#campus-talk').hidden=true;$('#campus').classList.remove('is-talking');
+ if(restore&&!$('#campus').hidden){renderCampus();campusCollapsed(false);centerCampus();$('#campus-npc').focus({preventScroll:true});}
+}
+function positionBenBubble(){
+ if(benTalkStep===null)return;
+ const line=benLines[benTalkStep],img=line.speaker==='Ben'?$('#campus-npc img'):$('#campus-clara img'),r=img.getBoundingClientRect(),room=$('#campus').getBoundingClientRect(),bubble=$('#campus-talk-bubble');
+ const width=Math.min(310,room.width-32);bubble.style.width=width+'px';
+ const x=r.left+r.width/2-room.left,headY=r.top+r.height*(line.speaker==='Ben'?.1:.18)-room.top;
+ const left=Math.max(16,Math.min(room.width-width-16,x-width/2));
+ const headerBottom=$('.campus-header').getBoundingClientRect().bottom-room.top;
+ bubble.style.left=left+'px';bubble.style.top=Math.max(headerBottom+10,headY-bubble.offsetHeight-18)+'px';bubble.style.setProperty('--talk-tail',Math.max(20,Math.min(width-35,x-left-9))+'px');
+}
+function showBenLine(){
+ if(benTalkStep===null)return;
+ const line=benLines[benTalkStep],bubble=$('#campus-talk-bubble');
+ $('#campus-talk-speaker').textContent=line.speaker.toUpperCase();$('#campus-talk-line').textContent='“'+line.text+'”';$('#campus-talk-thought').textContent=line.thought||'';$('#campus-talk-thought').hidden=!line.thought;
+ bubble.classList.toggle('is-clara',line.speaker==='Clara');$('#campus-talk-next').textContent=benTalkStep===benLines.length-1?'Keep exploring →':'Continue →';
+ if(benTalkStep===2){state.campusAsked=true;save();}
+ positionBenBubble();$('#campus-talk-next').focus({preventScroll:true});announce(line.speaker+': '+line.text);
+}
 function talkToBen(){
  if(!state.campusClassFound||campusPlace()!=='classroom')return;
- open(`<h2 class="dialog-title airport-dialog-title">A little courage.</h2><div class="campus-conversation"><img src="${asset('campus-alex')}" alt="Ben waving hello"><div><span>BEN</span><p>“Hey! First day?”</p><p class="clara-thought">I practiced introducing myself all night. Somehow, “Hi” still feels like the hardest word.</p><span>CLARA</span><p>“Hi! Could you help me find the library?”</p></div></div><div class="dialog-bottom"><button class="start" data-campus-ask="help">Continue${icon('arrow')}</button></div>`,'campus-conversation');
+ close(false);benTalkStep=0;$('#campus').classList.add('is-talking');$('#campus-talk').hidden=false;
+ const v=$('#campus-viewport'),vr=v.getBoundingClientRect(),a=$('#campus-clara').getBoundingClientRect(),b=$('#campus-npc').getBoundingClientRect();
+ v.scrollLeft+=((a.left+a.width/2+b.left+b.width/2)/2-vr.left)-v.clientWidth/2;
+ showBenLine();
 }
-function benDirections(){
- if(!state.campusClassFound||campusPlace()!=='classroom')return;
- state.campusAsked=true;save();renderCampus();
- open(`<h2 class="dialog-title airport-dialog-title">Nice to meet you.</h2><div class="campus-conversation"><img src="${asset('campus-alex')}" alt="Ben"><div><span>BEN</span><p>“Of course! Look for the tall building with the flags. I’m Ben, by the way.”</p><span>CLARA</span><p>“Thank you! I’m Clara.”</p></div></div><div class="dialog-bottom"><button class="start" data-close>Thanks, Ben${icon('arrow')}</button></div>`,'campus-conversation');
-}
+$('#campus-talk-next').addEventListener('click',()=>{if(benTalkStep===null)return;if(benTalkStep===benLines.length-1)stopBenTalk(true);else{benTalkStep++;showBenLine();}});
+$('#campus-talk-close').addEventListener('click',()=>stopBenTalk(true));
+$('#campus-viewport').addEventListener('scroll',()=>{if(benTalkStep!==null)positionBenBubble();},{passive:true});
+addEventListener('resize',()=>{if(benTalkStep!==null)positionBenBubble();});
+document.addEventListener('keydown',e=>{if(benTalkStep!==null&&e.key==='Escape'){e.preventDefault();stopBenTalk(true);}});
 function campusNotice(){
  if(campusPlace()!=='center'||!state.campusLibraryFound)return;
- open(`<h2 class="dialog-title airport-dialog-title">A place to begin.</h2><div class="campus-event"><span>YOU’RE INVITED</span><strong>International Student<br>Meet &amp; Greet</strong><p>New faces. Small conversations.<br>Everyone welcome.</p></div><p class="dialog-copy">I don’t have to know anyone before I go. Maybe this is how it starts.</p><div class="dialog-bottom"><button class="start" data-campus="save-event">${state.campusCenterFound?'See my stamps':'Save the invitation'}${icon('arrow')}</button></div>`,'campus-event');
+ open(`<h2 class="dialog-title airport-dialog-title">A place to begin.</h2><div class="campus-event"><span>YOU’RE INVITED</span><strong>International Student<br>Orientation</strong><p>New faces. Small conversations.<br>Everyone welcome.</p></div><p class="dialog-copy">I don’t have to know anyone before I go. Maybe this is how it starts.</p><div class="dialog-bottom"><button class="start" data-campus="save-event">${state.campusCenterFound?'See my stamps':'Save the invitation'}${icon('arrow')}</button></div>`,'campus-event');
 }
 function finishCampus(){
  if(campusCount()!==3)return;
@@ -288,7 +319,6 @@ $('#campus-help').addEventListener('click',()=>open(`<h2 class="dialog-title air
 $('#campus-viewport').addEventListener('keydown',e=>{if(e.target!==$('#campus-viewport'))return;if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();$('#campus-viewport').scrollBy({left:(e.key==='ArrowLeft'?-1:1)*innerWidth*.5,behavior:'smooth'});}});
 document.addEventListener('click',e=>{
  const destination=e.target.closest('[data-campus-dest]');if(destination){visitCampus(destination.dataset.campusDest);return;}
- if(e.target.closest('[data-campus-ask]')){benDirections();return;}
  const action=e.target.closest('[data-campus]');if(!action)return;
  if(action.dataset.campus==='enter')enterCampus();
  if(action.dataset.campus==='map')campusGuide();
@@ -319,7 +349,7 @@ function renderDesk(){
  $('#desk-speech').textContent=s.complete?'I can’t do everything tonight. But I can choose what matters next.':deskMessage||(s.ready?'The important things have a place. I can leave a little time for myself, too.':s.decisions?'One choice at a time. What needs me tonight, and what can wait?':'My assignment is due at nine, my reading can wait, and home is calling. I have one hour and a little energy. Help me choose what matters.');
  $('#desk-hint').textContent=s.complete?'You made room for rest.':s.ready?'Tap the bed when you’re ready to stop.':'Tap the laptop, book or glowing phone. My evening lets you change a choice.';
 }
-function enterDesk(){
+function enterDesk(){stopBenTalk();
  stopClip();close(false);for(const id of ['world','chapter','journey','campus'])$('#'+id).hidden=true;$('#desk-room').hidden=false;document.body.classList.add('in-room');
  state.deskActions=planner.normalize(state.deskActions);deskMessage='';save();renderDesk();deskCollapsed(false);centerDesk();$('#desk-title').focus({preventScroll:true});announce('Chapter 3. Choose what matters. Tap an object on the desk.');if(deskStatus().complete)finishDesk();
 }
