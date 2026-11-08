@@ -255,3 +255,30 @@ dialog.desk-dialog{width:min(590px,calc(100vw - 28px));padding:32px 30px 25px}.d
 @keyframes desk-phone-glow{50%{filter:drop-shadow(0 0 17px #ffdf82);transform:translateY(-2px)}}
 @media(max-width:700px){.desk-header{padding:18px 16px;gap:12px}.desk-header p{font-size:10px;letter-spacing:1.7px}.desk-header h2{font-size:27px}.desk-resources{right:16px;top:103px;min-width:172px;padding:10px 13px;gap:4px 10px}.desk-resources strong{font-size:18px}.desk-resources>span:not(.desk-energy){font-size:10px}.desk-resources small{font-size:8px}.desk-review{left:16px;top:113px;font-size:11px;padding:9px 12px}.desk-pan{right:16px;top:204px;gap:8px}.desk-pan span{font-size:7px}.desk-pan button{width:31px;height:31px}.desk-object-tag{font-size:9px;padding:6px 9px;top:-28px}.desk-clara{left:57%;top:63%;height:27%}.desk-chat{left:16px;right:16px;bottom:max(16px,env(safe-area-inset-bottom));width:auto;padding:17px 19px}#desk-speech{font-size:12px;line-height:1.7}.desk-chat footer{font-size:9px}.desk-chat .mission-pill{font-size:9px}.desk-dialog .dialog-title{font-size:26px}.desk-task-card,.desk-home-message{padding:15px;margin:17px 0}.desk-task-card p,.desk-home-message p{font-size:12px}.desk-choice{padding:13px 14px}.desk-choice strong{font-size:11px}.desk-choice small{font-size:9px}.desk-choice em{font-size:9px}dialog.desk-dialog{padding:34px 23px 23px}}
 @media(prefers-reduced-motion:reduce){.desk-phone{animation:none}}
+
+/* Readable counter hint and shoe-aligned contact shadow. */
+.scene-airport #journey-hint,.scene-checkedin #journey-hint,.scene-goodbye #journey-hint{display:block;font-size:14px;line-height:1.6;font-weight:700;max-width:none;width:100%;margin:0;text-align:left;color:#687153}
+.airport-character>span{top:80.5%;bottom:auto;left:30%;width:35%;height:3%;background:#76553466;filter:blur(2px);z-index:0}
+.airport-character:after{content:'';position:absolute;top:81%;left:35%;width:26%;height:1.4%;border-radius:50%;background:#684b2b55;filter:blur(.7px);z-index:0}
+.airport-character img{z-index:1}
+@media(max-width:700px){.scene-airport #journey-hint,.scene-checkedin #journey-hint,.scene-goodbye #journey-hint{font-size:13px}}
+
+.scene-checkedin .journey-chat footer{justify-content:flex-start}
+
+/* Ben and Clara speak in the campus scene, without a modal. */
+.campus-talk{position:absolute;inset:0;z-index:8;pointer-events:none}
+.campus-talk .talk-close{position:absolute;right:30px;top:24px;pointer-events:auto;background:#fffbeeee;width:39px;height:39px}
+.campus-talk-bubble{--bubble-color:#fffbee;position:absolute;max-width:calc(100% - 32px);background:var(--bubble-color);border:1px solid #b6c49a;border-radius:20px;padding:15px 18px 13px;box-shadow:0 5px 0 #7b8d6033,0 10px 25px #344a3020;pointer-events:auto;color:#315137}
+.campus-talk-bubble:after{content:'';position:absolute;left:var(--talk-tail,50%);bottom:-9px;width:16px;height:16px;rotate:45deg;background:var(--bubble-color);border-right:1px solid #b6c49a;border-bottom:1px solid #b6c49a}
+.campus-talk-bubble.is-clara{--bubble-color:#e8efda}
+.talk-speaker{display:block;font-size:10px;font-weight:900;letter-spacing:1.2px;color:#6e884a}
+.talk-line{font-size:14px;line-height:1.65;margin:8px 0 12px;color:#34533b}
+.talk-thought{font-size:11px;line-height:1.65;font-style:italic;color:#818269;margin:9px 0 7px}
+.talk-next{position:relative;z-index:1;display:block;margin-left:auto;background:#6c8c45;border:1px solid #587b36;color:#fffbe9;border-radius:20px;padding:8px 13px;font-size:11px;font-weight:900;box-shadow:0 2px 0 #4f6d31}.talk-next:hover{background:#7b9b51}
+.campus.is-talking .campus-chat,.campus.is-talking .campus-map-button,.campus.is-talking .campus-stamp-button,.campus.is-talking .campus-entrance,.campus.is-talking .campus-header .tool{visibility:hidden;pointer-events:none}
+.campus.is-talking .campus-npc{pointer-events:none;translate:none}
+.campus.is-talking .npc-greeting{display:none}
+.campus.is-talking .campus-clara{left:44%;top:55%;width:165px;height:235px;transform:none;transition:none}
+.campus.is-talking .campus-header .back-button{pointer-events:auto}
+.campus-noticeboard strong{font-size:15px;overflow-wrap:anywhere}
+@media(max-width:700px){.campus-talk .talk-close{right:16px;top:18px;width:35px;height:35px}.campus-talk-bubble{padding:14px 16px 12px}.talk-line{font-size:13px;line-height:1.6}.talk-thought{font-size:10px}.talk-next{font-size:10px;padding:8px 12px}.campus.is-talking .campus-clara{left:43%;top:47%;width:135px;height:194px}.campus.is-talking .campus-npc{top:44%}.campus-noticeboard strong{font-size:13px}}
