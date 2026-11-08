@@ -78,7 +78,7 @@ The old notebook and mug storage IDs now represent Film roll and Letter, so save
 
 ## Chapter 2: Finding my way
 
-Continue from Chapter 1, or open `?chapter=2`. Read the handwritten parchment map and find the classroom. Talk to Ben: Clara asks for library directions in one fixed line, then Continue reveals his reply. Follow his directions to the library, then use the map to find Student Center and save the meet-and-greet invitation. Each destination adds one stamp to the approved illustrated collection paper. Finish with three stamps and a short reflection.
+Continue from Chapter 1, or open `?chapter=2`. Read the handwritten parchment map and find the classroom. Talk to Ben: Clara asks for library directions in one fixed line, then Continue reveals his reply. Follow his directions to the library, then use the map to find Student Center and save the orientation invitation. Each destination adds one stamp to the approved illustrated collection paper. Finish with three stamps and a short reflection.
 
 Campus locations on the map can be revisited; trying a destination before its story step gives a hint. No timer or failure reset. Map knowledge, conversation, visited scene and stamps persist locally with migration from the earlier one-stamp version. Replay Chapter 2 resets only campus progress and preserves Chapter 1 packing. Later chapters are not implemented here.
 
@@ -92,3 +92,8 @@ Continue from Chapter 2, or open `?chapter=3`. Clara's approved compact dorm has
 `desk-planner.js` owns the time/energy rules, save validation and undo. My evening restores the selected task's time and energy without affecting Chapters 1 or 2. Chapter 3 replay resets only the evening. All scene changes hide other chapters, and local progress persists on the same browser/device. Keyboard and touch controls, collapsible chat, side-to-side room navigation and reduced-motion support are included. No messages, work confirmations or assignments leave this fictional game.
 
 Dorm art is the approved `art-source/chapter3/dorm-room-v5/dorm-room.png`, based on the supplied residence-hall photos and previous Chapter 1 style. It retains the wardrobe rotated along the left wall and the straight study desk at the right. Original revisions and ImageGen prompts are retained. `dorm-room.svg` embeds a quality-95 WebP; the existing Clara and phone artwork are reused.
+
+
+## Clara and Ben in-scene conversation
+
+The campus conversation now uses four speech bubbles anchored to the speaking character, with no modal backdrop or blur. Continue advances Ben -> Clara -> Ben -> Clara. Clara's original thought appears in her bubble as italic text. Ben's directions unlock the library; the final button returns to exploration. Close/Escape leaves the scene usable, and phone-size camera framing keeps both characters visible. Student Center now advertises International Student Orientation.
