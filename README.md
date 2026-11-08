@@ -97,3 +97,7 @@ Dorm art is the approved `art-source/chapter3/dorm-room-v5/dorm-room.png`, based
 ## Clara and Ben in-scene conversation
 
 The campus conversation now uses four speech bubbles anchored to the speaking character, with no modal backdrop or blur. Continue advances Ben -> Clara -> Ben -> Clara. Clara's original thought appears in her bubble as italic text. Ben's directions unlock the library; the final button returns to exploration. Close/Escape leaves the scene usable, and phone-size camera framing keeps both characters visible. Student Center now advertises International Student Orientation.
+
+
+## Chapter-opening guides
+Each playable chapter begins with a short How to play card: packing in Chapter 1, campus map and stamps in Chapter 2, and desk choices/time/energy/rest in Chapter 3. Let’s go, Close or Escape dismisses the card and leaves gameplay progress unchanged. Re-entering or replaying a chapter shows its guide again; completed Chapter 3 still opens its completion screen. Reviewing a packed suitcase opens directly without an extra guide. Existing question-mark help remains available in every chapter.
