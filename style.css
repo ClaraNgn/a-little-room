@@ -337,3 +337,7 @@ dialog.desk-dialog{width:min(590px,calc(100vw - 28px));padding:32px 30px 25px}.d
 /* Use the airport Open phone typography for every scene instruction. */
 #chat-hint,#campus-hint,#desk-hint,#orientation-hint,.keepsake-room-chat footer{font-family:inherit;font-size:14px;line-height:1.6;font-weight:700;color:#687153;text-align:left;max-width:none}
 @media(max-width:700px){#chat-hint,#campus-hint,#desk-hint,#orientation-hint,.keepsake-room-chat footer{font-size:13px}}
+
+/* Match the three Orientation friends to Clara's visible character scale. */
+.orientation-person{width:10.5%;height:24%;bottom:24.5%}
+@media(max-height:570px){.orientation-person{height:28.5%;bottom:27.5%}}
