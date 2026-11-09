@@ -84,13 +84,13 @@ function enterRoom(showGuide=true){stopBenTalk();$('#keepsake-room').hidden=true
 }
 function lobby(){stopBenTalk();$('#keepsake-room').hidden=true;stopOrientationTalk();$('#orientation').hidden=true;$('#desk-room').hidden=true;stopClip();close(false);$('#campus').hidden=true;$('#journey').hidden=true;$('#chapter').hidden=true;$('#world').hidden=false;document.body.classList.remove('in-room');selected=null;speech={kind:'welcome'};updateResume();$('#start').focus({preventScroll:true});}
 function open(html,type){
- if(!$('#dialog').open)lastFocus=document.activeElement;dialogType=type;$('#dialog').classList.toggle('keepsake-puzzle-dialog',type==='keepsake-puzzle');$('#dialog').classList.toggle('chapter-preface-dialog',type==='chapter-preface');$('#dialog').classList.toggle('chapter-guide',type==='chapter-guide');$('#dialog').classList.toggle('desk-dialog',!!type?.startsWith('desk-'));$('#dialog').classList.toggle('packing-dialog',type==='packing');$('#dialog').classList.toggle('campus-map-dialog',type==='campus-guide');$('#dialog').classList.toggle('campus-stamps-dialog',type==='campus-stamps');$('#dialog-content').innerHTML=html;
+ stopEventAudio();if(!$('#dialog').open)lastFocus=document.activeElement;dialogType=type;$('#dialog').classList.toggle('event-dialog',!!type?.startsWith('event-'));$('#dialog').classList.toggle('keepsake-puzzle-dialog',type==='keepsake-puzzle');$('#dialog').classList.toggle('chapter-preface-dialog',type==='chapter-preface');$('#dialog').classList.toggle('chapter-guide',type==='chapter-guide');$('#dialog').classList.toggle('desk-dialog',!!type?.startsWith('desk-'));$('#dialog').classList.toggle('packing-dialog',type==='packing');$('#dialog').classList.toggle('campus-map-dialog',type==='campus-guide');$('#dialog').classList.toggle('campus-stamps-dialog',type==='campus-stamps');$('#dialog-content').innerHTML=html;
  if(!$('#dialog').open)$('#dialog').showModal();
  const heading=$('#dialog h2');if(heading){heading.id='active-dialog-title';heading.tabIndex=-1;$('#dialog').setAttribute('aria-labelledby','active-dialog-title');heading.focus();}else $('#close').focus();
 }
 function close(restore=true){
- if($('#dialog').open)$('#dialog').close();dialogType=null;
- if(restore){if(lastFocus?.isConnected&&lastFocus.getClientRects().length)lastFocus.focus({preventScroll:true});else if(!$('#desk-room').hidden)$('#desk-title').focus({preventScroll:true});else if(!$('#campus').hidden)$('#campus-map').focus({preventScroll:true});else if(!$('#journey').hidden)$('#journey-title').focus({preventScroll:true});else if(!$('#chapter').hidden)$('#open-case').focus({preventScroll:true});else $('#start').focus({preventScroll:true});}
+ stopEventAudio();if($('#dialog').open)$('#dialog').close();dialogType=null;
+ if(restore){if(lastFocus?.isConnected&&lastFocus.getClientRects().length)lastFocus.focus({preventScroll:true});else if(!$('#orientation').hidden)$('#orientation-title').focus({preventScroll:true});else if(!$('#desk-room').hidden)$('#desk-title').focus({preventScroll:true});else if(!$('#campus').hidden)$('#campus-map').focus({preventScroll:true});else if(!$('#journey').hidden)$('#journey-title').focus({preventScroll:true});else if(!$('#chapter').hidden)$('#open-case').focus({preventScroll:true});else $('#start').focus({preventScroll:true});}
 }
 const intros=[
  ['Hi, I’m Clara.','I’m from Vietnam. Tomorrow, I’ll fly to the U.S. to start my journey as an international student.'],
@@ -128,8 +128,8 @@ const chapterGuides={
  ]},
  4:{name:'Finding my people',goal:'Three conversations. Three new friends.',steps:[
   ['Say hello','Tap Emma, Noah and Maya to hear a little about them.'],
-  ['Remember a little detail','Answer one question about each person. You can always try again.'],
-  ['Help the event begin','Tap the highlighted photo corner, music station or welcome table after each conversation.']
+  ['Make a memory','Place Clara and Emma in the photo, then press the shutter.'],
+  ['Add your own touch','Listen to Noah’s tracks and turn on the speakers. Type a name and choose a sticker for your badge with Maya. Finish with a group photo.']
  ]},
  5:{name:'Looking back',goal:'Six objects. A letter waiting to be opened.',steps:[
  ['Open the suitcase','Tap the lilac suitcase to see the objects Clara brought from home.'],
@@ -453,6 +453,7 @@ function renderOrientation(){
   person.classList.toggle('is-friend',helped);person.setAttribute('aria-label',`Talk to ${orientationModel.people[id].name}${helped?' · friend':''}`);
   button.hidden=!answered||helped;$(`[data-orientation-result="${id}"]`).hidden=!helped;
  }
+ $('#orientation').classList.toggle('event-music-ready',status.activities.music.playing);renderEventRoomDetails();
  const pending=status.answered.find(id=>!status.helped.includes(id));
  $('#orientation-speech').textContent=orientationMessage||(status.complete?'I didn’t need perfect English to belong. I just needed to say hello.':pending?`${orientationModel.people[pending].name} asked for a little help. Let’s get their corner ready.`:status.count?'A little conversation, a little courage. Who should I meet next?':'Finding the room was easy this time. Starting a conversation… that’s another story.');
  $('#orientation-hint').textContent=status.complete?'Three new friends. A little more at home.':pending?'Tap the highlighted station on the table.':'Tap a student to say hello.';$('#orientation-finish').hidden=!status.complete;
@@ -463,7 +464,7 @@ function enterOrientation(){
  announce('Chapter 4. Meet three students and help prepare Orientation.');if(orientationStatus().complete)finishOrientation();else showChapterPrelude(4);
 }
 function stopOrientationTalk(restore=false){
- const previous=orientationTalk?.id;orientationTalk=null;if(!$('#orientation-talk'))return;$('#orientation-talk').hidden=true;$('#orientation').classList.remove('is-talking');$$('.orientation-person').forEach(p=>p.classList.remove('talking-target'));$('#orientation-clara').style.removeProperty('--clara-x');
+ stopEventAudio();const previous=orientationTalk?.id;orientationTalk=null;if(!$('#orientation-talk'))return;$('#orientation-talk').hidden=true;$('#orientation').classList.remove('is-talking');$$('.orientation-person').forEach(p=>p.classList.remove('talking-target'));$('#orientation-clara').style.removeProperty('--clara-x');if($('#orientation-worn-badge'))$('#orientation-worn-badge').style.left='36%';
  if(restore&&!$('#orientation').hidden){renderOrientation();const pending=previous&&orientationStatus().answered.includes(previous)&&!orientationStatus().helped.includes(previous);(pending?$(`[data-orientation-help="${previous}"]`):$(`[data-orientation-person="${previous||'emma'}"]`)).focus({preventScroll:true});}
 }
 function positionOrientationBubble(){
@@ -472,44 +473,93 @@ function positionOrientationBubble(){
  bubble.style.left=left+'px';bubble.style.top=Math.max(header+8,head-bubble.offsetHeight-18)+'px';bubble.style.setProperty('--talk-tail',Math.max(20,Math.min(width-35,x-left-9))+'px');
 }
 function showOrientationLine(){
- if(!orientationTalk)return;const t=orientationTalk,p=orientationModel.people[t.id],quiz=t.step===3,line=t.step<3?p.lines[t.step]:[p.name,t.step===4?`You remembered! ${p.task}.` :p.thanks];
- $('#orientation-speaker').textContent=quiz?'CLARA':line[0].toUpperCase();$('#orientation-line').textContent=quiz?p.question:'“'+line[1]+'”';$('#orientation-bubble').classList.toggle('is-clara',quiz||line[0]==='Clara');
- $('#orientation-answers').innerHTML=quiz?p.answers.map((answer,i)=>`<button data-orientation-answer="${i}">${answer}</button>`).join(''):'';$('#orientation-feedback').hidden=true;
- $('#orientation-next').hidden=quiz;$('#orientation-next').textContent=t.step<3?'Continue →':t.step===4?'Let’s help →':'Back to Orientation →';positionOrientationBubble();
- (quiz?$('#orientation-answers button'):$('#orientation-next')).focus({preventScroll:true});announce(quiz?p.question:line[0]+': '+line[1]);
+ if(!orientationTalk)return;const t=orientationTalk,p=orientationModel.people[t.id],done=orientationStatus().helped.includes(t.id),line=done?[p.name,p.thanks]:p.lines[Math.min(t.step,1)];
+ $('#orientation-speaker').textContent=line[0].toUpperCase();$('#orientation-line').textContent='“'+line[1]+'”';$('#orientation-bubble').classList.toggle('is-clara',line[0]==='Clara');$('#orientation-answers').innerHTML='';$('#orientation-feedback').hidden=true;$('#orientation-next').hidden=false;$('#orientation-next').textContent=done?'Visit our corner →':t.step===0?'Continue →':({emma:'Let’s take a photo →',noah:'Let’s listen →',maya:'Let’s make a badge →'})[t.id];positionOrientationBubble();$('#orientation-next').focus({preventScroll:true});
 }
 function startOrientationTalk(id){
- if(!orientationModel.people[id]||$('#orientation').hidden)return;orientationMessage='';stopOrientationTalk();const s=orientationStatus();orientationTalk={id,step:s.helped.includes(id)?5:s.answered.includes(id)?4:0};$('#orientation').classList.add('is-talking');$(`[data-orientation-person="${id}"]`).classList.add('talking-target');$('#orientation-talk').hidden=false;
- const person=$(`[data-orientation-person="${id}"]`),x=parseFloat(person.style.getPropertyValue('--friend-x'));$('#orientation-clara').style.setProperty('--clara-x',(x<35?x+10:x-12)+'%');
+ if(!orientationModel.people[id]||$('#orientation').hidden)return;orientationMessage='';stopOrientationTalk();const s=orientationStatus();orientationTalk={id,step:0};$('#orientation').classList.add('is-talking');$(`[data-orientation-person="${id}"]`).classList.add('talking-target');$('#orientation-talk').hidden=false;
+ const person=$(`[data-orientation-person="${id}"]`),x=parseFloat(person.style.getPropertyValue('--friend-x'));$('#orientation-clara').style.setProperty('--clara-x',(x<35?x+10:x-12)+'%');renderEventRoomDetails();
  const view=$('#orientation-viewport'),r=person.getBoundingClientRect(),v=view.getBoundingClientRect();view.scrollLeft+=r.left+r.width/2-v.left-view.clientWidth/2-65;showOrientationLine();
 }
-function answerOrientation(index){
- if(!orientationTalk||orientationTalk.step!==3)return;const {progress,correct}=orientationModel.answer(state.orientation,orientationTalk.id,index);
- if(!correct){$('#orientation-feedback').textContent=orientationModel.people[orientationTalk.id].hint;$('#orientation-feedback').hidden=false;positionOrientationBubble();return;}
- state.orientation=progress;save();orientationTalk.step=4;showOrientationLine();
-}
-function helpOrientation(id){
- const before=orientationStatus();if(!before.answered.includes(id)||before.helped.includes(id))return;
- state.orientation=orientationModel.help(state.orientation,id);save();const p=orientationModel.people[id];orientationMessage=`${p.done}. “${p.thanks}”`;renderOrientation();announce(p.done+'. '+orientationStatus().count+' of 3 friends.');
- if(orientationStatus().complete)finishOrientation();else $(`[data-orientation-person="${orientationModel.ids.find(other=>!orientationStatus().helped.includes(other))}"]`).focus({preventScroll:true});
-}
 function finishOrientation(){
- if(!orientationStatus().complete)return;stopOrientationTalk();
- open(`<div class="orientation-complete"><div class="orientation-group">${['emma','noah','maya'].map(id=>`<img src="${$(`[data-orientation-person="${id}"] img`).src}" alt="${orientationModel.people[id].name}">`).join('')}<img src="${$('#jenny img').src}" alt="Clara"></div><h2 class="dialog-title airport-dialog-title">Chapter 4 completed</h2><p class="dialog-copy">I didn’t need perfect English to belong.<br>I just needed to say hello.</p><p class="orientation-reflection">Three new friends. A little more at home.</p><div class="dialog-bottom"><button class="soft-button" data-close>Stay a little longer</button><button class="soft-button" data-lobby>Back to lobby</button><button class="start" data-keepsake-start>Continue to Chapter 5${icon('arrow')}</button></div><button class="resume-button" data-orientation-replay>Replay Chapter 4</button></div>`,'orientation-complete');
+ if(!orientationStatus().complete)return;stopOrientationTalk();if(!orientationStatus().groupPhoto){groupPhotoScene();return;}
+ open(`<div class="orientation-complete"><div class="orientation-group">${['emma','noah','maya'].map(id=>`<img src="${$(`[data-orientation-person="${id}"] img`).src}" alt="${orientationModel.people[id].name}">`).join('')}<img src="${$('#jenny img').src}" alt="Clara"></div><h2 class="dialog-title airport-dialog-title">Chapter 4 completed</h2><p class="dialog-copy">I didn’t need perfect English to belong.<br>I just needed to say hello.</p><p class="orientation-reflection">She came to meet new people. She left with people to meet again.</p><div class="dialog-bottom"><button class="soft-button" data-close>Stay a little longer</button><button class="soft-button" data-lobby>Back to lobby</button><button class="start" data-keepsake-start>Continue to Chapter 5${icon('arrow')}</button></div><button class="resume-button" data-orientation-replay>Replay Chapter 4</button></div>`,'orientation-complete');
 }
 $('#orientation-lobby').addEventListener('click',lobby);$('#orientation-help').addEventListener('click',()=>showChapterGuide(4));$('#orientation-toggle').addEventListener('click',()=>orientationCollapsed(!$('#orientation-chat-body').hidden));$('#orientation-finish').addEventListener('click',finishOrientation);
-$('#orientation-talk-close').addEventListener('click',()=>stopOrientationTalk(true));$('#orientation-next').addEventListener('click',()=>{if(!orientationTalk)return;if(orientationTalk.step>=4)stopOrientationTalk(true);else{orientationTalk.step++;showOrientationLine();}});
+$('#orientation-talk-close').addEventListener('click',()=>stopOrientationTalk(true));$('#orientation-next').addEventListener('click',()=>{if(!orientationTalk)return;if(orientationTalk.step>=1||orientationStatus().helped.includes(orientationTalk.id))openEventActivity(orientationTalk.id);else{orientationTalk.step++;showOrientationLine();}});
 $('#orientation-viewport').addEventListener('scroll',positionOrientationBubble,{passive:true});$('#orientation-viewport').addEventListener('keydown',e=>{if(e.target!==$('#orientation-viewport')||!['ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();$('#orientation-viewport').scrollBy({left:(e.key==='ArrowLeft'?-1:1)*innerWidth*.65,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});});
 addEventListener('resize',positionOrientationBubble);
 document.addEventListener('keydown',e=>{if(orientationTalk&&e.key==='Escape'){e.preventDefault();stopOrientationTalk(true);}});
 document.addEventListener('click',e=>{
  const person=e.target.closest('[data-orientation-person]');if(person){startOrientationTalk(person.dataset.orientationPerson);return;}
- const answer=e.target.closest('[data-orientation-answer]');if(answer){answerOrientation(Number(answer.dataset.orientationAnswer));return;}
- const station=e.target.closest('[data-orientation-help]');if(station){helpOrientation(station.dataset.orientationHelp);return;}
+ const station=e.target.closest('[data-orientation-help]');if(station){openEventActivity(station.dataset.orientationHelp);return;}
  const look=e.target.closest('[data-orientation-look]');if(look){orientationLook(look.dataset.orientationLook);return;}
  if(e.target.closest('[data-orientation-start]'))enterOrientation();
  if(e.target.closest('[data-orientation-replay]')){state.orientation=orientationModel.normalize(null);enterOrientation();}
 });
+
+let eventPhotoSelected=null,eventDrag=null,eventIgnoreUntil=0,eventAudioContext,eventAudioNodes=[],eventMusicTimer;
+function eventEscape(text){return String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function eventPortrait(id){return id==='clara'?$('#orientation-clara').src:$(`[data-orientation-person="${id}"] img`).src;}
+function eventPortraitHTML(id){return `<img src="${eventPortrait(id)}" alt="${id==='clara'?'Clara':orientationModel.people[id].name}" draggable="false">`;}
+function eventAct(type,value){state.orientation=orientationModel.act(state.orientation,type,value);save();renderOrientation();}
+function stopEventAudio(){clearInterval(eventMusicTimer);eventMusicTimer=null;for(const n of eventAudioNodes){try{n.stop();}catch{}}eventAudioNodes=[];}
+function playEventTrack(choice,loop=false){
+ stopEventAudio();try{eventAudioContext ||= new(window.AudioContext||window.webkitAudioContext)();eventAudioContext.resume();
+ const phrase=()=>{if(document.hidden)return;const seq=choice==='gentle'?[261.63,329.63,392,329.63,293.66,349.23,440,349.23]:[392,493.88,587.33,493.88,440,523.25,659.25,523.25];const step=choice==='gentle'?.42:.28;
+ seq.forEach((f,i)=>{const at=eventAudioContext.currentTime+i*step,o=eventAudioContext.createOscillator(),g=eventAudioContext.createGain();o.type=choice==='gentle'?'sine':'triangle';o.frequency.value=f;g.gain.setValueAtTime(0,at);g.gain.linearRampToValueAtTime(Math.min(.12,volume*.32),at+.02);g.gain.exponentialRampToValueAtTime(.0001,at+step*.95);o.connect(g);g.connect(eventAudioContext.destination);o.start(at);o.stop(at+step);eventAudioNodes.push(o);o.onended=()=>{eventAudioNodes=eventAudioNodes.filter(n=>n!==o);o.disconnect();g.disconnect();};});};phrase();if(loop)eventMusicTimer=setInterval(phrase,3600);
+ }catch{announce('Audio is unavailable. You can still choose a track and continue.');}
+}
+function renderEventRoomDetails(){
+ const p=orientationStatus(),badge=$('#orientation-worn-badge');$('#event-room-photo').hidden=!p.activities.photo.taken;
+ $('#event-room-photo').innerHTML=p.activities.photo.taken?eventPortraitHTML('clara')+eventPortraitHTML('emma')+'<span>Our first day ♡</span>':'';
+ badge.hidden=!p.activities.badge.worn;badge.textContent=p.activities.badge.name.trim()+' '+badgeSticker(p.activities.badge.sticker);badge.style.left=$('#orientation-clara').style.getPropertyValue('--clara-x')||'36%';
+}
+function openEventActivity(id){
+ if(!orientationModel.ids.includes(id))return;stopOrientationTalk();state.orientation=orientationModel.meet(state.orientation,id);save();renderOrientation();
+ if(id==='emma')openPhotoCorner();else if(id==='noah')openMusicCorner();else openWelcomeTable();
+}
+function openPhotoCorner(){
+ const p=orientationStatus().activities.photo;
+ open(`<h2 class="dialog-title airport-dialog-title">A photo together.</h2><p class="event-description">${p.taken?'One little memory of a new friendship.':'Drag Clara and Emma into the frame, or tap a person and then their spot.'}</p><div class="event-photo-frame ${p.taken?'photo-taken':''}" id="event-photo-frame"><div class="event-photo-backdrop"><span aria-hidden="true">✦</span>${['clara','emma'].map(id=>`<button class="event-photo-slot ${p.placed.includes(id)?'filled':''}" data-event-slot="${id}" aria-label="Place ${id==='clara'?'Clara':'Emma'} in photo" ${p.taken?'disabled':''}>${p.placed.includes(id)?eventPortraitHTML(id):`<span>＋</span><small>${id==='clara'?'Clara':'Emma'}</small>`}</button>`).join('')}</div><span class="event-photo-caption">${p.taken?'Our first day together ♡':'Photo corner'}</span></div>${p.taken?'':`<div class="event-photo-tray">${['clara','emma'].filter(id=>!p.placed.includes(id)).map(id=>`<button class="event-photo-token ${eventPhotoSelected===id?'selected':''}" data-event-person="${id}" aria-pressed="${eventPhotoSelected===id}" aria-label="Select ${id==='clara'?'Clara':'Emma'}">${eventPortraitHTML(id)}<span>${id==='clara'?'Clara':'Emma'}</span></button>`).join('')}</div>`}<p class="event-feedback" id="event-photo-feedback" role="status">${p.taken?'Emma: “I’m glad we’re in this together.”':p.placed.length===2?'Everyone is in place. Ready?':eventPhotoSelected?'Now tap '+(eventPhotoSelected==='clara'?'Clara’s':'Emma’s')+' spot.':'Two people. One new memory.'}</p><div class="dialog-bottom"><button class="start" ${p.taken?'data-event-done="emma"':'data-event-snap'} ${!p.taken&&p.placed.length<2?'disabled':''}>${p.taken?'Keep our photo':'Take photo'}${icon('arrow')}</button></div>`,'event-photo');
+}
+function placeEventPerson(id,slot){
+ if(id!==slot){$('#event-photo-feedback').textContent='Try the spot with '+(id==='clara'?'Clara’s':'Emma’s')+' name.';return;}
+ eventAct('place',id);eventPhotoSelected=null;openPhotoCorner();
+}
+function openMusicCorner(){
+ const p=orientationStatus().activities.music;
+ open(`<h2 class="dialog-title airport-dialog-title">Find our soundtrack.</h2><div class="event-music-intro">${eventPortraitHTML('noah')}<p>Noah: “I made two little tracks. Which one feels like us?”</p></div><div class="event-tracks">${[['gentle','A gentle hello','Soft and easy'],['bright','A bright beginning','A little more bounce']].map(([id,name,copy])=>`<button class="event-track ${p.choice===id?'selected':''}" data-event-track="${id}" aria-pressed="${p.choice===id}"><span aria-hidden="true">▶</span><strong>${name}</strong><small>${copy} · tap to listen</small></button>`).join('')}</div><div class="event-speaker ${p.playing?'playing':''}" aria-hidden="true"><span>♪</span><i></i><i></i><span>♫</span></div><p class="event-feedback" role="status">${p.playing?'Noah: “That’s our sound. Save me a spot in the photo!”':p.choice?'Your choice is ready. Turn on the speakers.':'Listen to either track. Both choices are welcome.'}</p><div class="dialog-bottom"><button class="start" ${p.playing?'data-event-done="noah"':'data-event-play'} ${!p.choice?'disabled':''}>${p.playing?'Keep the music going':'Turn on speakers'}${icon('arrow')}</button></div>`,'event-music');
+}
+function badgeSticker(id){return {flower:'✿',star:'★',heart:'♥'}[id]||'';}
+function openWelcomeTable(){
+ const p=orientationStatus().activities.badge;
+ open(`<h2 class="dialog-title airport-dialog-title">A name to remember.</h2><p class="event-description">Maya: “Let’s make your name badge. You’re part of the group now.”</p><div class="event-badge"><span>Hello, I’m</span><strong id="event-badge-name"></strong><span id="event-badge-sticker" class="event-badge-sticker" aria-hidden="true">${badgeSticker(p.sticker)}</span></div><label class="event-name-label" for="event-name">Name on your badge</label><input id="event-name" class="event-name" type="text" maxlength="20" autocomplete="off" placeholder="Clara" value="${eventEscape(p.name)}"><fieldset class="event-stickers"><legend>Choose a sticker</legend>${[['flower','Flower'],['star','Star'],['heart','Heart']].map(([id,name])=>`<button type="button" data-event-sticker="${id}" aria-label="${name} sticker" aria-pressed="${p.sticker===id}" class="${p.sticker===id?'selected':''}"><span aria-hidden="true">${badgeSticker(id)}</span></button>`).join('')}</fieldset><p class="event-feedback" id="event-badge-feedback" role="status">${p.worn?'Maya: “Come join us, '+eventEscape(p.name.trim())+'!”':'Your name, your little touch.'}</p><div class="dialog-bottom"><button class="start" id="event-wear" ${p.worn?'data-event-done="maya"':'data-event-wear'} ${!p.name.trim()||!p.sticker?'disabled':''}>${p.worn?'Join the group':'Wear my badge'}${icon('arrow')}</button></div>`,'event-badge');$('#event-badge-name').textContent=p.name.trim()||'Your name';
+}
+function finishEventActivity(id){
+ close(false);renderOrientation();if(orientationStatus().complete)finishOrientation();else {if(orientationStatus().activities.music.playing)playEventTrack(orientationStatus().activities.music.choice,true);orientationMessage={emma:'A photo with Emma. A new face to look for on campus.',noah:'Noah found the soundtrack. This room feels a little more familiar.',maya:'A name badge, a welcome, and one less reason to feel like a stranger.'}[id];renderOrientation();orientationLook(orientationModel.ids.find(x=>!orientationStatus().helped.includes(x)));}
+}
+function groupPhotoScene(){
+ const p=orientationStatus();open(`<h2 class="dialog-title airport-dialog-title">Room for one more.</h2><p class="event-description">Emma: “Clara, come stand with us!”</p><div class="event-group-photo ${p.groupPhoto?'photo-taken':''}" id="event-group-photo">${['emma','clara','noah','maya'].map(eventPortraitHTML).join('')}<span>${p.groupPhoto?'Our first day together ♡':'Everyone is in the frame.'}</span></div><p class="event-feedback">${p.groupPhoto?'She came to meet new people. She left with people to meet again.':'A little photo of the people who made a new place feel warmer.'}</p><div class="dialog-bottom"><button class="start" ${p.groupPhoto?'data-event-finale':'data-event-group'}>${p.groupPhoto?'Keep this moment':'Take group photo'}${icon('arrow')}</button></div>`,'event-group');
+}
+function flashEventPhoto(selector){const frame=$(selector);if(!frame)return;frame.classList.remove('camera-flash');void frame.offsetWidth;frame.classList.add('camera-flash');}
+$('#dialog').addEventListener('input',e=>{if(e.target.id!=='event-name')return;eventAct('name',e.target.value);$('#event-badge-name').textContent=e.target.value.trim()||'Your name';$('#event-wear').disabled=!e.target.value.trim()||!orientationStatus().activities.badge.sticker;$('#event-wear').removeAttribute('data-event-done');$('#event-wear').setAttribute('data-event-wear','');$('#event-wear').innerHTML='Wear my badge'+icon('arrow');});
+document.addEventListener('click',e=>{
+ const token=e.target.closest('[data-event-person]');if(token){if(Date.now()<eventIgnoreUntil)return;eventPhotoSelected=token.dataset.eventPerson;openPhotoCorner();return;}
+ const slot=e.target.closest('[data-event-slot]');if(slot&&eventPhotoSelected){placeEventPerson(eventPhotoSelected,slot.dataset.eventSlot);return;}
+ if(e.target.closest('[data-event-snap]')){eventAct('photo');openPhotoCorner();flashEventPhoto('#event-photo-frame');return;}
+ const track=e.target.closest('[data-event-track]');if(track){eventAct('track',track.dataset.eventTrack);openMusicCorner();playEventTrack(track.dataset.eventTrack);return;}
+ if(e.target.closest('[data-event-play]')){eventAct('play');openMusicCorner();playEventTrack(orientationStatus().activities.music.choice,true);return;}
+ const sticker=e.target.closest('[data-event-sticker]');if(sticker){eventAct('sticker',sticker.dataset.eventSticker);openWelcomeTable();return;}
+ if(e.target.closest('[data-event-wear]')){eventAct('wear');openWelcomeTable();return;}
+ const done=e.target.closest('[data-event-done]');if(done){finishEventActivity(done.dataset.eventDone);return;}
+ if(e.target.closest('[data-event-group]')){eventAct('group');groupPhotoScene();flashEventPhoto('#event-group-photo');return;}
+ if(e.target.closest('[data-event-finale]'))finishOrientation();
+});
+document.addEventListener('pointerdown',e=>{const source=e.target.closest('[data-event-person]');if(!source||e.button!==0)return;eventDrag={source,id:source.dataset.eventPerson,pointer:e.pointerId,x:e.clientX,y:e.clientY,ghost:null};});
+document.addEventListener('pointermove',e=>{if(!eventDrag||eventDrag.pointer!==e.pointerId)return;const d=eventDrag;if(!d.ghost&&Math.hypot(e.clientX-d.x,e.clientY-d.y)>7){d.source.setPointerCapture(e.pointerId);d.ghost=document.createElement('img');d.ghost.src=eventPortrait(d.id);d.ghost.className='drag-ghost';d.ghost.alt='';$('#dialog').append(d.ghost);}if(!d.ghost)return;e.preventDefault();d.ghost.style.left=e.clientX+'px';d.ghost.style.top=e.clientY+'px';},{passive:false});
+function endEventDrag(e,cancel=false){if(!eventDrag||eventDrag.pointer!==e.pointerId)return;const d=eventDrag;eventDrag=null;if(!d.ghost)return;d.ghost.remove();eventIgnoreUntil=Date.now()+350;try{d.source.releasePointerCapture(e.pointerId);}catch{}const target=cancel||dialogType!=='event-photo'?null:document.elementFromPoint(e.clientX,e.clientY)?.closest('[data-event-slot]');if(target)placeEventPerson(d.id,target.dataset.eventSlot);}
+document.addEventListener('pointerup',endEventDrag);document.addEventListener('pointercancel',e=>endEventDrag(e,true));
 
 // Chapter 5: familiar objects, a changed perspective, and a letter to the future.
 let keepsakeSelected=null,keepsakeMemory='',memoryDrag=null,keepsakeIgnoreUntil=0;
