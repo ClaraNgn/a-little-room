@@ -480,7 +480,7 @@ function showOrientationLine(){
 }
 function startOrientationTalk(id){
  if(!orientationModel.people[id]||$('#orientation').hidden)return;orientationMessage='';stopOrientationTalk();const s=orientationStatus();orientationTalk={id,step:s.helped.includes(id)?5:s.answered.includes(id)?4:0};$('#orientation').classList.add('is-talking');$(`[data-orientation-person="${id}"]`).classList.add('talking-target');$('#orientation-talk').hidden=false;
- const person=$(`[data-orientation-person="${id}"]`),x=parseFloat(person.style.getPropertyValue('--friend-x'));$('#orientation-clara').style.setProperty('--clara-x',(x-13)+'%');
+ const person=$(`[data-orientation-person="${id}"]`),x=parseFloat(person.style.getPropertyValue('--friend-x'));$('#orientation-clara').style.setProperty('--clara-x',(x<35?x+10:x-12)+'%');
  const view=$('#orientation-viewport'),r=person.getBoundingClientRect(),v=view.getBoundingClientRect();view.scrollLeft+=r.left+r.width/2-v.left-view.clientWidth/2-65;showOrientationLine();
 }
 function answerOrientation(index){
