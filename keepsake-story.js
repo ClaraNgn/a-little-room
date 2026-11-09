@@ -1,0 +1,10 @@
+(function(root){
+'use strict';
+const ids=['passport','clothes','laptop','photo','notebook','mug'];
+const memories={passport:'The passport is the same. The unfamiliar campus is becoming familiar.',clothes:'The school uniform still holds the beginning of her story. Growing means carrying that beginning forward.',laptop:'Assignments, work and calls home. Clara is learning to make room for what matters.',photo:'Distance has changed their routines, but her family is still part of every new step.',notebook:'A roll once meant for unfamiliar places now holds the possibility of familiar faces.',mug:'A letter has been waiting among these pieces of home.'};
+const letter=['Dear future me,','I hope you remember the version of yourself who came from Vietnam to study at Kent State. Keep pursuing your dream, and always be proud of yourself.','Whenever you feel like giving up, remember how hard you worked and how strong you had to be to build the life you have today.','With love,','Clara'];
+function normalize(input){const matched=Array.isArray(input?.matched)?ids.filter(id=>input.matched.includes(id)):[];if(matched.length<6){const i=matched.indexOf('mug');if(i>=0)matched.splice(i,1);}return {matched,letterRead:matched.length===6&&input?.letterRead===true};}
+function match(input,item,outline){const progress=normalize(input);if(!ids.includes(item)||item!==outline)return {progress,error:'That shape belongs to another memory. Try another outline.'};if(progress.matched.includes(item))return {progress,error:'This memory is already in place.'};if(item==='mug'&&progress.matched.length<5)return {progress,error:'Find the other five memories first. The letter will be last.'};progress.matched.push(item);return {progress,error:null};}
+function read(input){const progress=normalize(input);if(progress.matched.length===6)progress.letterRead=true;return progress;}
+const api={ids,memories,letter,normalize,match,read};if(typeof module==='object'&&module.exports)module.exports=api;else root.keepsakeStory=api;
+})(typeof window==='object'?window:globalThis);
