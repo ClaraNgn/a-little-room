@@ -1,4 +1,4 @@
-# The Abroad Chapter — Chapters 1–4
+# The Abroad Chapter — Chapters 1–5
 
 A playable, buildless browser prototype based on the creator's handwritten Chapter 1 idea.
 
@@ -80,7 +80,7 @@ The old notebook and mug storage IDs now represent Film roll and Letter, so save
 
 Continue from Chapter 1, or open `?chapter=2`. Read the handwritten parchment map and find the classroom. Talk to Ben: Clara asks for library directions in one fixed line, then Continue reveals his reply. Follow his directions to the library, then use the map to find Student Center and save the orientation invitation. Each destination adds one stamp to the approved illustrated collection paper. Finish with three stamps and a short reflection.
 
-Campus locations on the map can be revisited; trying a destination before its story step gives a hint. No timer or failure reset. Map knowledge, conversation, visited scene and stamps persist locally with migration from the earlier one-stamp version. Replay Chapter 2 resets only campus progress and preserves Chapter 1 packing. Chapter 3 and Chapter 4 continue the story; Chapter 5 gameplay is not implemented yet.
+Campus locations on the map can be revisited; trying a destination before its story step gives a hint. No timer or failure reset. Map knowledge, conversation, visited scene and stamps persist locally with migration from the earlier one-stamp version. Replay Chapter 2 resets only campus progress and preserves Chapter 1 packing. Chapter 3 and Chapter 4 continue the story; Chapter 5 completes the story with a suitcase matching puzzle and a letter.
 
 Campus scenery, Ben and the simple stamp paper use the creator-reviewed ImageGen assets under `art-source/chapter2/`. The served SVG files wrap WebP images; source PNGs and prompts are retained. The map and stamp sheet have accessible text alternatives and buttons. The stamp paper has no Kent State branding, flower or My first day subtitle. No event registration, real calendar update or external messages are sent.
 
@@ -110,7 +110,15 @@ Tap each student for a three-line conversation in speech bubbles. Remember one d
 `orientation-story.js` holds dialogue, answer keys and saved-progress validation. Its tests cover wrong answers, prerequisites, duplicate station taps, invalid saves and completion in any order. Assets and built-in ImageGen prompts are retained in `art-source/chapter4/game-assets-v1/`; served SVGs embed the generated WebP artwork. No registrations or messages leave the game.
 
 ## Clara's chapter reflections
-Chapters 2, 3 and 4 open with a short first-person reflection before How to play: adapting and English; balancing school/work/relationships and supporting family; finding belonging and growing into an independent woman who encourages others. The separate Chapter 5 opening is prepared for later integration, per the creator's request; no unfinished Chapter 5 button is shown. Editable copy and prompt connections: `art-source/chapter-openings.json`.
+Chapters 2, 3 and 4 open with a short third-person narration before How to play: adapting and English; balancing school/work/relationships and supporting family; finding belonging and growing into an independent woman who encourages others. Chapter 5 now uses its approved opening before How to play and its suitcase puzzle. Editable copy and prompt connections: `art-source/chapter-openings.json`.
 
 ## Additional interface revisions
 Introduction uses the game's DynaPuff title font. The glowing airport phone sits closer to Clara at every breakpoint. Chapter 1 completion uses tighter paragraph spacing and moves Replay Chapter 1 into the action row in place of Revisit departure; replay preserves Chapters 2–4. The Ben conversation removes the inner thought and offers two valid Clara replies, both continuing to his library directions.
+
+
+## Chapter 5 — Looking back
+Continue from Chapter 4, or open `?chapter=5`. The approved narrator opening comes before How to play. In Clara’s familiar dorm, open the lilac suitcase and match the six original objects to their silhouettes. Drag and drop, or select an object and then its outline using touch, mouse or keyboard. A wrong match offers a hint and keeps all previous matches. Each matched object reveals a short reflection. The letter is locked until the other five objects are matched.
+
+After matching the letter, Read the letter opens the creator’s Dear future me message. Carry this with me completes Chapter 5 and closes the five-chapter journey. The letter can be reread; Replay Chapter 5 resets only its matches and letter-read flag. Existing packing, campus, desk and Orientation progress is preserved. Progress saves on the same browser/device. `keepsake-story.js` owns match validation, letter prerequisites, saved-progress normalization and the letter text; `tests/keepsake-story.test.cjs` covers wrong matches, ordering, duplicates and corrupt saves.
+
+No new generated artwork is required: the approved dorm, Clara and six object images are reused. The lilac suitcase and matching board use the existing cream/lilac interface palette. Standalone export embeds the new logic and existing artwork.
