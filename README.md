@@ -1,4 +1,4 @@
-# The Abroad Chapter — Chapter 1: Beginnings
+# The Abroad Chapter — Chapters 1–4
 
 A playable, buildless browser prototype based on the creator's handwritten Chapter 1 idea.
 
@@ -80,7 +80,7 @@ The old notebook and mug storage IDs now represent Film roll and Letter, so save
 
 Continue from Chapter 1, or open `?chapter=2`. Read the handwritten parchment map and find the classroom. Talk to Ben: Clara asks for library directions in one fixed line, then Continue reveals his reply. Follow his directions to the library, then use the map to find Student Center and save the orientation invitation. Each destination adds one stamp to the approved illustrated collection paper. Finish with three stamps and a short reflection.
 
-Campus locations on the map can be revisited; trying a destination before its story step gives a hint. No timer or failure reset. Map knowledge, conversation, visited scene and stamps persist locally with migration from the earlier one-stamp version. Replay Chapter 2 resets only campus progress and preserves Chapter 1 packing. Later chapters are not implemented here.
+Campus locations on the map can be revisited; trying a destination before its story step gives a hint. No timer or failure reset. Map knowledge, conversation, visited scene and stamps persist locally with migration from the earlier one-stamp version. Replay Chapter 2 resets only campus progress and preserves Chapter 1 packing. Chapter 3 and Chapter 4 continue the story; Chapter 5 gameplay is not implemented yet.
 
 Campus scenery, Ben and the simple stamp paper use the creator-reviewed ImageGen assets under `art-source/chapter2/`. The served SVG files wrap WebP images; source PNGs and prompts are retained. The map and stamp sheet have accessible text alternatives and buttons. The stamp paper has no Kent State branding, flower or My first day subtitle. No event registration, real calendar update or external messages are sent.
 
@@ -101,3 +101,16 @@ The campus conversation now uses four speech bubbles anchored to the speaking ch
 
 ## Chapter-opening guides
 Each playable chapter begins with a short How to play card: packing in Chapter 1, campus map and stamps in Chapter 2, and desk choices/time/energy/rest in Chapter 3. Let’s go, Close or Escape dismisses the card and leaves gameplay progress unchanged. Re-entering or replaying a chapter shows its guide again; completed Chapter 3 still opens its completion screen. Reviewing a packed suitcase opens directly without an extra guide. Existing question-mark help remains available in every chapter.
+
+## Chapter 4 — Finding my people
+Continue from Chapter 3, or open `?chapter=4`. Clara meets Emma from France (camera and baguette), Noah from Mexico (short black hair, red shirt, headphones; no bag), and Maya from India (braid and lilac sweater; no lunchbox or bag). All three use the approved friends-v5 designs. A new simple 2.5D Orientation room has photo, music and welcome stations.
+
+Tap each student for a three-line conversation in speech bubbles. Remember one detail in a two-answer question; a wrong answer gives a retry hint without losing progress. A correct answer highlights that student's physical table station. Tap it to help prepare the event and make one friend. Any friend order works. Finish all three for Chapter 4 completed, with review/stay, lobby and chapter-only replay. Conversations can be closed with X or Escape. Small screens use swipe, arrow keys and the three student navigation chips. Progress persists separately; previous chapters remain intact.
+
+`orientation-story.js` holds dialogue, answer keys and saved-progress validation. Its tests cover wrong answers, prerequisites, duplicate station taps, invalid saves and completion in any order. Assets and built-in ImageGen prompts are retained in `art-source/chapter4/game-assets-v1/`; served SVGs embed the generated WebP artwork. No registrations or messages leave the game.
+
+## Clara's chapter reflections
+Chapters 2, 3 and 4 open with a short first-person reflection before How to play: adapting and English; balancing school/work/relationships and supporting family; finding belonging and growing into an independent woman who encourages others. The separate Chapter 5 opening is prepared for later integration, per the creator's request; no unfinished Chapter 5 button is shown. Editable copy and prompt connections: `art-source/chapter-openings.json`.
+
+## Additional interface revisions
+Introduction uses the game's DynaPuff title font. The glowing airport phone sits closer to Clara at every breakpoint. Chapter 1 completion uses tighter paragraph spacing and moves Replay Chapter 1 into the action row in place of Revisit departure; replay preserves Chapters 2–4. The Ben conversation removes the inner thought and offers two valid Clara replies, both continuing to his library directions.
