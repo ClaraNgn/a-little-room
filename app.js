@@ -2,7 +2,7 @@
 'use strict';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const STORE='a-little-room-chapter1-v1', PREF='a-little-room-chapter1-prefs';
-const planner=window.deskPlanner,orientationModel=window.orientationStory;
+const planner=window.deskPlanner,orientationModel=window.orientationStory,keepsakeModel=window.keepsakeStory;
 const items=[
  {id:'passport',name:'Passport',x:29,y:41,w:9,story:'Tomorrow, this little passport takes me to my new life. Isn’t it exciting? A little scary, too.'},
  {id:'clothes',name:'School uniform',x:77,y:55,w:14,story:'My high school uniform. A little reminder of where I started, and of the courage I’m taking into this next chapter.'},
@@ -20,7 +20,7 @@ let volume=.25,music=false,soundEffects=true,context,musicTimer,toastTimer,lastF
 try {
  const pref=JSON.parse(localStorage.getItem(PREF));if(pref&&Number.isFinite(pref.volume))volume=Math.max(0,Math.min(.6,pref.volume));if(pref&&typeof pref.soundEffects==='boolean')soundEffects=pref.soundEffects;
  const data=JSON.parse(localStorage.getItem(STORE));
- if(data&&Array.isArray(data.slots)){state.orientation=orientationModel.normalize(data.orientation);state.deskActions=planner.normalize(data.deskActions);state.campusGuided=!!data.campusGuided;state.campusClassFound=!!data.campusClassFound;state.campusAsked=state.campusClassFound&&!!data.campusAsked;state.campusLibraryFound=state.campusAsked&&!!data.campusLibraryFound;state.campusCenterFound=state.campusLibraryFound&&!!data.campusCenterFound;state.campusVisit=data.campusVisit==='center'&&state.campusLibraryFound?'center':data.campusVisit==='library'&&state.campusAsked?'library':'classroom';const seen=new Set();state.slots=Array.from({length:6},(_,i)=>{const id=data.slots[i];if(byId(id)&&!seen.has(id)){seen.add(id);return id;}return null;});state.started=!!data.started;state.completed=!!data.completed&&state.slots.every(Boolean);if(state.completed&&journeySteps.includes(data.journey)){state.journey=data.journey;state.message=data.message==='miss'?'miss':'call';state.promise=data.promise==='ask'?'ask':'begin';}}
+ if(data&&Array.isArray(data.slots)){state.keepsakes=keepsakeModel.normalize(data.keepsakes);state.orientation=orientationModel.normalize(data.orientation);state.deskActions=planner.normalize(data.deskActions);state.campusGuided=!!data.campusGuided;state.campusClassFound=!!data.campusClassFound;state.campusAsked=state.campusClassFound&&!!data.campusAsked;state.campusLibraryFound=state.campusAsked&&!!data.campusLibraryFound;state.campusCenterFound=state.campusLibraryFound&&!!data.campusCenterFound;state.campusVisit=data.campusVisit==='center'&&state.campusLibraryFound?'center':data.campusVisit==='library'&&state.campusAsked?'library':'classroom';const seen=new Set();state.slots=Array.from({length:6},(_,i)=>{const id=data.slots[i];if(byId(id)&&!seen.has(id)){seen.add(id);return id;}return null;});state.started=!!data.started;state.completed=!!data.completed&&state.slots.every(Boolean);if(state.completed&&journeySteps.includes(data.journey)){state.journey=data.journey;state.message=data.message==='miss'?'miss':'call';state.promise=data.promise==='ask'?'ask':'begin';}}
 } catch {storageOK=false;}
 function save(){try{localStorage.setItem(STORE,JSON.stringify(state));localStorage.setItem(PREF,JSON.stringify({volume,soundEffects}));storageOK=true;}catch{storageOK=false;}}
 function announce(message){$('#chapter-status').textContent=message;}
@@ -78,13 +78,13 @@ function remove(index){
  const id=state.slots[index];if(!id)return;state.slots[index]=null;state.completed=false;delete state.journey;selected=id;speech={kind:'removed',id};save();setChatCollapsed(false);renderChapter();updateResume();announce(`${byId(id).name} returned to the room.`);$(`[data-inventory="${id}"]`)?.focus({preventScroll:true});
 }
 function centerRoom(){const view=$('#scene-viewport');view.scrollLeft=(view.scrollWidth-view.clientWidth)*.5;}
-function enterRoom(showGuide=true){stopBenTalk();stopOrientationTalk();$('#orientation').hidden=true;
+function enterRoom(showGuide=true){stopBenTalk();$('#keepsake-room').hidden=true;stopOrientationTalk();$('#orientation').hidden=true;
  $('#desk-room').hidden=true;
  close(false);$('#campus').hidden=true;$('#journey').hidden=true;state.started=true;save();$('#world').hidden=true;$('#chapter').hidden=false;document.body.classList.add('in-room');renderChapter();updateResume();setChatCollapsed(false);centerRoom();$('#chapter-title').tabIndex=-1;$('#chapter-title').focus({preventScroll:true});if(showGuide)showChapterGuide(1);
 }
-function lobby(){stopBenTalk();stopOrientationTalk();$('#orientation').hidden=true;$('#desk-room').hidden=true;stopClip();close(false);$('#campus').hidden=true;$('#journey').hidden=true;$('#chapter').hidden=true;$('#world').hidden=false;document.body.classList.remove('in-room');selected=null;speech={kind:'welcome'};updateResume();$('#start').focus({preventScroll:true});}
+function lobby(){stopBenTalk();$('#keepsake-room').hidden=true;stopOrientationTalk();$('#orientation').hidden=true;$('#desk-room').hidden=true;stopClip();close(false);$('#campus').hidden=true;$('#journey').hidden=true;$('#chapter').hidden=true;$('#world').hidden=false;document.body.classList.remove('in-room');selected=null;speech={kind:'welcome'};updateResume();$('#start').focus({preventScroll:true});}
 function open(html,type){
- if(!$('#dialog').open)lastFocus=document.activeElement;dialogType=type;$('#dialog').classList.toggle('chapter-preface-dialog',type==='chapter-preface');$('#dialog').classList.toggle('chapter-guide',type==='chapter-guide');$('#dialog').classList.toggle('desk-dialog',!!type?.startsWith('desk-'));$('#dialog').classList.toggle('packing-dialog',type==='packing');$('#dialog').classList.toggle('campus-map-dialog',type==='campus-guide');$('#dialog').classList.toggle('campus-stamps-dialog',type==='campus-stamps');$('#dialog-content').innerHTML=html;
+ if(!$('#dialog').open)lastFocus=document.activeElement;dialogType=type;$('#dialog').classList.toggle('keepsake-puzzle-dialog',type==='keepsake-puzzle');$('#dialog').classList.toggle('chapter-preface-dialog',type==='chapter-preface');$('#dialog').classList.toggle('chapter-guide',type==='chapter-guide');$('#dialog').classList.toggle('desk-dialog',!!type?.startsWith('desk-'));$('#dialog').classList.toggle('packing-dialog',type==='packing');$('#dialog').classList.toggle('campus-map-dialog',type==='campus-guide');$('#dialog').classList.toggle('campus-stamps-dialog',type==='campus-stamps');$('#dialog-content').innerHTML=html;
  if(!$('#dialog').open)$('#dialog').showModal();
  const heading=$('#dialog h2');if(heading){heading.id='active-dialog-title';heading.tabIndex=-1;$('#dialog').setAttribute('aria-labelledby','active-dialog-title');heading.focus();}else $('#close').focus();
 }
@@ -105,7 +105,7 @@ function showSuitcase(){
  open(`<h2 class="dialog-title">My little suitcase.</h2><div class="case-dialog-header"><span class="case-counter" id="case-counter">${count()} / 6 packed</span></div><div class="mini-case"><div class="case-handle" aria-hidden="true"></div><div class="case-top"><span>CLARA’S SUITCASE</span><span aria-hidden="true">✦</span></div><div class="case-slots" id="case-slots">${slotsHTML()}</div></div><div class="inventory" id="inventory">${inventoryHTML()}</div><p class="case-story" id="case-story" aria-live="polite"></p><div class="case-actions"><button class="chat-primary" id="drawer-pack"></button></div>`,'packing');renderSelection();
 }
 function help(){open(`<p class="dialog-kicker">CHAPTER 01</p><h2 class="dialog-title">A little help.</h2><ol class="help-list"><li>Clara gives you your task through the chat in the room. Tap − to tuck it away, or + to bring it back.</li><li>Choose an object to hear its story. Drag it to the open suitcase, or tap “Pack it” in the chat.</li><li>Open “My suitcase” to see all six objects, choose an empty space, or take a packed object out.</li><li>On a narrow screen, swipe across the room or use the look-around arrows to see both sides.</li><li>When all six objects are packed, close the suitcase and choose “Sleep until morning” to continue.</li><li>At the airport, follow Clara’s chat to check in, write home and board. After boarding, enjoy a four-second flight film. Short films continue automatically; use Skip to move on sooner. You can also tap the glowing airport buttons.</li><li>Your packing progress is saved on this device. Choose “Begin my story!” in the lobby to enter Clara’s introduction and return to her room.</li><li>Keyboard: Tab and Enter to select. Focus the room and use left/right arrows to look around. Escape closes a window.</li></ol><div class="music-controls"><label for="volume">Music volume</label><input type="range" id="volume" min="0" max="60" value="${Math.round(volume*100)}"><output for="volume">${Math.round(volume*100)}%</output></div><div class="audio-options"><button class="soft-button" data-toggle-music>${music?'Turn music off':'Turn music on'}</button><button class="soft-button" data-toggle-sfx aria-pressed="${soundEffects}">${soundEffects?'Turn sound effects off':'Turn sound effects on'}</button></div><div class="dialog-bottom"><button class="start" data-close>Got it${icon('arrow')}</button></div>`,'help');}
-const chapterOpenings={"2": {"title": "The First Few Steps", "body": "Clara has arrived at Kent State, carrying plans for the future and worries she cannot quite put into words. On an unfamiliar campus, even finding a classroom or starting a conversation in English can feel like a challenge.\n\nHer first day begins with something small: finding her way and learning to ask for help.", "connectsTo": "Challenge: English and adapting to a new culture"}, "3": {"title": "When the Day Isn’t Long Enough", "body": "A few weeks pass, and classes, work shifts, and calls home begin to fill Clara’s days. Her hope of becoming independent and someone her family can rely on keeps her trying to do a little more.\n\nBut tonight, only one hour remains, with several things unfinished. Clara must decide what needs her attention now and what can wait until tomorrow.", "connectsTo": "Challenge: school, work and relationships; hope: supporting family"}, "4": {"title": "From Strangers to Friends", "body": "The paths around campus have become more familiar, but Clara still has few people to walk them with. An invitation to Orientation brings her into a room full of new faces.\n\nShe hopes to one day encourage other women to pursue independent lives with confidence. Today, she needs to gather enough courage to begin a conversation herself.", "connectsTo": "Hope: independence and encouraging other women; adapting and belonging"}, "5": {"title": "The Suitcase She Brought", "body": "The suitcase that carried Clara’s belongings from Vietnam now rests in a room that is beginning to feel like home. Inside are the same objects she packed before leaving, but the person opening it has new experiences to carry.\n\nClara is still finding a path toward contributing to her home country and supporting international students through their own uncertain beginnings. Before the next chapter, an old letter is waiting to be read.", "connectsTo": "Impact in Vietnam and international-student support; message to future self", "status": "Prepared for later integration; Chapter 5 gameplay not built"}};
+const chapterOpenings={"2": {"title": "The First Few Steps", "body": "Clara has arrived at Kent State, carrying plans for the future and worries she cannot quite put into words. On an unfamiliar campus, even finding a classroom or starting a conversation in English can feel like a challenge.\n\nHer first day begins with something small: finding her way and learning to ask for help.", "connectsTo": "Challenge: English and adapting to a new culture"}, "3": {"title": "When the Day Isn’t Long Enough", "body": "A few weeks pass, and classes, work shifts, and calls home begin to fill Clara’s days. Her hope of becoming independent and someone her family can rely on keeps her trying to do a little more.\n\nBut tonight, only one hour remains, with several things unfinished. Clara must decide what needs her attention now and what can wait until tomorrow.", "connectsTo": "Challenge: school, work and relationships; hope: supporting family"}, "4": {"title": "From Strangers to Friends", "body": "The paths around campus have become more familiar, but Clara still has few people to walk them with. An invitation to Orientation brings her into a room full of new faces.\n\nShe hopes to one day encourage other women to pursue independent lives with confidence. Today, she needs to gather enough courage to begin a conversation herself.", "connectsTo": "Hope: independence and encouraging other women; adapting and belonging"}, "5": {"title": "The Suitcase She Brought", "body": "The suitcase that carried Clara’s belongings from Vietnam now rests in a room that is beginning to feel like home. Inside are the same objects she packed before leaving, but the person opening it has new experiences to carry.\n\nClara is still finding a path toward contributing to her home country and supporting international students through their own uncertain beginnings. Before the next chapter, an old letter is waiting to be read.", "connectsTo": "Impact in Vietnam and international-student support; message to future self", "status": "Integrated into Chapter 5"}};
 function showChapterPrelude(chapter){
  const story=chapterOpenings[chapter];if(!story)return;
  open(`<div class="chapter-preface"><div class="preface-portrait"><img src="${$('#jenny img').src}" alt="Clara"></div><p class="dialog-kicker">CHAPTER 0${chapter}</p><h2 class="dialog-title airport-dialog-title">${story.title}</h2><p class="preface-copy">${story.body}</p><div class="dialog-bottom"><button class="start" data-chapter-instructions="${chapter}">Continue${icon('arrow')}</button></div></div>`,'chapter-preface');
@@ -130,6 +130,11 @@ const chapterGuides={
   ['Say hello','Tap Emma, Noah and Maya to hear a little about them.'],
   ['Remember a little detail','Answer one question about each person. You can always try again.'],
   ['Help the event begin','Tap the highlighted photo corner, music station or welcome table after each conversation.']
+ ]},
+ 5:{name:'Looking back',goal:'Six objects. A letter waiting to be opened.',steps:[
+ ['Open the suitcase','Tap the lilac suitcase to see the objects Clara brought from home.'],
+ ['Find each familiar shape','Drag an object onto its outline, or tap the object and then the outline. You can try again.'],
+ ['Read the letter','Match the other five memories first. Place the letter last, then open it.']
  ]}
 };
 function showChapterGuide(chapter){
@@ -175,7 +180,7 @@ $('#clip-skip').addEventListener('click',finishClip);$('#clip-lobby').addEventLi
 $('#clip-play').addEventListener('click',()=>{if(!window.journeyClips){finishClip();return;}$('#cutscene-video').play().then(()=>{$('#clip-play').hidden=true;}).catch(()=>{$('#clip-skip').textContent='→';$('#clip-skip').ariaLabel='Continue';});});
 document.addEventListener('visibilitychange',()=>{if(!clipNext)return;const video=$('#cutscene-video');if(document.hidden)video.pause();else if(!matchMedia('(prefers-reduced-motion: reduce)').matches)video.play().catch(()=>{$('#clip-play').hidden=false;});});
 function setJourneyCollapsed(value){$('#journey-chat-body').hidden=value;$('#journey-toggle').textContent=value?'+':'−';$('#journey-toggle').ariaLabel=value?'Expand chat':'Minimize chat';$('#journey-toggle').setAttribute('aria-expanded',String(!value));}
-function enterJourney(step){stopBenTalk();stopOrientationTalk();$('#orientation').hidden=true;$('#desk-room').hidden=true;
+function enterJourney(step){stopBenTalk();$('#keepsake-room').hidden=true;stopOrientationTalk();$('#orientation').hidden=true;$('#desk-room').hidden=true;
  if(count()!==6||!journeySteps.includes(step))return;
  // Older saves at the gate now return to the single departure step.
  if(step==='gate')step='goodbye';
@@ -251,7 +256,7 @@ function renderCampus(){
  entrance.textContent=place==='library'?(state.campusLibraryFound?'Find Student Center ↗':'Enter the library ↗'):state.campusClassFound?'Walk to the library ↗':'Walk up the steps ↗';
  entrance.classList.toggle('campus-path',place==='classroom'&&!!state.campusClassFound);
 }
-function enterCampus(){stopBenTalk();stopOrientationTalk();$('#orientation').hidden=true;
+function enterCampus(){stopBenTalk();$('#keepsake-room').hidden=true;stopOrientationTalk();$('#orientation').hidden=true;
  $('#desk-room').hidden=true;
  stopClip();close(false);$('#world').hidden=true;$('#chapter').hidden=true;$('#journey').hidden=true;$('#campus').hidden=false;
  document.body.classList.add('in-room');renderCampus();campusCollapsed(false);centerCampus();$('#campus-title').focus({preventScroll:true});announce('Chapter 2. '+campusMission().label+'. '+campusMission().hint);showChapterPrelude(2);
@@ -382,7 +387,7 @@ function renderDesk(){
  $('#desk-speech').textContent=s.complete?'I can’t do everything tonight. But I can choose what matters next.':deskMessage||(s.ready?'The important things have a place. I can leave a little time for myself, too.':s.decisions?'One choice at a time. What needs me tonight, and what can wait?':'My assignment is due at nine, my reading can wait, and home is calling. I have one hour and a little energy. Help me choose what matters.');
  $('#desk-hint').textContent=s.complete?'You made room for rest.':s.ready?'Tap the bed when you’re ready to stop.':'Tap the laptop, book or glowing phone. My evening lets you change a choice.';
 }
-function enterDesk(){stopBenTalk();stopOrientationTalk();$('#orientation').hidden=true;
+function enterDesk(){stopBenTalk();$('#keepsake-room').hidden=true;stopOrientationTalk();$('#orientation').hidden=true;
  stopClip();close(false);for(const id of ['world','chapter','journey','campus'])$('#'+id).hidden=true;$('#desk-room').hidden=false;document.body.classList.add('in-room');
  state.deskActions=planner.normalize(state.deskActions);deskMessage='';save();renderDesk();deskCollapsed(false);centerDesk();$('#desk-title').focus({preventScroll:true});announce('Chapter 3. Choose what matters. Tap an object on the desk.');if(deskStatus().complete)finishDesk();else showChapterPrelude(3);
 }
@@ -453,7 +458,7 @@ function renderOrientation(){
  $('#orientation-hint').textContent=status.complete?'Three new friends. A little more at home.':pending?'Tap the highlighted station on the table.':'Tap a student to say hello.';$('#orientation-finish').hidden=!status.complete;
 }
 function enterOrientation(){
- stopBenTalk();stopOrientationTalk();stopClip();close(false);for(const id of ['world','chapter','journey','campus','desk-room'])$('#'+id).hidden=true;
+ stopBenTalk();$('#keepsake-room').hidden=true;stopOrientationTalk();stopClip();close(false);for(const id of ['world','chapter','journey','campus','desk-room'])$('#'+id).hidden=true;
  $('#orientation').hidden=false;document.body.classList.add('in-room');state.orientation=orientationModel.normalize(state.orientation);orientationMessage='';save();renderOrientation();orientationCollapsed(false);orientationLook('emma',false);$('#orientation-title').focus({preventScroll:true});
  announce('Chapter 4. Meet three students and help prepare Orientation.');if(orientationStatus().complete)finishOrientation();else showChapterPrelude(4);
 }
@@ -490,7 +495,7 @@ function helpOrientation(id){
 }
 function finishOrientation(){
  if(!orientationStatus().complete)return;stopOrientationTalk();
- open(`<div class="orientation-complete"><div class="orientation-group">${['emma','noah','maya'].map(id=>`<img src="${$(`[data-orientation-person="${id}"] img`).src}" alt="${orientationModel.people[id].name}">`).join('')}<img src="${$('#jenny img').src}" alt="Clara"></div><h2 class="dialog-title airport-dialog-title">Chapter 4 completed</h2><p class="dialog-copy">I didn’t need perfect English to belong.<br>I just needed to say hello.</p><p class="orientation-reflection">Three new friends. A little more at home.</p><div class="dialog-bottom"><button class="soft-button" data-close>Stay a little longer</button><button class="start" data-lobby>Back to lobby${icon('arrow')}</button></div><button class="resume-button" data-orientation-replay>Replay Chapter 4</button></div>`,'orientation-complete');
+ open(`<div class="orientation-complete"><div class="orientation-group">${['emma','noah','maya'].map(id=>`<img src="${$(`[data-orientation-person="${id}"] img`).src}" alt="${orientationModel.people[id].name}">`).join('')}<img src="${$('#jenny img').src}" alt="Clara"></div><h2 class="dialog-title airport-dialog-title">Chapter 4 completed</h2><p class="dialog-copy">I didn’t need perfect English to belong.<br>I just needed to say hello.</p><p class="orientation-reflection">Three new friends. A little more at home.</p><div class="dialog-bottom"><button class="soft-button" data-close>Stay a little longer</button><button class="soft-button" data-lobby>Back to lobby</button><button class="start" data-keepsake-start>Continue to Chapter 5${icon('arrow')}</button></div><button class="resume-button" data-orientation-replay>Replay Chapter 4</button></div>`,'orientation-complete');
 }
 $('#orientation-lobby').addEventListener('click',lobby);$('#orientation-help').addEventListener('click',()=>showChapterGuide(4));$('#orientation-toggle').addEventListener('click',()=>orientationCollapsed(!$('#orientation-chat-body').hidden));$('#orientation-finish').addEventListener('click',finishOrientation);
 $('#orientation-talk-close').addEventListener('click',()=>stopOrientationTalk(true));$('#orientation-next').addEventListener('click',()=>{if(!orientationTalk)return;if(orientationTalk.step>=4)stopOrientationTalk(true);else{orientationTalk.step++;showOrientationLine();}});
@@ -505,6 +510,57 @@ document.addEventListener('click',e=>{
  if(e.target.closest('[data-orientation-start]'))enterOrientation();
  if(e.target.closest('[data-orientation-replay]')){state.orientation=orientationModel.normalize(null);enterOrientation();}
 });
+
+// Chapter 5: familiar objects, a changed perspective, and a letter to the future.
+let keepsakeSelected=null,keepsakeMemory='',memoryDrag=null,keepsakeIgnoreUntil=0;
+function keepsakeStatus(){return keepsakeModel.normalize(state.keepsakes);}
+function enterKeepsakes(){
+ stopBenTalk();stopOrientationTalk();stopClip();close(false);for(const id of ['world','chapter','journey','campus','desk-room','orientation'])$('#'+id).hidden=true;
+ $('#keepsake-room').hidden=false;document.body.classList.add('in-room');state.keepsakes=keepsakeStatus();keepsakeSelected=null;keepsakeMemory='';save();$('#keepsake-title').focus({preventScroll:true});renderKeepsakeRoom();if(keepsakeStatus().letterRead)finishKeepsakes();else showChapterPrelude(5);
+}
+function renderKeepsakeRoom(){
+ const p=keepsakeStatus();$('#keepsake-count').textContent=p.matched.length+' / 6 memories';$('#keepsake-room-copy').textContent=p.letterRead?'The same suitcase. A different Clara.':p.matched.length===6?'Every memory is in place. One letter is waiting.':'The things Clara brought from home are still here. What do they mean to her now?';
+}
+function keepsakePuzzle(){
+ open(`<p class="dialog-kicker">CHAPTER 05 · LOOKING BACK</p><h2 class="dialog-title airport-dialog-title">Pieces of home.</h2><div class="keepsake-puzzle-header"><span id="keepsake-puzzle-count"></span><p>Match each object to its outline. The letter comes last.</p></div><div class="keepsake-case"><span class="keepsake-handle" aria-hidden="true"></span><div id="keepsake-outlines" class="keepsake-outlines"></div></div><div id="keepsake-inventory" class="keepsake-inventory"></div><p id="keepsake-memory" class="keepsake-memory" role="status"></p><div class="dialog-bottom"><button id="keepsake-read" class="start" data-keepsake-letter hidden>Read the letter${icon('arrow')}</button></div>`,'keepsake-puzzle');renderKeepsakePuzzle();
+}
+function renderKeepsakePuzzle(){
+ const p=keepsakeStatus();$('#keepsake-puzzle-count').textContent=p.matched.length+' / 6 memories';
+ $('#keepsake-outlines').innerHTML=keepsakeModel.ids.map(id=>`<button class="keepsake-outline ${p.matched.includes(id)?'matched':''}" data-keepsake-outline="${id}" aria-label="${p.matched.includes(id)?byId(id).name+' matched':'Match '+byId(id).name+' outline'}" ${p.matched.includes(id)?'disabled':''}><img src="${asset(id)}" alt="" draggable="false">${p.matched.includes(id)?'<span aria-hidden="true">✓</span>':''}</button>`).join('');
+ $('#keepsake-inventory').innerHTML=['photo','mug','passport','laptop','notebook','clothes'].map(id=>{const matched=p.matched.includes(id),locked=id==='mug'&&p.matched.length<5;return `<button id="keepsake-piece-${id}" class="keepsake-piece ${keepsakeSelected===id?'selected':''} ${matched?'matched':''}" data-keepsake-item="${id}" ${matched||locked?'disabled':''} aria-label="${byId(id).name}${locked?' · find the other five memories first':matched?' · matched':' · select'}" aria-pressed="${keepsakeSelected===id}"><img src="${asset(id)}" alt="" draggable="false"><span>${byId(id).name}</span>${locked?'<small>Last memory</small>':''}</button>`;}).join('');
+ $('#keepsake-memory').textContent=keepsakeMemory||(p.matched.length===6?'A letter from the person who first packed this suitcase.':keepsakeSelected?'Choose the matching outline, or drag the object onto it.':'Choose an object, then its outline. You can also drag it.');$('#keepsake-read').hidden=p.matched.length!==6;
+}
+function matchKeepsake(item,outline){
+ const result=keepsakeModel.match(state.keepsakes,item,outline);if(result.error){keepsakeMemory=result.error;renderKeepsakePuzzle();return;}
+ state.keepsakes=result.progress;keepsakeSelected=null;keepsakeMemory=keepsakeModel.memories[item];save();renderKeepsakeRoom();renderKeepsakePuzzle();announce(byId(item).name+' matched. '+result.progress.matched.length+' of 6 memories.');
+ const next=keepsakeModel.ids.find(id=>!result.progress.matched.includes(id));(next?$('#keepsake-piece-'+next):$('#keepsake-read')).focus({preventScroll:true});
+}
+function readKeepsakeLetter(){
+ if(keepsakeStatus().matched.length!==6)return;
+ open(`<article class="keepsake-letter"><p class="dialog-kicker">A LETTER FROM THE BEGINNING</p><h2 class="dialog-title airport-dialog-title">Dear future me,</h2>${keepsakeModel.letter.slice(1,3).map(text=>`<p>${text}</p>`).join('')}<p class="keepsake-signature">With love,<br>Clara</p></article><div class="dialog-bottom"><button class="soft-button" data-keepsake-case>Back to my suitcase</button><button class="start" data-keepsake-finish>Carry this with me${icon('arrow')}</button></div>`,'keepsake-letter');
+}
+function finishKeepsakes(){
+ if(!keepsakeStatus().letterRead)return;
+ open(`<div class="keepsake-ending"><div class="journey-keepsakes">${items.map(i=>`<img src="${asset(i.id)}" alt="${i.name}">`).join('')}</div><h2 class="dialog-title airport-dialog-title">Chapter 5 completed</h2><p class="keepsake-final-title">A little closer to herself.</p><p class="dialog-copy">The same suitcase. A different Clara.<br>Each small step has made a new place feel more like home.</p><p class="keepsake-next-chapter">Her next chapter is still being written.</p><div class="dialog-bottom"><button class="soft-button" data-keepsake-letter>Read the letter again</button><button class="start" data-lobby>Back to lobby${icon('arrow')}</button></div><button class="resume-button" data-keepsake-replay>Replay Chapter 5</button></div>`,'keepsake-ending');
+}
+$('#keepsake-lobby').addEventListener('click',lobby);$('#keepsake-help').addEventListener('click',()=>showChapterGuide(5));$('#keepsake-case-open').addEventListener('click',keepsakePuzzle);
+document.addEventListener('click',e=>{
+ if(Date.now()<keepsakeIgnoreUntil)return;
+ const item=e.target.closest('[data-keepsake-item]');if(item&&!item.disabled){keepsakeSelected=item.dataset.keepsakeItem;keepsakeMemory='';renderKeepsakePuzzle();$('#keepsake-piece-'+keepsakeSelected).focus({preventScroll:true});return;}
+ const outline=e.target.closest('[data-keepsake-outline]');if(outline&&!outline.disabled){if(keepsakeSelected)matchKeepsake(keepsakeSelected,outline.dataset.keepsakeOutline);else{$('#keepsake-memory').textContent='Choose an object below first.';}return;}
+ if(e.target.closest('[data-keepsake-start]'))enterKeepsakes();
+ if(e.target.closest('[data-keepsake-case]'))keepsakePuzzle();
+ if(e.target.closest('[data-keepsake-letter]'))readKeepsakeLetter();
+ if(e.target.closest('[data-keepsake-finish]')){state.keepsakes=keepsakeModel.read(state.keepsakes);save();renderKeepsakeRoom();finishKeepsakes();}
+ if(e.target.closest('[data-keepsake-replay]')){state.keepsakes=keepsakeModel.normalize(null);enterKeepsakes();}
+});
+document.addEventListener('pointerdown',e=>{const item=e.target.closest('[data-keepsake-item]');if(!item||item.disabled||e.button!==0)return;memoryDrag={source:item,id:item.dataset.keepsakeItem,x:e.clientX,y:e.clientY,pointer:e.pointerId,ghost:null};});
+document.addEventListener('pointermove',e=>{
+ if(!memoryDrag||memoryDrag.pointer!==e.pointerId)return;const d=memoryDrag;if(!d.ghost&&Math.hypot(e.clientX-d.x,e.clientY-d.y)>7){d.source.setPointerCapture(e.pointerId);d.ghost=document.createElement('img');d.ghost.className='drag-ghost';d.ghost.src=asset(d.id);d.ghost.alt='';$('#dialog').append(d.ghost);}
+ if(!d.ghost)return;e.preventDefault();d.ghost.style.left=e.clientX+'px';d.ghost.style.top=e.clientY+'px';$$('.keepsake-outline.drag-over').forEach(el=>el.classList.remove('drag-over'));document.elementFromPoint(e.clientX,e.clientY)?.closest('.keepsake-outline:not([disabled])')?.classList.add('drag-over');
+},{passive:false});
+function endMemoryDrag(e,cancel=false){if(!memoryDrag||memoryDrag.pointer!==e.pointerId)return;const d=memoryDrag;memoryDrag=null;if(!d.ghost)return;keepsakeIgnoreUntil=Date.now()+350;d.ghost.remove();$$('.keepsake-outline.drag-over').forEach(el=>el.classList.remove('drag-over'));try{d.source.releasePointerCapture(e.pointerId);}catch{}const target=cancel||dialogType!=='keepsake-puzzle'?null:document.elementFromPoint(e.clientX,e.clientY)?.closest('[data-keepsake-outline]:not([disabled])');if(target)matchKeepsake(d.id,target.dataset.keepsakeOutline);}
+document.addEventListener('pointerup',e=>endMemoryDrag(e));document.addEventListener('pointercancel',e=>endMemoryDrag(e,true));
 
 function toast(message){clearTimeout(toastTimer);$('#toast').textContent=message;$('#toast').classList.add('visible');toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),3600);}
 // Short overlapping voices keep click feedback immediate, independent of music.
@@ -576,5 +632,5 @@ document.addEventListener('pointerup',e=>endDrag(e));document.addEventListener('
 window.addEventListener('resize',()=>{if(!$('#chapter').hidden)centerRoom();if(!$('#campus').hidden)centerCampus();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)context?.suspend();else if(music)context?.resume();});
 document.documentElement.lang='en';renderMusic();updateResume();renderChapter();
-const previewChapter=new URLSearchParams(location.search).get('chapter');if(previewChapter==='4')enterOrientation();else if(previewChapter==='3')enterDesk();else if(previewChapter==='2')enterCampus();
+const previewChapter=new URLSearchParams(location.search).get('chapter');if(previewChapter==='5')enterKeepsakes();else if(previewChapter==='4')enterOrientation();else if(previewChapter==='3')enterDesk();else if(previewChapter==='2')enterCampus();
 })();
