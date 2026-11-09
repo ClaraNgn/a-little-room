@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#f8efdc"><title>The Abroad Chapter</title>
-<meta name="description" content="Join Clara from Vietnam to Kent State: pack a little courage, find your way on campus, and make room for what matters.">
+<meta name="description" content="Join Clara from Vietnam to Kent State: pack a little courage, find your way on campus, make room for what matters, and find your people.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cpath d='M8 27 30 8l22 19v28H8z' fill='%23587c39'/%3E%3Cpath d='M24 55V34h13v21' fill='%23fff5d9'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="style.css?v=chapter-guides-1">
+<link rel="stylesheet" href="style.css?v=orientation-1">
 </head>
 <body>
 <svg class="sprite-defs" aria-hidden="true"><defs>
@@ -55,7 +55,7 @@
   </div></div>
   <section class="campus-talk" id="campus-talk" hidden aria-label="Conversation between Clara and Ben">
     <button class="tool talk-close" id="campus-talk-close" aria-label="Close conversation"><svg><use href="#lobby-i-close"/></svg></button>
-    <div class="campus-talk-bubble" id="campus-talk-bubble"><span class="talk-speaker" id="campus-talk-speaker">BEN</span><p class="talk-thought" id="campus-talk-thought" hidden></p><p class="talk-line" id="campus-talk-line" aria-live="polite"></p><button class="talk-next" id="campus-talk-next">Continue →</button></div>
+    <div class="campus-talk-bubble" id="campus-talk-bubble"><span class="talk-speaker" id="campus-talk-speaker">BEN</span><p class="talk-thought" id="campus-talk-thought" hidden></p><p class="talk-line" id="campus-talk-line" aria-live="polite"></p><div id="campus-reply-choices" class="campus-reply-choices" hidden></div><button class="talk-next" id="campus-talk-next">Continue →</button></div>
   </section>
   <header class="campus-header"><button class="back-button" id="campus-lobby" aria-label="Back to lobby">←</button><div><p>CHAPTER 02</p><h2 id="campus-title" tabindex="-1">Finding my way</h2></div><button class="tool" id="campus-help" aria-label="How to play"><svg><use href="#lobby-i-help"/></svg></button></header>
   <button class="campus-map-button" id="campus-map" aria-label="Read the campus map"><svg viewBox="0 0 56 48" aria-hidden="true"><path d="M3 10 20 4 37 10 53 4V39L37 45 20 39 3 45Z" fill="#fff4d8" stroke="#4f6b40" stroke-width="2.5" stroke-linejoin="round"/><path d="M20 4V39M37 10V45" stroke="#adbd8a" stroke-width="2"/><path d="M10 32 27 18 43 27" fill="none" stroke="#b296c5" stroke-width="3" stroke-dasharray="4 3"/><circle cx="43" cy="27" r="4" fill="#839c4c"/></svg><span>Campus map</span></button>
@@ -78,8 +78,29 @@
   <nav class="desk-pan" aria-label="Look around the dorm"><button id="desk-pan-left" aria-label="Look toward the bed">←</button><span>LOOK AROUND</span><button id="desk-pan-right" aria-label="Look toward the desk">→</button></nav>
   <section class="desk-chat" aria-label="Chat with Clara"><header><span>CLARA</span><span class="mission-pill" id="desk-progress">0 / 3 decisions</span><button class="chat-toggle" id="desk-toggle" aria-label="Minimize chat" aria-expanded="true" aria-controls="desk-chat-body">−</button></header><div id="desk-chat-body"><p id="desk-speech" aria-live="polite"></p><footer id="desk-hint">Tap something on the desk.</footer></div></section>
 </section>
+<section id="orientation" class="orientation" hidden aria-labelledby="orientation-title">
+  <div id="orientation-viewport" class="orientation-viewport" tabindex="0" aria-label="Orientation room. Swipe or use left and right arrows to meet everyone."><div class="orientation-stage">
+    <img class="orientation-background" src="orientation-room.svg" alt="A sunny Orientation room with a photo corner, music station and welcome table." draggable="false">
+    <img id="orientation-clara" class="orientation-clara" src="jenny-no-bag.svg" alt="Clara" draggable="false">
+    <button class="orientation-person ori-emma" data-orientation-person="emma" style="--friend-x:26%" aria-label="Talk to Emma"><img src="orientation-emma.svg" alt="Emma from France, in a peach sweater with a camera and baguette" draggable="false"><span>Emma</span><i aria-hidden="true">✓</i></button>
+    <button class="orientation-person ori-noah" data-orientation-person="noah" style="--friend-x:50%" aria-label="Talk to Noah"><img src="orientation-noah.svg" alt="Noah from Mexico, in a brick-red shirt with green headphones" draggable="false"><span>Noah</span><i aria-hidden="true">✓</i></button>
+    <button class="orientation-person ori-maya" data-orientation-person="maya" style="--friend-x:75%" aria-label="Talk to Maya"><img src="orientation-maya.svg" alt="Maya from India, with a long braid and lilac sweater" draggable="false"><span>Maya</span><i aria-hidden="true">✓</i></button>
+    <button class="orientation-station ori-photo" data-orientation-help="emma" hidden>Set up the photo corner ↗</button>
+    <button class="orientation-station ori-music" data-orientation-help="noah" hidden>Get the music ready ↗</button>
+    <button class="orientation-station ori-welcome" data-orientation-help="maya" hidden>Prepare the welcome table ↗</button>
+    <span class="orientation-result ori-photo" data-orientation-result="emma" hidden>Photo corner ready ✓</span>
+    <span class="orientation-result ori-music" data-orientation-result="noah" hidden>Music ready ♪</span>
+    <span class="orientation-result ori-welcome" data-orientation-result="maya" hidden>Welcome! ✓</span>
+  </div></div>
+  <header class="orientation-header"><button class="back-button" id="orientation-lobby" aria-label="Back to lobby">←</button><div><p>CHAPTER 04</p><h2 id="orientation-title" tabindex="-1">Finding my people</h2></div><button class="tool" id="orientation-help" aria-label="How to play"><svg><use href="#lobby-i-help"/></svg></button></header>
+  <div class="orientation-progress" id="orientation-progress" aria-live="polite">0 / 3 friends</div>
+  <nav class="orientation-nav" aria-label="Find a student"><button data-orientation-look="emma">Emma</button><button data-orientation-look="noah">Noah</button><button data-orientation-look="maya">Maya</button></nav>
+  <section id="orientation-talk" class="orientation-talk" hidden aria-label="Conversation at Orientation"><button id="orientation-talk-close" class="tool" aria-label="Close conversation"><svg><use href="#lobby-i-close"/></svg></button><div id="orientation-bubble" class="orientation-bubble"><span id="orientation-speaker"></span><p id="orientation-line" aria-live="polite"></p><div id="orientation-answers"></div><p id="orientation-feedback" role="status" hidden></p><button id="orientation-next" class="talk-next">Continue →</button></div></section>
+  <section class="orientation-chat" aria-label="Chat with Clara"><header><span>CLARA</span><button id="orientation-toggle" class="chat-toggle" aria-label="Minimize chat" aria-expanded="true" aria-controls="orientation-chat-body">−</button></header><div id="orientation-chat-body"><p id="orientation-speech" aria-live="polite"></p><footer id="orientation-hint">Tap a student to say hello.</footer><button id="orientation-finish" class="text-button" hidden>Keep this moment ↗</button></div></section>
+</section>
 <div id="chapter-status" class="sr-only" role="status" aria-live="polite"></div>
 <script src="journey-clips.js?v=wide-window-morning-1"></script>
 <script src="desk-planner.js?v=busy-desk-1"></script>
-<script src="app.js?v=chapter-guides-1"></script>
+<script src="orientation-story.js?v=orientation-1"></script>
+<script src="app.js?v=orientation-1"></script>
 </body></html>
