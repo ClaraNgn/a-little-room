@@ -122,3 +122,7 @@ Continue from Chapter 4, or open `?chapter=5`. The approved narrator opening com
 After matching the letter, Read the letter opens the creator’s revised Dear future Clara letter across two pages. Paragraphs retain the exact supplied wording. Previous page / Next page keep body text at 16px on desktop and phones, with a scrollable paper panel and persistent navigation. Carry this with me on page 2 completes Chapter 5 and closes the five-chapter journey. The letter can be reread; Replay Chapter 5 resets only its matches and letter-read flag. Existing packing, campus, desk and Orientation progress is preserved. Progress saves on the same browser/device. `keepsake-story.js` owns match validation, letter prerequisites, saved-progress normalization and the letter text; `tests/keepsake-story.test.cjs` covers wrong matches, ordering, duplicates and corrupt saves.
 
 No new generated artwork is required: the approved dorm, Clara and six object images are reused. The lilac suitcase and matching board use the existing cream/lilac interface palette. Standalone export embeds the new logic and existing artwork.
+
+
+## End game — Thank you for playing
+After reading the final letter and completing Chapter 5, Finish my story opens a separate closing screen with Clara and her three friends. Read the letter again returns to the two-page letter; Carry this with me returns to the closing screen. Back to lobby keeps progress. Replay Chapter 5 resets only its suitcase/letter and end-screen flag. The completed ending persists on this browser/device when revisiting Chapter 5.
