@@ -20,7 +20,7 @@ let volume=.25,music=false,soundEffects=true,context,musicTimer,toastTimer,lastF
 try {
  const pref=JSON.parse(localStorage.getItem(PREF));if(pref&&Number.isFinite(pref.volume))volume=Math.max(0,Math.min(.6,pref.volume));if(pref&&typeof pref.soundEffects==='boolean')soundEffects=pref.soundEffects;
  const data=JSON.parse(localStorage.getItem(STORE));
- if(data&&Array.isArray(data.slots)){state.keepsakes=keepsakeModel.normalize(data.keepsakes);state.orientation=orientationModel.normalize(data.orientation);state.deskActions=planner.normalize(data.deskActions);state.campusGuided=!!data.campusGuided;state.campusClassFound=!!data.campusClassFound;state.campusAsked=state.campusClassFound&&!!data.campusAsked;state.campusLibraryFound=state.campusAsked&&!!data.campusLibraryFound;state.campusCenterFound=state.campusLibraryFound&&!!data.campusCenterFound;state.campusVisit=data.campusVisit==='center'&&state.campusLibraryFound?'center':data.campusVisit==='library'&&state.campusAsked?'library':'classroom';const seen=new Set();state.slots=Array.from({length:6},(_,i)=>{const id=data.slots[i];if(byId(id)&&!seen.has(id)){seen.add(id);return id;}return null;});state.started=!!data.started;state.completed=!!data.completed&&state.slots.every(Boolean);if(state.completed&&journeySteps.includes(data.journey)){state.journey=data.journey;state.message=data.message==='miss'?'miss':'call';state.promise=data.promise==='ask'?'ask':'begin';}}
+ if(data&&Array.isArray(data.slots)){state.keepsakes=keepsakeModel.normalize(data.keepsakes);state.gameEnded=!!data.gameEnded&&state.keepsakes.letterRead;state.orientation=orientationModel.normalize(data.orientation);state.deskActions=planner.normalize(data.deskActions);state.campusGuided=!!data.campusGuided;state.campusClassFound=!!data.campusClassFound;state.campusAsked=state.campusClassFound&&!!data.campusAsked;state.campusLibraryFound=state.campusAsked&&!!data.campusLibraryFound;state.campusCenterFound=state.campusLibraryFound&&!!data.campusCenterFound;state.campusVisit=data.campusVisit==='center'&&state.campusLibraryFound?'center':data.campusVisit==='library'&&state.campusAsked?'library':'classroom';const seen=new Set();state.slots=Array.from({length:6},(_,i)=>{const id=data.slots[i];if(byId(id)&&!seen.has(id)){seen.add(id);return id;}return null;});state.started=!!data.started;state.completed=!!data.completed&&state.slots.every(Boolean);if(state.completed&&journeySteps.includes(data.journey)){state.journey=data.journey;state.message=data.message==='miss'?'miss':'call';state.promise=data.promise==='ask'?'ask':'begin';}}
 } catch {storageOK=false;}
 function save(){try{localStorage.setItem(STORE,JSON.stringify(state));localStorage.setItem(PREF,JSON.stringify({volume,soundEffects}));storageOK=true;}catch{storageOK=false;}}
 function announce(message){$('#chapter-status').textContent=message;}
@@ -78,11 +78,11 @@ function remove(index){
  const id=state.slots[index];if(!id)return;state.slots[index]=null;state.completed=false;delete state.journey;selected=id;speech={kind:'removed',id};save();setChatCollapsed(false);renderChapter();updateResume();announce(`${byId(id).name} returned to the room.`);$(`[data-inventory="${id}"]`)?.focus({preventScroll:true});
 }
 function centerRoom(){const view=$('#scene-viewport');view.scrollLeft=(view.scrollWidth-view.clientWidth)*.5;}
-function enterRoom(showGuide=true){stopBenTalk();$('#keepsake-room').hidden=true;stopOrientationTalk();$('#orientation').hidden=true;
+function enterRoom(showGuide=true){stopBenTalk();$('#keepsake-room').hidden=true;$('#game-end').hidden=true;stopOrientationTalk();$('#orientation').hidden=true;
  $('#desk-room').hidden=true;
  close(false);$('#campus').hidden=true;$('#journey').hidden=true;state.started=true;save();$('#world').hidden=true;$('#chapter').hidden=false;document.body.classList.add('in-room');renderChapter();updateResume();setChatCollapsed(false);centerRoom();$('#chapter-title').tabIndex=-1;$('#chapter-title').focus({preventScroll:true});if(showGuide)showChapterGuide(1);
 }
-function lobby(){stopBenTalk();$('#keepsake-room').hidden=true;stopOrientationTalk();$('#orientation').hidden=true;$('#desk-room').hidden=true;stopClip();close(false);$('#campus').hidden=true;$('#journey').hidden=true;$('#chapter').hidden=true;$('#world').hidden=false;document.body.classList.remove('in-room');selected=null;speech={kind:'welcome'};updateResume();$('#start').focus({preventScroll:true});}
+function lobby(){stopBenTalk();$('#keepsake-room').hidden=true;$('#game-end').hidden=true;stopOrientationTalk();$('#orientation').hidden=true;$('#desk-room').hidden=true;stopClip();close(false);$('#campus').hidden=true;$('#journey').hidden=true;$('#chapter').hidden=true;$('#world').hidden=false;document.body.classList.remove('in-room');selected=null;speech={kind:'welcome'};updateResume();$('#start').focus({preventScroll:true});}
 function open(html,type){
  stopEventAudio();if(!$('#dialog').open)lastFocus=document.activeElement;dialogType=type;$('#dialog').classList.toggle('keepsake-letter-dialog',type==='keepsake-letter');$('#dialog').classList.toggle('event-dialog',!!type?.startsWith('event-'));$('#dialog').classList.toggle('keepsake-puzzle-dialog',type==='keepsake-puzzle');$('#dialog').classList.toggle('chapter-preface-dialog',type==='chapter-preface');$('#dialog').classList.toggle('chapter-guide',type==='chapter-guide');$('#dialog').classList.toggle('desk-dialog',!!type?.startsWith('desk-'));$('#dialog').classList.toggle('packing-dialog',type==='packing');$('#dialog').classList.toggle('campus-map-dialog',type==='campus-guide');$('#dialog').classList.toggle('campus-stamps-dialog',type==='campus-stamps');$('#dialog-content').innerHTML=html;
  if(!$('#dialog').open)$('#dialog').showModal();
@@ -180,7 +180,7 @@ $('#clip-skip').addEventListener('click',finishClip);$('#clip-lobby').addEventLi
 $('#clip-play').addEventListener('click',()=>{if(!window.journeyClips){finishClip();return;}$('#cutscene-video').play().then(()=>{$('#clip-play').hidden=true;}).catch(()=>{$('#clip-skip').textContent='→';$('#clip-skip').ariaLabel='Continue';});});
 document.addEventListener('visibilitychange',()=>{if(!clipNext)return;const video=$('#cutscene-video');if(document.hidden)video.pause();else if(!matchMedia('(prefers-reduced-motion: reduce)').matches)video.play().catch(()=>{$('#clip-play').hidden=false;});});
 function setJourneyCollapsed(value){$('#journey-chat-body').hidden=value;$('#journey-toggle').textContent=value?'+':'−';$('#journey-toggle').ariaLabel=value?'Expand chat':'Minimize chat';$('#journey-toggle').setAttribute('aria-expanded',String(!value));}
-function enterJourney(step){stopBenTalk();$('#keepsake-room').hidden=true;stopOrientationTalk();$('#orientation').hidden=true;$('#desk-room').hidden=true;
+function enterJourney(step){stopBenTalk();$('#keepsake-room').hidden=true;$('#game-end').hidden=true;stopOrientationTalk();$('#orientation').hidden=true;$('#desk-room').hidden=true;
  if(count()!==6||!journeySteps.includes(step))return;
  // Older saves at the gate now return to the single departure step.
  if(step==='gate')step='goodbye';
@@ -256,7 +256,7 @@ function renderCampus(){
  entrance.textContent=place==='library'?(state.campusLibraryFound?'Find Student Center ↗':'Enter the library ↗'):state.campusClassFound?'Walk to the library ↗':'Walk up the steps ↗';
  entrance.classList.toggle('campus-path',place==='classroom'&&!!state.campusClassFound);
 }
-function enterCampus(){stopBenTalk();$('#keepsake-room').hidden=true;stopOrientationTalk();$('#orientation').hidden=true;
+function enterCampus(){stopBenTalk();$('#keepsake-room').hidden=true;$('#game-end').hidden=true;stopOrientationTalk();$('#orientation').hidden=true;
  $('#desk-room').hidden=true;
  stopClip();close(false);$('#world').hidden=true;$('#chapter').hidden=true;$('#journey').hidden=true;$('#campus').hidden=false;
  document.body.classList.add('in-room');renderCampus();campusCollapsed(false);centerCampus();$('#campus-title').focus({preventScroll:true});announce('Chapter 2. '+campusMission().label+'. '+campusMission().hint);showChapterPrelude(2);
@@ -387,7 +387,7 @@ function renderDesk(){
  $('#desk-speech').textContent=s.complete?'I can’t do everything tonight. But I can choose what matters next.':deskMessage||(s.ready?'The important things have a place. I can leave a little time for myself, too.':s.decisions?'One choice at a time. What needs me tonight, and what can wait?':'My assignment is due at nine, my reading can wait, and home is calling. I have one hour and a little energy. Help me choose what matters.');
  $('#desk-hint').textContent=s.complete?'You made room for rest.':s.ready?'Tap the bed when you’re ready to stop.':'Tap the laptop, book or glowing phone. My evening lets you change a choice.';
 }
-function enterDesk(){stopBenTalk();$('#keepsake-room').hidden=true;stopOrientationTalk();$('#orientation').hidden=true;
+function enterDesk(){stopBenTalk();$('#keepsake-room').hidden=true;$('#game-end').hidden=true;stopOrientationTalk();$('#orientation').hidden=true;
  stopClip();close(false);for(const id of ['world','chapter','journey','campus'])$('#'+id).hidden=true;$('#desk-room').hidden=false;document.body.classList.add('in-room');
  state.deskActions=planner.normalize(state.deskActions);deskMessage='';save();renderDesk();deskCollapsed(false);centerDesk();$('#desk-title').focus({preventScroll:true});announce('Chapter 3. Choose what matters. Tap an object on the desk.');if(deskStatus().complete)finishDesk();else showChapterPrelude(3);
 }
@@ -459,7 +459,7 @@ function renderOrientation(){
  $('#orientation-hint').textContent=status.complete?'Three new friends. A little more at home.':pending?'Tap the highlighted station on the table.':'Tap a student to say hello.';$('#orientation-finish').hidden=!status.complete;
 }
 function enterOrientation(){
- stopBenTalk();$('#keepsake-room').hidden=true;stopOrientationTalk();stopClip();close(false);for(const id of ['world','chapter','journey','campus','desk-room'])$('#'+id).hidden=true;
+ stopBenTalk();$('#keepsake-room').hidden=true;$('#game-end').hidden=true;stopOrientationTalk();stopClip();close(false);for(const id of ['world','chapter','journey','campus','desk-room'])$('#'+id).hidden=true;
  $('#orientation').hidden=false;document.body.classList.add('in-room');state.orientation=orientationModel.normalize(state.orientation);orientationMessage='';save();renderOrientation();orientationCollapsed(false);orientationLook('emma',false);$('#orientation-title').focus({preventScroll:true});
  announce('Chapter 4. Meet three students and help prepare Orientation.');if(orientationStatus().complete)finishOrientation();else showChapterPrelude(4);
 }
@@ -565,8 +565,8 @@ document.addEventListener('pointerup',endEventDrag);document.addEventListener('p
 let keepsakeSelected=null,keepsakeMemory='',memoryDrag=null,keepsakeIgnoreUntil=0;
 function keepsakeStatus(){return keepsakeModel.normalize(state.keepsakes);}
 function enterKeepsakes(){
- stopBenTalk();stopOrientationTalk();stopClip();close(false);for(const id of ['world','chapter','journey','campus','desk-room','orientation'])$('#'+id).hidden=true;
- $('#keepsake-room').hidden=false;document.body.classList.add('in-room');state.keepsakes=keepsakeStatus();keepsakeSelected=null;keepsakeMemory='';save();$('#keepsake-title').focus({preventScroll:true});renderKeepsakeRoom();if(keepsakeStatus().letterRead)finishKeepsakes();else showChapterPrelude(5);
+ stopBenTalk();stopOrientationTalk();stopClip();close(false);for(const id of ['world','chapter','journey','campus','desk-room','orientation','game-end'])$('#'+id).hidden=true;
+ $('#keepsake-room').hidden=false;document.body.classList.add('in-room');state.keepsakes=keepsakeStatus();keepsakeSelected=null;keepsakeMemory='';save();$('#keepsake-title').focus({preventScroll:true});renderKeepsakeRoom();if(keepsakeStatus().letterRead){if(state.gameEnded)showGameEnd();else finishKeepsakes();}else showChapterPrelude(5);
 }
 function renderKeepsakeRoom(){
  const p=keepsakeStatus();$('#keepsake-count').textContent=p.matched.length+' / 6 memories';$('#keepsake-room-copy').textContent=p.letterRead?'The same suitcase. A different Clara.':p.matched.length===6?'Every memory is in place. One letter is waiting.':'The things Clara brought from home are still here. What do they mean to her now?';
@@ -593,8 +593,14 @@ function readKeepsakeLetter(page=0){
 }
 function finishKeepsakes(){
  if(!keepsakeStatus().letterRead)return;
- open(`<div class="keepsake-ending"><div class="journey-keepsakes">${items.map(i=>`<img src="${asset(i.id)}" alt="${i.name}">`).join('')}</div><h2 class="dialog-title airport-dialog-title">Chapter 5 completed</h2><p class="keepsake-final-title">A little closer to herself.</p><p class="dialog-copy">The same suitcase. A different Clara.<br>Each small step has made a new place feel more like home.</p><p class="keepsake-next-chapter">Her next chapter is still being written.</p><div class="dialog-bottom"><button class="soft-button" data-keepsake-letter>Read the letter again</button><button class="start" data-lobby>Back to lobby${icon('arrow')}</button></div><button class="resume-button" data-keepsake-replay>Replay Chapter 5</button></div>`,'keepsake-ending');
+ open(`<div class="keepsake-ending"><div class="journey-keepsakes">${items.map(i=>`<img src="${asset(i.id)}" alt="${i.name}">`).join('')}</div><h2 class="dialog-title airport-dialog-title">Chapter 5 completed</h2><p class="keepsake-final-title">A little closer to herself.</p><p class="dialog-copy">The same suitcase. A different Clara.<br>Each small step has made a new place feel more like home.</p><p class="keepsake-next-chapter">Her next chapter is still being written.</p><div class="dialog-bottom"><button class="soft-button" data-keepsake-letter>Read the letter again</button><button class="start" data-game-end>Finish my story${icon('arrow')}</button></div><button class="text-button keepsake-lobby-link" data-lobby>Back to lobby</button><button class="resume-button" data-keepsake-replay>Replay Chapter 5</button></div>`,'keepsake-ending');
 }
+function showGameEnd(){
+ if(!keepsakeStatus().letterRead)return;stopBenTalk();stopOrientationTalk();stopClip();close(false);
+ for(const id of ['world','chapter','journey','campus','desk-room','orientation','keepsake-room'])$('#'+id).hidden=true;
+ state.gameEnded=true;save();document.body.classList.remove('in-room');$('#game-end').hidden=false;$('#game-end-title').focus({preventScroll:true});announce('Thank you for playing The Abroad Chapter.');
+}
+$('#game-end-lobby').addEventListener('click',lobby);$('#game-end-letter').addEventListener('click',()=>readKeepsakeLetter());
 $('#keepsake-lobby').addEventListener('click',lobby);$('#keepsake-help').addEventListener('click',()=>showChapterGuide(5));$('#keepsake-case-open').addEventListener('click',keepsakePuzzle);
 document.addEventListener('click',e=>{
  if(Date.now()<keepsakeIgnoreUntil)return;
@@ -604,8 +610,9 @@ document.addEventListener('click',e=>{
  if(e.target.closest('[data-keepsake-case]'))keepsakePuzzle();
  if(e.target.closest('[data-keepsake-letter]'))readKeepsakeLetter();
  const letterPage=e.target.closest('[data-keepsake-page]');if(letterPage&&!letterPage.disabled)readKeepsakeLetter(Number(letterPage.dataset.keepsakePage));
- if(e.target.closest('[data-keepsake-finish]')&&dialogType==='keepsake-letter'&&keepsakeLetterPage===1){state.keepsakes=keepsakeModel.read(state.keepsakes);save();renderKeepsakeRoom();finishKeepsakes();}
- if(e.target.closest('[data-keepsake-replay]')){state.keepsakes=keepsakeModel.normalize(null);enterKeepsakes();}
+ if(e.target.closest('[data-keepsake-finish]')&&dialogType==='keepsake-letter'&&keepsakeLetterPage===1){state.keepsakes=keepsakeModel.read(state.keepsakes);save();renderKeepsakeRoom();if(!$('#game-end').hidden)showGameEnd();else finishKeepsakes();}
+ if(e.target.closest('[data-game-end]'))showGameEnd();
+ if(e.target.closest('[data-keepsake-replay]')){state.gameEnded=false;state.keepsakes=keepsakeModel.normalize(null);enterKeepsakes();}
 });
 document.addEventListener('pointerdown',e=>{const item=e.target.closest('[data-keepsake-item]');if(!item||item.disabled||e.button!==0)return;memoryDrag={source:item,id:item.dataset.keepsakeItem,x:e.clientX,y:e.clientY,pointer:e.pointerId,ghost:null};});
 document.addEventListener('pointermove',e=>{
