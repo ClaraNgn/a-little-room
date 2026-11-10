@@ -130,3 +130,11 @@ After reading the final letter and completing Chapter 5, Finish my story opens a
 
 ## Audio and Introduction cleanup
 The global background melody, music buttons and volume control have been removed. Click sound effects retain their on/off toggle. Noah’s two manually triggered short previews remain part of the activity; they stop on closing/leaving and never loop in the room. Introduction no longer shows the Chapter 1 · Beginnings badge.
+
+
+## Clara’s reflection after the letter
+Carry this with me now opens the approved sunny dorm scene with Clara sitting beside her open suitcase. Her exact reflection is divided into three readable panels with 16px bold Nunito text, Previous / Continue, and Finish my story leading straight to Thank you for playing with all five characters. The loose photo and name badge removed during art review are absent. Text is live HTML; the scene image contains no baked-in dialogue.
+
+The current panel persists across reloads. Completed saves from before this addition enter the reflection once, preserving all puzzle matches and other chapters; finishing sets reflectionComplete and restores the usual ending resume. Replay Chapter 5 clears only its puzzle, letter and reflection progress. Mobile portrait separates the scene and scrollable dialogue; reduced-motion disables the gentle scene zoom.
+
+Background: clara-reading.jpg. Approved reference and clean source art are retained in art-source/final-reflection/. Clean background generated with built-in ImageGen from the approved scene, removing only its old dialogue overlay and reconstructing the obscured room.

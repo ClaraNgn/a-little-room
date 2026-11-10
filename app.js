@@ -20,7 +20,7 @@ let soundEffects=true,toastTimer,lastFocus,dialogType,introStep=0,selected=null,
 try {
  const pref=JSON.parse(localStorage.getItem(PREF));if(pref&&typeof pref.soundEffects==='boolean')soundEffects=pref.soundEffects;
  const data=JSON.parse(localStorage.getItem(STORE));
- if(data&&Array.isArray(data.slots)){state.keepsakes=keepsakeModel.normalize(data.keepsakes);state.gameEnded=!!data.gameEnded&&state.keepsakes.letterRead;state.orientation=orientationModel.normalize(data.orientation);state.deskActions=planner.normalize(data.deskActions);state.campusGuided=!!data.campusGuided;state.campusClassFound=!!data.campusClassFound;state.campusAsked=state.campusClassFound&&!!data.campusAsked;state.campusLibraryFound=state.campusAsked&&!!data.campusLibraryFound;state.campusCenterFound=state.campusLibraryFound&&!!data.campusCenterFound;state.campusVisit=data.campusVisit==='center'&&state.campusLibraryFound?'center':data.campusVisit==='library'&&state.campusAsked?'library':'classroom';const seen=new Set();state.slots=Array.from({length:6},(_,i)=>{const id=data.slots[i];if(byId(id)&&!seen.has(id)){seen.add(id);return id;}return null;});state.started=!!data.started;state.completed=!!data.completed&&state.slots.every(Boolean);if(state.completed&&journeySteps.includes(data.journey)){state.journey=data.journey;state.message=data.message==='miss'?'miss':'call';state.promise=data.promise==='ask'?'ask':'begin';}}
+ if(data&&Array.isArray(data.slots)){state.keepsakes=keepsakeModel.normalize(data.keepsakes);state.reflectionComplete=data.reflectionComplete===true&&state.keepsakes.letterRead;state.gameEnded=!!data.gameEnded&&state.reflectionComplete;state.reflectionPage=Number.isInteger(data.reflectionPage)?Math.max(0,Math.min(2,data.reflectionPage)):0;state.orientation=orientationModel.normalize(data.orientation);state.deskActions=planner.normalize(data.deskActions);state.campusGuided=!!data.campusGuided;state.campusClassFound=!!data.campusClassFound;state.campusAsked=state.campusClassFound&&!!data.campusAsked;state.campusLibraryFound=state.campusAsked&&!!data.campusLibraryFound;state.campusCenterFound=state.campusLibraryFound&&!!data.campusCenterFound;state.campusVisit=data.campusVisit==='center'&&state.campusLibraryFound?'center':data.campusVisit==='library'&&state.campusAsked?'library':'classroom';const seen=new Set();state.slots=Array.from({length:6},(_,i)=>{const id=data.slots[i];if(byId(id)&&!seen.has(id)){seen.add(id);return id;}return null;});state.started=!!data.started;state.completed=!!data.completed&&state.slots.every(Boolean);if(state.completed&&journeySteps.includes(data.journey)){state.journey=data.journey;state.message=data.message==='miss'?'miss':'call';state.promise=data.promise==='ask'?'ask':'begin';}}
 } catch {storageOK=false;}
 function save(){try{localStorage.setItem(STORE,JSON.stringify(state));localStorage.setItem(PREF,JSON.stringify({soundEffects}));storageOK=true;}catch{storageOK=false;}}
 function announce(message){$('#chapter-status').textContent=message;}
@@ -569,6 +569,7 @@ document.addEventListener('pointerup',endEventDrag);document.addEventListener('p
 let keepsakeSelected=null,keepsakeMemory='',memoryDrag=null,keepsakeIgnoreUntil=0;
 function keepsakeStatus(){return keepsakeModel.normalize(state.keepsakes);}
 function enterKeepsakes(){
+ $('#keepsake-room').classList.remove('reflecting');$('#keepsake-reflection').hidden=true;
  stopBenTalk();stopOrientationTalk();stopClip();close(false);for(const id of ['world','chapter','journey','campus','desk-room','orientation','game-end'])$('#'+id).hidden=true;
  $('#keepsake-room').hidden=false;document.body.classList.add('in-room');state.keepsakes=keepsakeStatus();keepsakeSelected=null;keepsakeMemory='';save();$('#keepsake-title').focus({preventScroll:true});renderKeepsakeRoom();if(keepsakeStatus().letterRead){if(state.gameEnded)showGameEnd();else finishKeepsakes();}else showChapterPrelude(5);
 }
@@ -595,14 +596,31 @@ function readKeepsakeLetter(page=0){
  const last=keepsakeLetterPage===1;
  open(`<article class="keepsake-letter" aria-label="Letter page ${keepsakeLetterPage+1} of 2" tabindex="0"><h2 class="dialog-title airport-dialog-title">${keepsakeModel.letter[0]}</h2>${keepsakeModel.letterPages[keepsakeLetterPage].map(text=>`<p>${eventEscape(text)}</p>`).join('')}</article><footer class="letter-navigation"><span class="letter-page-count" aria-live="polite">Page ${keepsakeLetterPage+1} of 2</span><div class="letter-page-buttons"><button class="soft-button" data-keepsake-page="0" ${last?'':'disabled'}>Previous page</button><button class="start" ${last?'data-keepsake-finish':'data-keepsake-page="1"'}>${last?'Carry this with me':'Next page'}${icon('arrow')}</button></div><button class="text-button letter-case-link" data-keepsake-case>Back to my suitcase</button></footer>`,'keepsake-letter');$('#dialog').scrollTop=0;$('.keepsake-letter').scrollTop=0;
 }
-function finishKeepsakes(){
+let reflectionPage=0;
+function finishKeepsakes(){showReflection(state.reflectionPage);}
+function showReflection(page=0){
  if(!keepsakeStatus().letterRead)return;
- open(`<div class="keepsake-ending"><div class="journey-keepsakes">${items.map(i=>`<img src="${asset(i.id)}" alt="${i.name}">`).join('')}</div><h2 class="dialog-title airport-dialog-title">Chapter 5 completed</h2><p class="keepsake-final-title">A little closer to herself.</p><p class="dialog-copy">The same suitcase. A different Clara.<br>Each small step has made a new place feel more like home.</p><p class="keepsake-next-chapter">Her next chapter is still being written.</p><div class="dialog-bottom"><button class="soft-button" data-keepsake-letter>Read the letter again</button><button class="start" data-game-end>Finish my story${icon('arrow')}</button></div><button class="text-button keepsake-lobby-link" data-lobby>Back to lobby</button><button class="resume-button" data-keepsake-replay>Replay Chapter 5</button></div>`,'keepsake-ending');
+ stopBenTalk();stopOrientationTalk();stopClip();close(false);
+ for(const id of ['world','chapter','journey','campus','desk-room','orientation','game-end'])$('#'+id).hidden=true;
+ $('#keepsake-room').hidden=false;$('#keepsake-room').classList.add('reflecting');$('#keepsake-reflection').hidden=false;document.body.classList.add('in-room');
+ $('#reflection-body').hidden=false;$('#reflection-toggle').textContent='−';$('#reflection-toggle').setAttribute('aria-expanded','true');$('#reflection-toggle').setAttribute('aria-label','Minimize chat');
+ reflectionPage=Number.isInteger(page)?Math.max(0,Math.min(keepsakeModel.reflectionPages.length-1,page)):0;
+ state.reflectionPage=reflectionPage;save();
+ const last=reflectionPage===keepsakeModel.reflectionPages.length-1;
+ $('#reflection-copy').innerHTML=keepsakeModel.reflectionPages[reflectionPage].map(text=>`<p>${eventEscape(text)}</p>`).join('');
+ $('#reflection-copy').scrollTop=0;$('#reflection-count').textContent=(reflectionPage+1)+' / '+keepsakeModel.reflectionPages.length;$('#reflection-back').hidden=reflectionPage===0;
+ $('#reflection-next').textContent=last?'Finish my story →':'Continue →';
+ $('#keepsake-reflection').style.setProperty('--reflection-zoom',String(1+reflectionPage*.012));
+ $('#reflection-speaker').focus({preventScroll:true});
 }
+$('#reflection-next').addEventListener('click',()=>{if(reflectionPage===keepsakeModel.reflectionPages.length-1)showGameEnd();else showReflection(reflectionPage+1);});
+$('#reflection-back').addEventListener('click',()=>showReflection(reflectionPage-1));
+$('#reflection-lobby').addEventListener('click',lobby);
+$('#reflection-toggle').addEventListener('click',()=>{const collapsed=!$('#reflection-body').hidden;$('#reflection-body').hidden=collapsed;$('#reflection-toggle').textContent=collapsed?'+':'−';$('#reflection-toggle').setAttribute('aria-expanded',String(!collapsed));$('#reflection-toggle').setAttribute('aria-label',collapsed?'Expand chat':'Minimize chat');});
 function showGameEnd(){
  if(!keepsakeStatus().letterRead)return;stopBenTalk();stopOrientationTalk();stopClip();close(false);
  for(const id of ['world','chapter','journey','campus','desk-room','orientation','keepsake-room'])$('#'+id).hidden=true;
- state.gameEnded=true;save();document.body.classList.remove('in-room');$('#game-end').hidden=false;$('#game-end-title').focus({preventScroll:true});announce('Thank you for playing The Abroad Chapter.');
+ state.reflectionComplete=true;state.gameEnded=true;save();document.body.classList.remove('in-room');$('#game-end').hidden=false;$('#game-end-title').focus({preventScroll:true});announce('Thank you for playing The Abroad Chapter.');
 }
 $('#game-end-lobby').addEventListener('click',lobby);$('#game-end-letter').addEventListener('click',()=>readKeepsakeLetter());
 $('#keepsake-lobby').addEventListener('click',lobby);$('#keepsake-help').addEventListener('click',()=>showChapterGuide(5));$('#keepsake-case-open').addEventListener('click',keepsakePuzzle);
@@ -614,9 +632,9 @@ document.addEventListener('click',e=>{
  if(e.target.closest('[data-keepsake-case]'))keepsakePuzzle();
  if(e.target.closest('[data-keepsake-letter]'))readKeepsakeLetter();
  const letterPage=e.target.closest('[data-keepsake-page]');if(letterPage&&!letterPage.disabled)readKeepsakeLetter(Number(letterPage.dataset.keepsakePage));
- if(e.target.closest('[data-keepsake-finish]')&&dialogType==='keepsake-letter'&&keepsakeLetterPage===1){state.keepsakes=keepsakeModel.read(state.keepsakes);save();renderKeepsakeRoom();if(!$('#game-end').hidden)showGameEnd();else finishKeepsakes();}
+ if(e.target.closest('[data-keepsake-finish]')&&dialogType==='keepsake-letter'&&keepsakeLetterPage===1){state.keepsakes=keepsakeModel.read(state.keepsakes);save();renderKeepsakeRoom();if(!$('#game-end').hidden)showGameEnd();else showReflection(0);}
  if(e.target.closest('[data-game-end]'))showGameEnd();
- if(e.target.closest('[data-keepsake-replay]')){state.gameEnded=false;state.keepsakes=keepsakeModel.normalize(null);enterKeepsakes();}
+ if(e.target.closest('[data-keepsake-replay]')){state.gameEnded=false;state.reflectionComplete=false;state.reflectionPage=0;state.keepsakes=keepsakeModel.normalize(null);enterKeepsakes();}
 });
 document.addEventListener('pointerdown',e=>{const item=e.target.closest('[data-keepsake-item]');if(!item||item.disabled||e.button!==0)return;memoryDrag={source:item,id:item.dataset.keepsakeItem,x:e.clientX,y:e.clientY,pointer:e.pointerId,ghost:null};});
 document.addEventListener('pointermove',e=>{
