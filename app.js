@@ -603,20 +603,20 @@ function showReflection(page=0){
  stopBenTalk();stopOrientationTalk();stopClip();close(false);
  for(const id of ['world','chapter','journey','campus','desk-room','orientation','game-end'])$('#'+id).hidden=true;
  $('#keepsake-room').hidden=false;$('#keepsake-room').classList.add('reflecting');$('#keepsake-reflection').hidden=false;document.body.classList.add('in-room');
- $('#reflection-body').hidden=false;$('#reflection-toggle').textContent='−';$('#reflection-toggle').setAttribute('aria-expanded','true');$('#reflection-toggle').setAttribute('aria-label','Minimize chat');
+ $('.reflection-chat').classList.remove('collapsed');$('#reflection-body').hidden=false;$('#reflection-toggle').textContent='−';$('#reflection-toggle').setAttribute('aria-expanded','true');$('#reflection-toggle').setAttribute('aria-label','Minimize chat');
  reflectionPage=Number.isInteger(page)?Math.max(0,Math.min(keepsakeModel.reflectionPages.length-1,page)):0;
  state.reflectionPage=reflectionPage;save();
  const last=reflectionPage===keepsakeModel.reflectionPages.length-1;
  $('#reflection-copy').innerHTML=keepsakeModel.reflectionPages[reflectionPage].map(text=>`<p>${eventEscape(text)}</p>`).join('');
- $('#reflection-copy').scrollTop=0;$('#reflection-count').textContent=(reflectionPage+1)+' / '+keepsakeModel.reflectionPages.length;$('#reflection-back').hidden=reflectionPage===0;
- $('#reflection-next').textContent=last?'Finish my story →':'Continue →';
+ $('#reflection-copy').scrollTop=0;$('#reflection-count').textContent=(reflectionPage+1)+' / '+keepsakeModel.reflectionPages.length;$('#reflection-back').hidden=false;$('#reflection-back').textContent=reflectionPage===0?'Read the letter again':'Previous';
+ $('#reflection-next').innerHTML=(last?'Finish my story':'Continue')+' <span aria-hidden="true">→</span>';
  $('#keepsake-reflection').style.setProperty('--reflection-zoom',String(1+reflectionPage*.012));
  $('#reflection-speaker').focus({preventScroll:true});
 }
 $('#reflection-next').addEventListener('click',()=>{if(reflectionPage===keepsakeModel.reflectionPages.length-1)showGameEnd();else showReflection(reflectionPage+1);});
-$('#reflection-back').addEventListener('click',()=>showReflection(reflectionPage-1));
+$('#reflection-back').addEventListener('click',()=>{if(reflectionPage===0)readKeepsakeLetter();else showReflection(reflectionPage-1);});
 $('#reflection-lobby').addEventListener('click',lobby);
-$('#reflection-toggle').addEventListener('click',()=>{const collapsed=!$('#reflection-body').hidden;$('#reflection-body').hidden=collapsed;$('#reflection-toggle').textContent=collapsed?'+':'−';$('#reflection-toggle').setAttribute('aria-expanded',String(!collapsed));$('#reflection-toggle').setAttribute('aria-label',collapsed?'Expand chat':'Minimize chat');});
+$('#reflection-toggle').addEventListener('click',()=>{const collapsed=!$('#reflection-body').hidden;$('#reflection-body').hidden=collapsed;$('.reflection-chat').classList.toggle('collapsed',collapsed);$('#reflection-toggle').textContent=collapsed?'+':'−';$('#reflection-toggle').setAttribute('aria-expanded',String(!collapsed));$('#reflection-toggle').setAttribute('aria-label',collapsed?'Expand chat':'Minimize chat');});
 function showGameEnd(){
  if(!keepsakeStatus().letterRead)return;stopBenTalk();stopOrientationTalk();stopClip();close(false);
  for(const id of ['world','chapter','journey','campus','desk-room','orientation','keepsake-room'])$('#'+id).hidden=true;
