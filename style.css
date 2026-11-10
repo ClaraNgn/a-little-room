@@ -372,3 +372,10 @@ dialog.desk-dialog{width:min(590px,calc(100vw - 28px));padding:32px 30px 25px}.d
 @media(max-width:700px){.game-end-friends img{width:21%}.game-end-friends img[alt="Clara"]{width:31%}}
 /* Ben belongs in the closing group too. */
 .game-end-friends{gap:4px}.game-end-friends img{width:17%}.game-end-friends img[alt="Ben"]{height:75%}@media(max-width:700px){.game-end-friends{gap:0}.game-end-friends img{width:17.5%}.game-end-friends img[alt="Clara"]{width:27%}}
+
+/* Campus guidance: illuminate the map and the next destination/action. */
+.campus-map-button{background:#fff8db;border-color:#c6a958;box-shadow:0 4px 0 #879e59,0 0 13px 4px #f2d57599;animation:campus-map-glow 2.6s ease-in-out infinite}.map-destination.map-next{background:#fff1a83b;border-color:#d4ad50;box-shadow:0 0 17px 5px #efcc6999,inset 0 0 25px #fff0a655;animation:campus-destination-glow 2.6s ease-in-out infinite}.map-next:after{background:#d5a63c;box-shadow:0 0 8px 4px #ffe8a0cc}.campus-next-action{filter:drop-shadow(0 0 9px #ffe399);animation:campus-action-glow 2.6s ease-in-out infinite}
+@keyframes campus-map-glow{0%,100%{box-shadow:0 4px 0 #879e59,0 0 9px 3px #f2d57577}50%{box-shadow:0 4px 0 #879e59,0 0 19px 6px #f2d575cc}}
+@keyframes campus-destination-glow{0%,100%{background:#fff1a82b;box-shadow:0 0 10px 3px #efcc6977,inset 0 0 15px #fff0a644}50%{background:#fff1a850;box-shadow:0 0 22px 7px #efcc69bb,inset 0 0 30px #fff0a677}}
+@keyframes campus-action-glow{0%,100%{filter:drop-shadow(0 0 5px #ffe39988)}50%{filter:drop-shadow(0 0 13px #ffe399dd)}}
+@media(prefers-reduced-motion:reduce){.campus-map-button,.map-destination.map-next,.campus-next-action{animation:none}}
