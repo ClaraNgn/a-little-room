@@ -5,7 +5,7 @@
 <meta name="theme-color" content="#f8efdc"><title>The Abroad Chapter</title>
 <meta name="description" content="Join Clara from Vietnam to Kent State: pack a little courage, find your way on campus, make room for what matters, and find your people.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cpath d='M8 27 30 8l22 19v28H8z' fill='%23587c39'/%3E%3Cpath d='M24 55V34h13v21' fill='%23fff5d9'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="style.css?v=ben-ending-1">
+<link rel="stylesheet" href="style.css?v=campus-glow-no-music-1">
 </head>
 <body>
 <svg class="sprite-defs" aria-hidden="true"><defs>
@@ -20,7 +20,7 @@
 <main class="world" id="world">
   <img class="landscape" src="lobby.png" alt="A welcoming green door, lilac suitcase and two leafy trees." draggable="false">
   <div class="sunlight" aria-hidden="true"></div>
-  <header class="header" style="justify-content:flex-end"><nav class="tools" aria-label="Lobby settings"><button class="tool" id="music" aria-label="Turn music on" aria-pressed="false"><svg><use href="#lobby-i-sound"/></svg><i></i></button><button class="tool" id="help" aria-label="How to play"><svg><use href="#lobby-i-help"/></svg></button></nav></header>
+  <header class="header" style="justify-content:flex-end"><nav class="tools" aria-label="Lobby settings"><button class="tool" id="help" aria-label="How to play"><svg><use href="#lobby-i-help"/></svg></button></nav></header>
   <section class="title-panel" aria-labelledby="game-title"><h1 id="game-title" aria-label="The Abroad Chapter"><span class="title-overline">The</span><span class="title-main">Abroad</span><br><span class="title-chapter">Chapter</span><svg class="title-bloom bloom-1" aria-hidden="true" focusable="false"><use href="#lobby-flower"/></svg><svg class="title-bloom bloom-2" aria-hidden="true" focusable="false"><use href="#lobby-flower"/></svg><svg class="title-bloom bloom-3" aria-hidden="true" focusable="false"><use href="#lobby-flower"/></svg></h1><nav class="lobby-menu" aria-label="Main menu"><button class="start" id="introduction"><span>Introduction</span></button><button class="start" id="how-link"><span>How to play</span></button><button class="start" id="start"><span id="start-label">Begin my story!</span></button></nav></section>
   <button class="door" id="door" aria-label="Step inside"></button>
   <button class="suitcase" id="suitcase" aria-label="Look at Clara's suitcase"></button>
@@ -32,7 +32,7 @@
 <section class="chapter" id="chapter" hidden aria-labelledby="chapter-title">
 <div class="scene-viewport" id="scene-viewport" tabindex="0" aria-label="Clara's room. On narrow screens, swipe or use left and right arrows to look around.">
 <div class="room-stage" id="room-stage"><img class="room-background" src="room-night.png" alt="Clara’s bedroom at night, with a warm lamp, moonlit window, blue bed and open lilac suitcase." draggable="false"><div id="room-items"></div><button class="room-case" id="room-case" data-drop aria-label="Open my suitcase"><span id="room-case-label">My suitcase ↗</span><span class="case-spark" aria-hidden="true">✦</span><span class="room-case-fill" id="room-case-fill" aria-hidden="true"></span></button><img class="room-jenny" src="jenny-no-bag.svg" alt="Clara" draggable="false"></div></div>
-<header class="chapter-header"><button class="back-button" id="back-lobby" aria-label="Back to lobby">←</button><div class="scene-caption"><p class="chapter-number">CHAPTER 01</p><h2 id="chapter-title" class="sr-only">Clara’s room</h2></div><nav class="chapter-tools" aria-label="Game settings"><button class="tool" id="chapter-music" aria-label="Turn music on" aria-pressed="false"><svg><use href="#lobby-i-sound"/></svg><i></i></button><button id="chapter-help" class="tool" aria-label="How to play"><svg><use href="#lobby-i-help"/></svg></button></nav></header>
+<header class="chapter-header"><button class="back-button" id="back-lobby" aria-label="Back to lobby">←</button><div class="scene-caption"><p class="chapter-number">CHAPTER 01</p><h2 id="chapter-title" class="sr-only">Clara’s room</h2></div><nav class="chapter-tools" aria-label="Game settings"><button id="chapter-help" class="tool" aria-label="How to play"><svg><use href="#lobby-i-help"/></svg></button></nav></header>
 <div class="pan-controls" aria-label="Look around the room"><button id="pan-left" aria-label="Look left">‹</button><span>LOOK AROUND</span><button id="pan-right" aria-label="Look right">›</button></div>
 <section class="chat-box" id="chat-box" aria-label="Chat with Clara"><div class="chat-avatar" aria-hidden="true"><img src="jenny-no-bag.svg" alt=""></div><div class="chat-inner"><header class="chat-heading"><span class="speaker-name">CLARA <span id="selected-name"></span></span><div class="chat-heading-end"><span class="mission-pill" id="packed-count" aria-live="polite">0 / 6 packed</span><button id="chat-toggle" class="chat-toggle" aria-label="Minimize chat" aria-expanded="true" aria-controls="chat-body">−</button></div></header><div id="chat-body"><p id="speech" aria-live="polite"></p><div class="chat-footer"><span class="chat-hint" id="chat-hint">Choose an object in the room.</span><div class="chat-actions"><button class="text-button" id="open-case">My suitcase</button><button class="chat-primary" id="chat-action">Show my things <span aria-hidden="true">↗</span></button><button class="chat-primary" id="finish" hidden disabled>Close suitcase <span aria-hidden="true">→</span></button></div></div></div></div></section>
 </section>
@@ -106,5 +106,5 @@
 <script src="desk-planner.js?v=busy-desk-1"></script>
 <script src="orientation-story.js?v=event-activities-2"></script>
 <script src="keepsake-story.js?v=letter-two-pages-1"></script>
-<script src="app.js?v=help-title-font-1"></script>
+<script src="app.js?v=no-background-music-1"></script>
 </body></html>
