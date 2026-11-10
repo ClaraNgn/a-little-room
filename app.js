@@ -198,10 +198,16 @@ function enterJourney(step){stopBenTalk();$('#keepsake-room').hidden=true;$('#ga
  $('#airport-character').hidden=step==='morning'||flying;
  const hotspot=$('#airport-hotspot');hotspot.hidden=!atAirport;hotspot.ariaLabel=step==='checkedin'?'Open Clara’s phone':scene.action;hotspot.innerHTML=step==='checkedin'?`<img src="${asset('phone')}" alt="" draggable="false">`:scene.action+' ↗';
  hotspot.className='airport-hotspot '+(step==='airport'?'at-counter':step==='checkedin'?'at-phone':'at-gate');
- setJourneyCollapsed(false);$('#journey-title').focus({preventScroll:true});announce(scene.title+' '+scene.text);
+ if(atAirport)centerAirport();setJourneyCollapsed(false);$('#journey-title').focus({preventScroll:true});announce(scene.title+' '+scene.text);
  if(step==='morning'||step==='takeoff')startClip(step==='morning'?'morning':'flight');
  if(step==='end')$('#journey-actions').insertAdjacentHTML('afterbegin','<button class="text-button" data-journey="takeoff">Watch flight again</button>');
 }
+function centerAirport(){
+ if(!$('#journey').classList.contains('is-airport'))return;
+ const view=$('#airport-viewport'),target=$('#airport-hotspot'),v=view.getBoundingClientRect(),r=target.getBoundingClientRect();
+ if(view.scrollWidth>view.clientWidth+2)view.scrollLeft+=r.left+r.width/2-v.left-view.clientWidth/2;else view.scrollLeft=0;
+}
+function centerKeepsakeRoom(){const v=$('#keepsake-viewport'),r=$('#keepsake-case-open').getBoundingClientRect(),c=$('.keepsake-clara').getBoundingClientRect(),vr=v.getBoundingClientRect();v.scrollLeft+=v.scrollWidth>v.clientWidth+2?(r.left+r.width/2+c.left+c.width/2)/2-vr.left-v.clientWidth/2:0;}
 function travelTask(task){
  if(task==='checkin'&&state.journey==='airport')open(`<h2 class="dialog-title airport-dialog-title">One step at a time.</h2><div class="travel-document"><img src="${asset('passport')}" alt="Clara’s passport"><p>“Good morning. Your passport, please.”<br><br>I’ve practiced this moment in my head. Now I just need to hand it over.</p></div><div class="dialog-bottom"><button class="start" data-travel-task="passport">Show my passport${icon('arrow')}</button></div>`,'travel');
  if(task==='passport'&&state.journey==='airport')open(`<h2 class="dialog-title airport-dialog-title">My first boarding pass.</h2><div class="boarding-pass"><div><span>BOARDING PASS</span></div><dl><div><dt>PASSENGER</dt><dd>CLARA</dd></div><div><dt>JOURNEY</dt><dd>VIETNAM → U.S.</dd></div><div><dt>SEAT</dt><dd>BY THE WINDOW</dd></div><div><dt>GATE</dt><dd>FOLLOW THE SIGNS</dd></div></dl><span class="ticket-dashes" aria-hidden="true"></span></div><p class="dialog-copy">My suitcase is on its way. I’ll keep my passport and boarding pass close. Next: one little message before boarding.</p><div class="dialog-bottom"><button class="start" data-journey="checkedin">Keep my boarding pass${icon('arrow')}</button></div>`,'travel');
@@ -471,6 +477,7 @@ function stopOrientationTalk(restore=false){
  stopEventAudio();const previous=orientationTalk?.id;orientationTalk=null;if(!$('#orientation-talk'))return;$('#orientation-talk').hidden=true;$('#orientation').classList.remove('is-talking');$$('.orientation-person').forEach(p=>p.classList.remove('talking-target'));$('#orientation-clara').style.removeProperty('--clara-x');if($('#orientation-worn-badge'))$('#orientation-worn-badge').style.left='36%';
  if(restore&&!$('#orientation').hidden){renderOrientation();const pending=previous&&orientationStatus().answered.includes(previous)&&!orientationStatus().helped.includes(previous);(pending?$(`[data-orientation-help="${previous}"]`):$(`[data-orientation-person="${previous||'emma'}"]`)).focus({preventScroll:true});}
 }
+function centerOrientationConversation(){if(!orientationTalk)return;const v=$('#orientation-viewport'),r=$(`[data-orientation-person="${orientationTalk.id}"]`).getBoundingClientRect(),c=$('#orientation-clara').getBoundingClientRect(),vr=v.getBoundingClientRect();v.scrollLeft+=(r.left+r.width/2+c.left+c.width/2)/2-vr.left-v.clientWidth/2;}
 function positionOrientationBubble(){
  if(!orientationTalk)return;const t=orientationTalk,person=orientationModel.people[t.id],line=t.step<3?person.lines[t.step]:null,speaker=line?.[0]==='Clara'?$('#orientation-clara'):$(`[data-orientation-person="${t.id}"] img`),r=speaker.getBoundingClientRect(),room=$('#orientation').getBoundingClientRect(),bubble=$('#orientation-bubble');
  const width=Math.min(335,room.width-32);bubble.style.width=width+'px';const x=r.left+r.width/2-room.left,left=Math.max(16,Math.min(room.width-width-16,x-width/2)),head=r.top+r.height*(line?.[0]==='Clara'?.18:.06)-room.top,header=$('.orientation-header').getBoundingClientRect().bottom-room.top;
@@ -483,7 +490,7 @@ function showOrientationLine(){
 function startOrientationTalk(id){
  if(!orientationModel.people[id]||$('#orientation').hidden)return;orientationMessage='';stopOrientationTalk();const s=orientationStatus();orientationTalk={id,step:0};$('#orientation').classList.add('is-talking');$(`[data-orientation-person="${id}"]`).classList.add('talking-target');$('#orientation-talk').hidden=false;
  const person=$(`[data-orientation-person="${id}"]`),x=parseFloat(person.style.getPropertyValue('--friend-x'));$('#orientation-clara').style.setProperty('--clara-x',(x<35?x+10:x-12)+'%');renderEventRoomDetails();
- const view=$('#orientation-viewport'),r=person.getBoundingClientRect(),v=view.getBoundingClientRect();view.scrollLeft+=r.left+r.width/2-v.left-view.clientWidth/2-65;showOrientationLine();
+ const view=$('#orientation-viewport'),r=person.getBoundingClientRect(),c=$('#orientation-clara').getBoundingClientRect(),v=view.getBoundingClientRect();view.scrollLeft+=(r.left+r.width/2+c.left+c.width/2)/2-v.left-view.clientWidth/2;showOrientationLine();
 }
 function finishOrientation(){
  if(!orientationStatus().complete)return;stopOrientationTalk();if(!orientationStatus().groupPhoto){groupPhotoScene();return;}
@@ -492,7 +499,7 @@ function finishOrientation(){
 $('#orientation-lobby').addEventListener('click',lobby);$('#orientation-help').addEventListener('click',()=>showChapterGuide(4));$('#orientation-toggle').addEventListener('click',()=>orientationCollapsed(!$('#orientation-chat-body').hidden));$('#orientation-finish').addEventListener('click',finishOrientation);
 $('#orientation-talk-close').addEventListener('click',()=>stopOrientationTalk(true));$('#orientation-next').addEventListener('click',()=>{if(!orientationTalk)return;if(orientationTalk.step>=1||orientationStatus().helped.includes(orientationTalk.id))openEventActivity(orientationTalk.id);else{orientationTalk.step++;showOrientationLine();}});
 $('#orientation-viewport').addEventListener('scroll',positionOrientationBubble,{passive:true});$('#orientation-viewport').addEventListener('keydown',e=>{if(e.target!==$('#orientation-viewport')||!['ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();$('#orientation-viewport').scrollBy({left:(e.key==='ArrowLeft'?-1:1)*innerWidth*.65,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});});
-addEventListener('resize',positionOrientationBubble);
+addEventListener('resize',()=>{centerOrientationConversation();positionOrientationBubble();});
 document.addEventListener('keydown',e=>{if(orientationTalk&&e.key==='Escape'){e.preventDefault();stopOrientationTalk(true);}});
 document.addEventListener('click',e=>{
  const person=e.target.closest('[data-orientation-person]');if(person){startOrientationTalk(person.dataset.orientationPerson);return;}
@@ -571,7 +578,7 @@ function keepsakeStatus(){return keepsakeModel.normalize(state.keepsakes);}
 function enterKeepsakes(){
  $('#keepsake-room').classList.remove('reflecting');$('#keepsake-reflection').hidden=true;
  stopBenTalk();stopOrientationTalk();stopClip();close(false);for(const id of ['world','chapter','journey','campus','desk-room','orientation','game-end'])$('#'+id).hidden=true;
- $('#keepsake-room').hidden=false;document.body.classList.add('in-room');state.keepsakes=keepsakeStatus();keepsakeSelected=null;keepsakeMemory='';save();$('#keepsake-title').focus({preventScroll:true});renderKeepsakeRoom();if(keepsakeStatus().letterRead){if(state.gameEnded)showGameEnd();else finishKeepsakes();}else showChapterPrelude(5);
+ $('#keepsake-room').hidden=false;document.body.classList.add('in-room');state.keepsakes=keepsakeStatus();keepsakeSelected=null;keepsakeMemory='';save();$('#keepsake-title').focus({preventScroll:true});centerKeepsakeRoom();renderKeepsakeRoom();if(keepsakeStatus().letterRead){if(state.gameEnded)showGameEnd();else finishKeepsakes();}else showChapterPrelude(5);
 }
 function renderKeepsakeRoom(){
  const p=keepsakeStatus();$('#keepsake-count').textContent=p.matched.length+' / 6 memories';$('#keepsake-room-copy').textContent=p.letterRead?'The same suitcase. A different Clara.':p.matched.length===6?'Every memory is in place. One letter is waiting.':'The things Clara brought from home are still here. What do they mean to her now?';
@@ -705,7 +712,7 @@ function endDrag(e,cancel=false){
  }
 }
 document.addEventListener('pointerup',e=>endDrag(e));document.addEventListener('pointercancel',e=>endDrag(e,true));
-window.addEventListener('resize',()=>{if(!$('#chapter').hidden)centerRoom();if(!$('#campus').hidden)centerCampus();});
+window.addEventListener('resize',()=>{if(!$('#journey').hidden)centerAirport();if(!$('#keepsake-room').hidden)centerKeepsakeRoom();if(!$('#chapter').hidden)centerRoom();if(!$('#campus').hidden)centerCampus();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopEventAudio();});
 document.documentElement.lang='en';updateResume();renderChapter();
 const previewChapter=new URLSearchParams(location.search).get('chapter');if(previewChapter==='5')enterKeepsakes();else if(previewChapter==='4')enterOrientation();else if(previewChapter==='3')enterDesk();else if(previewChapter==='2')enterCampus();
