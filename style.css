@@ -370,3 +370,5 @@ dialog.desk-dialog{width:min(590px,calc(100vw - 28px));padding:32px 30px 25px}.d
 .game-end-replay{display:block;margin:19px auto 0;font-size:12px}
 #game-end-title{letter-spacing:0;word-spacing:.12em}.game-end-friends img[alt="Clara"]{transform:translateY(18px)}
 @media(max-width:700px){.game-end-friends img{width:21%}.game-end-friends img[alt="Clara"]{width:31%}}
+/* Ben belongs in the closing group too. */
+.game-end-friends{gap:4px}.game-end-friends img{width:17%}.game-end-friends img[alt="Ben"]{height:75%}@media(max-width:700px){.game-end-friends{gap:0}.game-end-friends img{width:17.5%}.game-end-friends img[alt="Clara"]{width:27%}}
