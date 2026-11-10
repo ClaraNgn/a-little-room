@@ -84,7 +84,7 @@ function enterRoom(showGuide=true){stopBenTalk();$('#keepsake-room').hidden=true
 }
 function lobby(){stopBenTalk();$('#keepsake-room').hidden=true;stopOrientationTalk();$('#orientation').hidden=true;$('#desk-room').hidden=true;stopClip();close(false);$('#campus').hidden=true;$('#journey').hidden=true;$('#chapter').hidden=true;$('#world').hidden=false;document.body.classList.remove('in-room');selected=null;speech={kind:'welcome'};updateResume();$('#start').focus({preventScroll:true});}
 function open(html,type){
- stopEventAudio();if(!$('#dialog').open)lastFocus=document.activeElement;dialogType=type;$('#dialog').classList.toggle('event-dialog',!!type?.startsWith('event-'));$('#dialog').classList.toggle('keepsake-puzzle-dialog',type==='keepsake-puzzle');$('#dialog').classList.toggle('chapter-preface-dialog',type==='chapter-preface');$('#dialog').classList.toggle('chapter-guide',type==='chapter-guide');$('#dialog').classList.toggle('desk-dialog',!!type?.startsWith('desk-'));$('#dialog').classList.toggle('packing-dialog',type==='packing');$('#dialog').classList.toggle('campus-map-dialog',type==='campus-guide');$('#dialog').classList.toggle('campus-stamps-dialog',type==='campus-stamps');$('#dialog-content').innerHTML=html;
+ stopEventAudio();if(!$('#dialog').open)lastFocus=document.activeElement;dialogType=type;$('#dialog').classList.toggle('keepsake-letter-dialog',type==='keepsake-letter');$('#dialog').classList.toggle('event-dialog',!!type?.startsWith('event-'));$('#dialog').classList.toggle('keepsake-puzzle-dialog',type==='keepsake-puzzle');$('#dialog').classList.toggle('chapter-preface-dialog',type==='chapter-preface');$('#dialog').classList.toggle('chapter-guide',type==='chapter-guide');$('#dialog').classList.toggle('desk-dialog',!!type?.startsWith('desk-'));$('#dialog').classList.toggle('packing-dialog',type==='packing');$('#dialog').classList.toggle('campus-map-dialog',type==='campus-guide');$('#dialog').classList.toggle('campus-stamps-dialog',type==='campus-stamps');$('#dialog-content').innerHTML=html;
  if(!$('#dialog').open)$('#dialog').showModal();
  const heading=$('#dialog h2');if(heading){heading.id='active-dialog-title';heading.tabIndex=-1;$('#dialog').setAttribute('aria-labelledby','active-dialog-title');heading.focus();}else $('#close').focus();
 }
@@ -585,9 +585,11 @@ function matchKeepsake(item,outline){
  state.keepsakes=result.progress;keepsakeSelected=null;keepsakeMemory=keepsakeModel.memories[item];save();renderKeepsakeRoom();renderKeepsakePuzzle();announce(byId(item).name+' matched. '+result.progress.matched.length+' of 6 memories.');
  const next=keepsakeModel.ids.find(id=>!result.progress.matched.includes(id));(next?$('#keepsake-piece-'+next):$('#keepsake-read')).focus({preventScroll:true});
 }
-function readKeepsakeLetter(){
- if(keepsakeStatus().matched.length!==6)return;
- open(`<article class="keepsake-letter"><p class="dialog-kicker">A LETTER FROM THE BEGINNING</p><h2 class="dialog-title airport-dialog-title">Dear future me,</h2>${keepsakeModel.letter.slice(1,3).map(text=>`<p>${text}</p>`).join('')}<p class="keepsake-signature">With love,<br>Clara</p></article><div class="dialog-bottom"><button class="soft-button" data-keepsake-case>Back to my suitcase</button><button class="start" data-keepsake-finish>Carry this with me${icon('arrow')}</button></div>`,'keepsake-letter');
+let keepsakeLetterPage=0;
+function readKeepsakeLetter(page=0){
+ if(keepsakeStatus().matched.length!==6)return;keepsakeLetterPage=page===1?1:0;
+ const last=keepsakeLetterPage===1;
+ open(`<article class="keepsake-letter" aria-label="Letter page ${keepsakeLetterPage+1} of 2" tabindex="0"><h2 class="dialog-title airport-dialog-title">${keepsakeModel.letter[0]}</h2>${keepsakeModel.letterPages[keepsakeLetterPage].map(text=>`<p>${eventEscape(text)}</p>`).join('')}</article><footer class="letter-navigation"><span class="letter-page-count" aria-live="polite">Page ${keepsakeLetterPage+1} of 2</span><div class="letter-page-buttons"><button class="soft-button" data-keepsake-page="0" ${last?'':'disabled'}>Previous page</button><button class="start" ${last?'data-keepsake-finish':'data-keepsake-page="1"'}>${last?'Carry this with me':'Next page'}${icon('arrow')}</button></div><button class="text-button letter-case-link" data-keepsake-case>Back to my suitcase</button></footer>`,'keepsake-letter');$('#dialog').scrollTop=0;$('.keepsake-letter').scrollTop=0;
 }
 function finishKeepsakes(){
  if(!keepsakeStatus().letterRead)return;
@@ -601,7 +603,8 @@ document.addEventListener('click',e=>{
  if(e.target.closest('[data-keepsake-start]'))enterKeepsakes();
  if(e.target.closest('[data-keepsake-case]'))keepsakePuzzle();
  if(e.target.closest('[data-keepsake-letter]'))readKeepsakeLetter();
- if(e.target.closest('[data-keepsake-finish]')){state.keepsakes=keepsakeModel.read(state.keepsakes);save();renderKeepsakeRoom();finishKeepsakes();}
+ const letterPage=e.target.closest('[data-keepsake-page]');if(letterPage&&!letterPage.disabled)readKeepsakeLetter(Number(letterPage.dataset.keepsakePage));
+ if(e.target.closest('[data-keepsake-finish]')&&dialogType==='keepsake-letter'&&keepsakeLetterPage===1){state.keepsakes=keepsakeModel.read(state.keepsakes);save();renderKeepsakeRoom();finishKeepsakes();}
  if(e.target.closest('[data-keepsake-replay]')){state.keepsakes=keepsakeModel.normalize(null);enterKeepsakes();}
 });
 document.addEventListener('pointerdown',e=>{const item=e.target.closest('[data-keepsake-item]');if(!item||item.disabled||e.button!==0)return;memoryDrag={source:item,id:item.dataset.keepsakeItem,x:e.clientX,y:e.clientY,pointer:e.pointerId,ghost:null};});
