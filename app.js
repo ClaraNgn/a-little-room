@@ -388,7 +388,7 @@ function deskPan(side){const v=$('#desk-viewport'),target=v.scrollWidth*(side<0?
 function centerDesk(){const v=$('#desk-viewport');v.scrollLeft=innerWidth<=700?v.scrollWidth*.73-v.clientWidth/2:(v.scrollWidth-v.clientWidth)/2;$('.desk-pan').hidden=v.scrollWidth<=v.clientWidth+2;}
 function renderDesk(){
  const s=deskStatus();$('#desk-clock').textContent=deskClock(s.minutes);$('#desk-time').textContent=s.complete?'Evening complete':`${s.remaining} min until bed`;
- $('#desk-energy').innerHTML=Array.from({length:3},(_,i)=>`<i class="${i<s.energy?'filled':''}" aria-hidden="true"></i>`).join('');$('#desk-energy').ariaLabel=`Energy: ${s.energy} of 3`;
+ $('#desk-energy').innerHTML=Array.from({length:3},(_,i)=>`<i class="${i<s.energy?'filled':''}" aria-hidden="true"></i>`).join('');$('#desk-energy').ariaLabel=`Energy: ${s.energy} of 3`;$('#desk-energy-count').textContent=s.energy+' / 3';
  $('#desk-rest-note').textContent=s.complete?'Rest matters, too.':'Save 10 min for rest';$('#desk-progress').textContent=s.complete?'A little balance ✓':`${s.decisions} / 3 decisions`;
  for(const group of ['laptop','books','phone']){
   const b=$('#desk-'+group),done=!!deskChoiceFor(group);b.classList.toggle('decided',done);b.setAttribute('aria-label',({laptop:'Open the laptop assignment',books:'Look at the English reading',phone:'Read the glowing phone'})[group]+(done?' · decided':''));
