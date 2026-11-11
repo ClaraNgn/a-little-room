@@ -351,7 +351,7 @@ addEventListener('resize',()=>{if(benTalkStep!==null)positionBenBubble();});
 document.addEventListener('keydown',e=>{if(benTalkStep!==null&&e.key==='Escape'){e.preventDefault();stopBenTalk(true);}});
 function campusNotice(){
  if(campusPlace()!=='center'||!state.campusLibraryFound)return;
- open(`<h2 class="dialog-title airport-dialog-title">A place to begin.</h2><div class="campus-event"><span>YOU’RE INVITED</span><strong>International Student<br>Orientation</strong><p>New faces. Small conversations.<br>Everyone welcome.</p></div><p class="dialog-copy">I don’t have to know anyone before I go. Maybe this is how it starts.</p><div class="dialog-bottom"><button class="start" data-campus="save-event">${state.campusCenterFound?'See my stamps':'Save the invitation'}${icon('arrow')}</button></div>`,'campus-event');
+ open(`<h2 class="dialog-title airport-dialog-title">A place to begin.</h2><div class="campus-event"><span>YOU’RE INVITED</span><strong>International Student<br>Orientation</strong><p>New faces. Small conversations.<br>Everyone welcome.</p></div><div class="dialog-bottom"><button class="start" data-campus="save-event">${state.campusCenterFound?'See my stamps':'Save the invitation'}${icon('arrow')}</button></div>`,'campus-event');
 }
 function finishCampus(){
  if(campusCount()!==3)return;
