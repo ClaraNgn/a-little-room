@@ -432,3 +432,8 @@ dialog.desk-dialog{width:min(590px,calc(100vw - 28px));padding:32px 30px 25px}.d
 
 /* Keep the suitcase beside Clara and visible in the narrow dorm camera. */
 .keepsake-stage .keepsake-closed-case{left:26%;top:62%;width:14%;height:18.75%}
+
+/* Warm invitation glow keeps the Orientation noticeboard easy to find. */
+.campus-noticeboard{filter:drop-shadow(0 0 9px #ffe79eb3);animation:orientation-board-glow 2.4s ease-in-out infinite}
+@keyframes orientation-board-glow{0%,100%{filter:drop-shadow(0 0 7px #ffe79e99);box-shadow:0 0 0 3px #fff2b53d,0 0 17px #ffe39266,3px 6px 0 #7756384a}50%{filter:drop-shadow(0 0 15px #ffe79ed9);box-shadow:0 0 0 5px #fff2b56b,0 0 29px #ffe392aa,3px 6px 0 #7756384a}}
+@media(prefers-reduced-motion:reduce){.campus-noticeboard{animation:none;filter:drop-shadow(0 0 10px #ffe79eb3);box-shadow:0 0 0 4px #fff2b552,0 0 22px #ffe39288,3px 6px 0 #7756384a}}
